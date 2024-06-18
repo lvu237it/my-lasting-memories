@@ -1,55 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2'); // Hoặc mssql nếu dùng SQL Server
-const app = express();
-const port = 8000;
-
-const dotenv = require('dotenv');
-dotenv.config({
-  //việc đọc các biến môi trường từ file .env xảy ra duy nhất
-  //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
-  path: './.env',
-});
+const app = require('./app');
+const connectDB = require('./database/connection');
 
 //Xử lý các ngoại lệ không thể catch bằng các middleware xử lý hay các trình catch khác
 process.on('uncaughtException', (err) => {
   console.log('Uncaught Exception BOOM Shutting down...');
   console.log(err.name, err.message);
   process.exit(1);
-});
-
-const route = express.Router();
-
-app.use(cors());
-app.use(express.json());
-
-// Cấu hình kết nối MySQL (tương tự với mssql)
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.PORT, // Non-standard port (if applicable)
-  charset: 'utf8mb4',
-  // connectionLimit: 10, // Adjust as needed for connection pooling
-});
-
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting: ' + err.stack);
-    return;
-  }
-  app.use((req, res, next) => {
-    //next là đối số thứ 3 để truyền vào middleware
-    console.log('Hello from the middleware');
-    res.status(200).json({
-      status: 'success',
-      message: 'ok con be',
-    });
-    next();
-  });
-  console.log('Connected as id ' + connection.threadId);
-  // console.log('Connected as id ' + JSON.stringify(connection));
 });
 
 // API endpoint
@@ -60,16 +16,26 @@ connection.connect((err) => {
 //   });
 // });
 
-// app.use((req, res, next) => {
-//   //next là đối số thứ 3 để truyền vào middleware
-//   console.log('Hello from the middleware');
-//   res.status(200).json({
-//     status: 'success',
-//     message: 'ok con be',
-//   });
-//   next();
-// });
+//Connecting to database
+const startServer = () => {
+  try {
+    connectDB();
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Database connection failed:', err);
+  }
+};
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+startServer();
+
+//"Tấm lưới an toàn" cuối cùng để xử lý các lỗi không được handle
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  console.log('Unhandler Rejection BOOM Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
 });
