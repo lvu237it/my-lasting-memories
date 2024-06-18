@@ -1,6 +1,5 @@
 const mysql = require('mysql2');
 const catchAsync = require(`${__dirname}/../utils/catchAsync`);
-const { promisify } = require('util');
 
 const dotenv = require('dotenv');
 dotenv.config({
@@ -10,19 +9,33 @@ dotenv.config({
 });
 
 // Cấu hình kết nối MySQL
-const connectDB = () => {
-  const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.MYSQL_PORT,
-    charset: 'utf8mb4',
-    // connectionLimit: 10, // Adjust as needed for connection pooling
-  });
-  console.log('DB connection successful');
-  console.log('Connected as id ' + connection.threadId);
-  return connection;
+const connectionPool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.MYSQL_PORT,
+  charset: 'utf8mb4',
+  waitForConnections: true,
+  connectionLimit: 10, // Adjust as needed for connection pooling
+  queueLimit: 0,
+});
+
+/*
+Nhóm kết nối - Connection Pool - được sử dụng để cải thiện hiệu suất thực thi 
+các truy vấn trên cơ sở dữ liệu mà không có ngoại lệ, 
+ngăn việc mở và đóng kết nối thường xuyên cũng như giảm số lượng kết nối mới.
+
+Thay vì so với thông thường, với single connection, chúng ta cần phải mở kết nối đối với mỗi truy vấn,
+khiến việc thực thi chúng làm chậm ứng dụng và giảm hiệu suất
+*/
+
+// Chuyển pool.query thành hàm trả về Promise
+const poolQuery = (query, params) => {
+  return connectionPool.promise().query(query, params);
 };
 
-module.exports = connectDB;
+module.exports = {
+  connectionPool,
+  poolQuery,
+};

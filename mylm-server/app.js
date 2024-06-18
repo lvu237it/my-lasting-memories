@@ -16,7 +16,7 @@ const globalErrorHandler = require('./controllers/errorController');
 // Import routers
 //using this below like a middleware
 // const tourRouter = require('./routes/tourRoutes');
-// const userRouter = require('./routes/userRoutes');
+const userRouter = require('./routes/userRoutes');
 // const reviewRouter = require('./routes/reviewRoutes');
 // const viewRouter = require('./routes/viewRoutes');
 
@@ -73,8 +73,8 @@ app.use(xss());
 // app.use('/', viewRouter);
 // //Tours
 // app.use('/api/v1/tours', tourRouter);
-// //Users
-// app.use('/api/v1/users', userRouter);
+//Users
+app.use('/users', userRouter);
 // //Reviews
 // app.use('/api/v1/reviews', reviewRouter);
 
