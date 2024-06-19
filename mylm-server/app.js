@@ -5,13 +5,12 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // mũ bảo hiểm (helmet) là tập hợp của nhiều middleware
 const morgan = require('morgan');
-
+const bodyParser = require('body-parser');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const mysql = require('mysql2');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
-// const globalErrorHandler = require('./controllers/errorController');
 
 // Import routers
 //using this below like a middleware
@@ -28,6 +27,8 @@ app.use(helmet());
 //CORS là cơ chế cho phép các tài nguyên trên một trang web được yêu cầu từ một tên miền khác với tên miền mà tài nguyên đó được lưu trữ.
 //Đây là một tính năng bảo mật của các trình duyệt để ngăn chặn các trang web khác nhau truy cập vào các tài nguyên của nhau mà không có sự cho phép.
 app.use(cors());
+
+app.use(bodyParser.json());
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {

@@ -35,7 +35,12 @@ const poolQuery = (query, params) => {
   return connectionPool.promise().query(query, params);
 };
 
+const poolExecute = (execution, params) => {
+  return connectionPool.promise().execute(execution, params);
+};
+
 module.exports = {
   connectionPool,
   poolQuery,
+  poolExecute,
 };
