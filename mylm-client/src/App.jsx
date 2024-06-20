@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import Login from './components/Login';
+import backgroundImage from './assets/201587.jpg'; // Import hình ảnh
+import backgroundImage1 from './assets/R.jpg'; // Import hình ảnh
+import { Route, Routes } from 'react-router-dom';
+import Register from './components/Register';
 
 function App() {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:8000/api/data')
-      .then((response) => response.json())
-      .then((data) => setData(data))
-      .catch((error) => console.error('Error fetching data: ', error));
-  }, []);
-
   return (
-    <div className='container mx-auto'>
-      <h1 className='text-2xl font-bold'>Data from Server</h1>
-      <ul>
-        {data.map((item, index) => (
-          <li key={index}>{item.name}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div
+        className='text-white h-[100vh] flex justify-center items-center bg-no-repeat bg-center bg-cover'
+        style={{
+          backgroundImage: `url(${backgroundImage1})`,
+        }}
+      >
+        <Routes>
+          <Route path='login' element={<Login />}></Route>
+          <Route path='register' element={<Register />}></Route>
+        </Routes>
+      </div>
+    </>
   );
 }
 
