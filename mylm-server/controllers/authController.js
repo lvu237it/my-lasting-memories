@@ -45,11 +45,27 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { username, email, password, role } = req.body;
+  const { username, email, password } = req.body;
+
+  //Kiểm tra username
+  if (!username.match(/^[a-zA-Z\s]+$/)) {
+    return next(
+      new AppError(
+        'User name only contain alphabets characters and spaces',
+        400
+      )
+    );
+  }
 
   // Kiểm tra sự tồn tại của email và password
   if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+    return next(new AppError('Please provide email and password', 400));
+  }
+
+  // kiểm tra email tồn tại hay chưa
+  const isEmailExisted = await this.checkExistedUserByEmail(email);
+  if (isEmailExisted) {
+    return next(new AppError('Email already exists', 409));
   }
 
   // Mã hóa mật khẩu
@@ -57,8 +73,8 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const user_id = uuidv4();
   const newUser = await poolExecute(
-    'INSERT INTO users(user_id, username, email, password, role) VALUES (?,?,?,?,?)',
-    [user_id, username, email, hashedPassword, role]
+    'INSERT INTO users(user_id, username, email, password) VALUES (?,?,?,?)',
+    [user_id, username, email, hashedPassword]
   );
 
   createSendToken({ user_id, username, email }, 201, res);
@@ -69,7 +85,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   //1. Check if email and password exist
   if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+    return next(new AppError('Please provide email and password', 400));
   }
 
   // 2. Check if user exists && password is correct
@@ -87,7 +103,7 @@ exports.login = catchAsync(async (req, res, next) => {
     // 3. If everything ok, send token to client
     createSendToken(user, 200, res);
   } catch (err) {
-    return next(new AppError('Error finding user', 500));
+    return next(new AppError('Account does NOT exist', 500));
   }
 });
 
@@ -323,3 +339,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 4. Log the user in, send JWT
   createSendToken(user, 200, res);
 });
+
+exports.checkExistedUserByEmail = async (email) => {
+  const [rows, fields] = await poolQuery(
+    'SELECT * FROM users where users.email = ?',
+    [email]
+  );
+  if (!rows || rows.length === 0) {
+    return false;
+  }
+  return true;
+};

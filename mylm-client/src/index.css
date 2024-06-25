@@ -7,3 +7,30 @@ input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
   display: none;
 }
+
+/* To have both transparency and ability to change background color together */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white;
+  transition: background-color 5000s ease-in-out 0s;
+  /* box-shadow: inset 0 0 20px 20px #23232329; */
+}
+
+/* Override cho Chrome và Edge */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px inherit inset !important; /* Thay đổi màu nền */
+  background-color: transparent !important; /* Đảm bảo màu nền trong suốt */
+  color: inherit !important; /* Thay đổi màu chữ */
+  caret-color: white !important; /* Thay đổi màu của con trỏ (dấu nháy) */
+}
+
+.label-input-before {
+  @apply peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6;
+}
+
+.label-input-after {
+  @apply duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600;
+}
