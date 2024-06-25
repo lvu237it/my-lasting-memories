@@ -1,1 +1,2 @@
-"# my-lasting-memories" 
+# A small project about my blog for sharing my memories and experiences. In progress...
+
