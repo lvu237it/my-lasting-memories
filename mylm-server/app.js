@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet'); // mũ bảo hiểm (helmet) là tập hợp của nhiều middleware
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const mysql = require('mysql2');
@@ -35,6 +36,7 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 //Development logging

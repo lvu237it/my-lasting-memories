@@ -13,6 +13,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   // Effect to transform labels when inputs are filled
@@ -30,7 +31,8 @@ function Login() {
     } else {
       passwordLabel.classList.add('label-input-after');
     }
-  }, [email, password]);
+    console.log(rememberMe);
+  }, [email, password, rememberMe]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,6 +43,7 @@ function Login() {
         data: {
           email,
           password,
+          rememberMe,
         },
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +104,13 @@ function Login() {
           </div>
           <div className='flex justify-between items-center'>
             <div className='flex gap-2 items-center'>
-              <input type='checkbox' name='' id='' />
+              <input
+                type='checkbox'
+                name=''
+                id='remember-checkbox'
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               <label htmlFor='Remember Me'>Remember Me</label>
             </div>
             <Link to='' className='text-blue-500'>

@@ -81,7 +81,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
 
   //1. Check if email and password exist
   if (!email || !password) {
@@ -100,13 +100,98 @@ exports.login = catchAsync(async (req, res, next) => {
       return next(new AppError('Incorrect email or password', 401));
     }
 
-    // 3. If everything ok, send token to client
+    // 3. Handle RememberMe logic
+    //lưu trữ thông tin quan trọng liên quan tới ghi nhớ phiên đăng nhập của user
+    if (rememberMe) {
+      const series = crypto.randomBytes(16).toString('hex'); //series identifier
+      const token = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex');
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      const rememberId = uuidv4();
+      //kiểm tra xem thông tin của remember_me_tokens ứng với user_id, trước đó có tồn tại chưa
+      //Nếu có thì ghi đè lên thông tin cũ - đồng nghĩa với việc update thông tin mới, cụ thể là update [series, token, expires_at]
+      if (this.checkExistedRememberUser(user.user_id)) {
+        await poolExecute(
+          'UPDATE remember_me_tokens SET series = ?, token = ?, expires_at = ?',
+          [series, hashedToken, expiresAt]
+        );
+        console.log('User này đã từng ghi nhớ phiên đăng nhập');
+      } else {
+        //Nếu chưa từng tồn tại user_id với token ghi nhớ đăng nhập thì tạo mới
+        // Lưu thông tin vào bảng remember_me_tokens
+        await poolExecute(
+          'INSERT INTO remember_me_tokens (id, user_id, series, token, expires_at) VALUES (?, ?, ?, ?, ?)',
+          [rememberId, user.user_id, series, hashedToken, expiresAt]
+        );
+      }
+      // Đặt cookie Remember Me
+      const cookieOptions = {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      };
+      if (process.env.NODE_ENV === 'production') {
+        cookieOptions.secure = true; // Chỉ sử dụng cookie bảo mật trong môi trường production
+      }
+      res.cookie('remember_me', `${series}:${token}`, cookieOptions);
+    }
+    // 4. If everything ok, send token to client
     createSendToken(user, 200, res);
   } catch (err) {
     return next(new AppError('Account does NOT exist', 500));
   }
 });
 
+//kiểm tra trước đó đã từng ghi nhớ phiên đăng nhập của user trên trình duyệt (form login) hay chưa
+exports.checkRememberMe = async (req, res, next) => {
+  if (req.cookies.remember_me) {
+    const [series, token] = req.cookies.remember_me.split(':');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const [rows] = await poolExecute(
+      'SELECT * FROM remember_me_tokens WHERE series = ? AND token = ? AND expires_at > NOW()',
+      [series, hashedToken]
+    );
+
+    if (rows.length > 0) {
+      // const user = await poolExecute('SELECT * FROM users WHERE user_id = ?', [
+      //   rows[0].user_id,
+      // ]);
+      // req.user = user[0];
+
+      // // Tạo mới token và cập nhật lại trong cơ sở dữ liệu
+      // const newToken = crypto.randomBytes(32).toString('hex');
+      // const newHashedToken = crypto
+      //   .createHash('sha256')
+      //   .update(newToken)
+      //   .digest('hex');
+      // const newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      // await poolExecute(
+      //   'UPDATE remember_me_tokens SET token = ?, expires_at = ? WHERE series = ?',
+      //   [newHashedToken, newExpiresAt, series]
+      // );
+
+      // // Đặt lại cookie Remember Me với token mới
+      // res.cookie('remember_me', `${series}:${newToken}`, {
+      //   httpOnly: true,
+      //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      //   secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được truyền qua kết nối HTTPS
+      // });
+
+      // Giữ trạng thái đăng nhập và tiếp tục xử lý request
+      return next();
+    }
+  }
+  // Nếu không tìm thấy hoặc cookie đã hết hạn, xóa cookie và chuyển hướng đến trang đăng nhập
+  res.clearCookie('remember_me');
+  // Nếu không có cookie Remember Me, chuyển hướng đến trang đăng nhập
+  res.redirect('/login');
+};
+
+//So sánh input password và password trong database
 const correctPassword = async function (candidatePassword, userPassword) {
   // console.log('candidatePassword vs userPassword');
   // console.log('candidatePassword: ' + candidatePassword);
@@ -114,6 +199,8 @@ const correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+//Kiểm tra password có bị thay đổi sau khi tạo token hay không
+//Nếu có => cần tạo token mới dựa vào password mới thay đổi
 const changedPasswordAfter = (JWTTimestamp) => {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
@@ -344,6 +431,17 @@ exports.checkExistedUserByEmail = async (email) => {
   const [rows, fields] = await poolQuery(
     'SELECT * FROM users where users.email = ?',
     [email]
+  );
+  if (!rows || rows.length === 0) {
+    return false;
+  }
+  return true;
+};
+
+exports.checkExistedRememberUser = async (user_id) => {
+  const [rows, fields] = await poolQuery(
+    'SELECT * FROM remember_me_tokens where user_id = ?',
+    [user_id]
   );
   if (!rows || rows.length === 0) {
     return false;
