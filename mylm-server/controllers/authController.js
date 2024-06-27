@@ -68,6 +68,14 @@ exports.signup = catchAsync(async (req, res, next) => {
     return next(new AppError('Email already exists', 409));
   }
 
+  if (
+    !email.match(
+      /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/
+    )
+  ) {
+    return next(new AppError('Invalid email format', 400));
+  }
+
   // Mã hóa mật khẩu
   const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -240,7 +248,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   //destructuring promisify của node và sử dụng như promise
   //vì .verify là hàm synchronous nên nó cần được parse thành 1 promise thì mới có thể sử dụng await
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
+  console.log('decoded', decoded);
   //3. Check if user still exists - Kiểm tra sự tồn tại của người dùng
   // Kiểm tra người dùng từ mã đã được decode
 
@@ -343,7 +351,8 @@ const createPasswordResetToken = () => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await userController.findUserByEmail(req.body.email);
+  const { email } = req.body;
+  const user = await userController.findUserByEmail(email);
   if (!user) {
     return next(new AppError('There is no user with email address', 404));
   }
@@ -356,9 +365,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     [passwordResetToken, new Date(passwordResetExpires), user.user_id]
   );
 
-  const resetURL = `${req.protocol}://${req.get(
-    'host'
-  )}/users/resetPassword/${resetToken}`;
+  //------------Đường dẫn này là 'patch' - dùng để test API reset password
+  // const resetURL = `${req.protocol}://${req.get(
+  //   'host'
+  // )}/users/resetPassword/${resetToken}`;
+
+  //------------Đường dẫn này là 'get' - dùng để gửi trực tiếp cho users và routing tới trang reset password
+  const frontendUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
+  const resetURL = `${frontendUrl}/resetpassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
@@ -388,8 +402,30 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.verifyResetToken = catchAsync(async (req, res, next) => {
+  const { token } = req.params;
+  console.log('resetToken in verifyResetToken', token);
+
+  // 1. Get user based on the token
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const [rows] = await poolQuery(
+    'SELECT * FROM users WHERE passwordResetToken = ? AND passwordResetExpires > ?',
+    [hashedToken, new Date()]
+  );
+
+  const user = rows[0];
+  console.log('user by token? ', user);
+
+  // Token invalid or expired
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 400));
+  }
+});
+
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const { password, passwordConfirm } = req.body;
+  const { token } = req.params;
 
   if (password !== passwordConfirm) {
     return next(
@@ -398,10 +434,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   }
 
   // 1. Get user based on the token
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
   const [rows] = await poolQuery(
     'SELECT * FROM users WHERE passwordResetToken = ? AND passwordResetExpires > ?',
@@ -409,11 +442,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   );
 
   const user = rows[0];
-
-  // 2. If token has not expired, and there is user, set the new password
-  if (!user) {
-    return next(new AppError('Token is invalid or has expired', 400));
-  }
 
   const newPassword = await bcrypt.hash(password, 12);
 

@@ -113,7 +113,7 @@ function Login() {
               />
               <label htmlFor='Remember Me'>Remember Me</label>
             </div>
-            <Link to='' className='text-blue-500'>
+            <Link to='/forgotpassword' className='text-blue-500'>
               Forgot Password?
             </Link>
           </div>
