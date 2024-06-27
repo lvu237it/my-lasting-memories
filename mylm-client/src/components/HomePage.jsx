@@ -45,37 +45,70 @@ function HomePage() {
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
     setHeaderIconsClicked(iconId);
-    console.log(`Clicked icon id: ${iconId}`);
   };
 
   useEffect(() => {
-    console.log(`Current clicked icon: ${headerIconsClicked}`);
     const iconClicked = document.getElementById(headerIconsClicked);
     //thêm classList để focus vào icon đang được chọn
 
+    //Truy xuất toàn bộ các element có class cùng tên 'left-sidebar-icons'
     const allHeaderIcons = Array.from(
       document.querySelectorAll('.left-sidebar-icons')
     );
+    //Lọc ra các element không phải element (icon) được clicked
     const unclickedHeaderIcons = allHeaderIcons.filter(
       (icon) => icon.id !== iconClicked
     );
+    //Lặp qua các unclicked element đó và unfocus
     unclickedHeaderIcons.forEach((e) => {
-      e.classList.remove('bg-gray-100', 'shadow', 'shadow-slate-200');
+      e.classList.remove(
+        'bg-gray-100',
+        'shadow',
+        'shadow-slate-200',
+        'scale-110'
+      );
       e.classList.add(
         'hover:bg-gray-100',
         'hover:shadow',
-        'hover:shadow-slate-200'
+        'hover:shadow-slate-200',
+        'scale-90'
       );
+      if (e.hasChildNodes()) {
+        const childElements = e.children;
+        // Kiểm tra số lượng phần tử con
+        if (childElements[1]) {
+          childElements[0].classList.add('block');
+          childElements[0].classList.remove('hidden');
+          childElements[1].classList.add('hidden');
+        }
+      }
     });
+    //focus vào clicked element sau khi đã unfocus các element còn lại
     if (iconClicked) {
-      // Kiểm tra sự tồn tại của phần tử
       // Thêm classList để focus vào icon đang được chọn
       iconClicked.classList.remove(
         'hover:bg-gray-100',
         'hover:shadow',
-        'hover:shadow-slate-200'
+        'hover:shadow-slate-200',
+        'scale-90'
       );
-      iconClicked.classList.add('bg-gray-100', 'shadow', 'shadow-slate-200');
+      iconClicked.classList.add(
+        'bg-gray-100',
+        'shadow',
+        'shadow-slate-200',
+        'scale-110'
+      );
+      //Nếu icon nào có icon khác (thay vì chỉ có 1 icon như mặc định) thì hiển thị icon đó
+      if (iconClicked.hasChildNodes()) {
+        const childElements = iconClicked.children;
+        // Kiểm tra số lượng phần tử con
+        if (childElements[1]) {
+          childElements[0].classList.add('hidden');
+          childElements[0].classList.remove('block');
+          childElements[1].classList.add('block');
+          childElements[1].classList.remove('hidden');
+        }
+      }
     }
   }, [headerIconsClicked]);
 
@@ -100,43 +133,46 @@ function HomePage() {
                   className='left-sidebar-icons'
                   onClick={(e) => handleClickHeaderIcons(e)}
                 >
-                  <BiHome />
-                  {/* <AiFillHome /> */}
+                  <BiHome
+                    id='header-icon-bi-home-before'
+                    className='header-icons-common'
+                  />
+                  <AiFillHome id='header-icon-bi-home-after' />
                 </div>
                 <div
                   id='header-icon-bi-search'
                   className='left-sidebar-icons'
                   onClick={(e) => handleClickHeaderIcons(e)}
                 >
-                  <BiSearch />
-                  {/* <BiSolidSearch /> */}
+                  <BiSearch id='header-icon-bi-search-before' />
+                  <BiSolidSearch id='header-icon-bi-search-after' />
                 </div>
                 <div
                   id='header-icon-bi-bell'
                   className='left-sidebar-icons'
                   onClick={(e) => handleClickHeaderIcons(e)}
                 >
-                  <BiBell />
-                  {/* <AiFillBell />
-              <BiSolidBellRing /> */}
-                </div>
-                <div
-                  id='header-icon-bi-bell-ring'
-                  className='left-sidebar-icons'
-                  onClick={(e) => handleClickHeaderIcons(e)}
-                >
-                  <BiSolidPlaylist />
+                  <BiBell id='header-icon-bi-bell-before' />
+                  <AiFillBell id='header-icon-bi-bell-after' />
+                  {/* <BiSolidBellRing /> */}
                 </div>
                 <div
                   id='header-icon-bi-playlist'
                   className='left-sidebar-icons'
                   onClick={(e) => handleClickHeaderIcons(e)}
                 >
-                  <BiBookmark />
-                  {/* <BiSolidBookmark /> */}
+                  <BiSolidPlaylist />
                 </div>
                 <div
                   id='header-icon-bi-bookmark'
+                  className='left-sidebar-icons'
+                  onClick={(e) => handleClickHeaderIcons(e)}
+                >
+                  <BiBookmark id='header-icon-bi-bookmark-before' />
+                  <BiSolidBookmark id='header-icon-bi-bookmark-before' />
+                </div>
+                <div
+                  id='header-icon-bi-message'
                   className='left-sidebar-icons'
                   onClick={(e) => handleClickHeaderIcons(e)}
                 >
