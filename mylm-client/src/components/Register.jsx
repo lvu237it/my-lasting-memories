@@ -60,98 +60,100 @@ function Register() {
 
   return (
     <>
-      <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
-        <h1 className='text-4xl font-bold text-center mb-6'>Register</h1>
-        <form action=''>
-          {errorMessage && (
-            <div className='max-w-[288px] text-center text-yellow-200 mb-4'>
-              {errorMessage}
+      <div className='background-image-common'>
+        <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
+          <h1 className='text-4xl font-bold text-center mb-6'>Register</h1>
+          <form action=''>
+            {errorMessage && (
+              <div className='max-w-[288px] text-center text-yellow-200 mb-4'>
+                {errorMessage}
+              </div>
+            )}
+            <div className='relative my-4'>
+              <input
+                autoFocus
+                className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
+                placeholder=' '
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                type='text'
+              />
+              <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
+                Your User name
+              </label>
+              <BiUser className='absolute top-[14px] right-4' />
             </div>
-          )}
-          <div className='relative my-4'>
-            <input
-              autoFocus
-              className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
-              placeholder=' '
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              type='text'
-            />
-            <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
-              Your User name
-            </label>
-            <BiUser className='absolute top-[14px] right-4' />
-          </div>
-          <div className='relative my-4'>
-            <input
-              className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
-              placeholder=' '
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type='text'
-            />
-            <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
-              Your Email
-            </label>
-            <BiUser className='absolute top-[14px] right-4' />
-          </div>
-          <div className='relative my-4'>
-            <input
-              className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
-              placeholder=' '
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type={showPassword ? 'text' : 'password'}
-            />
-            <label className='absolute flex text-base  duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-              Your Password
-            </label>
-            <div
-              className='absolute top-[14px] right-10 cursor-pointer'
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            <div className='relative my-4'>
+              <input
+                className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
+                placeholder=' '
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type='text'
+              />
+              <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
+                Your Email
+              </label>
+              <BiUser className='absolute top-[14px] right-4' />
             </div>
-            <AiOutlineLock className='absolute top-[14px] right-4' />
-          </div>
-          <div className='relative my-4'>
-            <input
-              className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
-              placeholder=' '
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              type={showConfirmPassword ? 'text' : 'password'}
-            />
-            <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-              Confirm Password
-            </label>
-            <div
-              className='absolute top-[14px] right-10 cursor-pointer'
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? (
-                <AiOutlineEyeInvisible />
-              ) : (
-                <AiOutlineEye />
-              )}
+            <div className='relative my-4'>
+              <input
+                className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
+                placeholder=' '
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPassword ? 'text' : 'password'}
+              />
+              <label className='absolute flex text-base  duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
+                Your Password
+              </label>
+              <div
+                className='absolute top-[14px] right-10 cursor-pointer'
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </div>
+              <AiOutlineLock className='absolute top-[14px] right-4' />
             </div>
-            <AiOutlineLock className='absolute top-[14px] right-4' />
-          </div>
+            <div className='relative my-4'>
+              <input
+                className='block w-72 py-2.5 px-0 text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer'
+                placeholder=' '
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                type={showConfirmPassword ? 'text' : 'password'}
+              />
+              <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
+                Confirm Password
+              </label>
+              <div
+                className='absolute top-[14px] right-10 cursor-pointer'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <AiOutlineEyeInvisible />
+                ) : (
+                  <AiOutlineEye />
+                )}
+              </div>
+              <AiOutlineLock className='absolute top-[14px] right-4' />
+            </div>
 
-          <button
-            onClick={(e) => handleRegister(e)}
-            className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
-            type='submit'
-          >
-            Register
-          </button>
-          <div className='flex justify-center items-center gap-3'>
-            <span className=''>Already Create an Account? </span>
-            <Link className='text-blue-500' to='/login'>
-              Login
-            </Link>
-          </div>
-        </form>
+            <button
+              onClick={(e) => handleRegister(e)}
+              className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
+              type='submit'
+            >
+              Register
+            </button>
+            <div className='flex justify-center items-center gap-3'>
+              <span className=''>Already Create an Account? </span>
+              <Link className='text-blue-500' to='/login'>
+                Login
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </>
   );

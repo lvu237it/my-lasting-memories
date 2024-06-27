@@ -11,23 +11,13 @@ import ResetPassword from './components/ResetPassword';
 function App() {
   return (
     <>
-      <div
-        className='text-white h-[100vh] flex justify-center items-center bg-no-repeat bg-center bg-cover'
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-        }}
-      >
-        <Routes>
-          <Route path='/' element={<HomePage />}></Route>
-          <Route path='login' element={<Login />}></Route>
-          <Route path='register' element={<Register />}></Route>
-          <Route path='forgotpassword' element={<ForgotPassword />}></Route>
-          <Route
-            path='resetpassword/:token'
-            element={<ResetPassword />}
-          ></Route>
-        </Routes>
-      </div>
+      <Routes>
+        <Route path='/' element={<HomePage />}></Route>
+        <Route path='login' element={<Login />}></Route>
+        <Route path='register' element={<Register />}></Route>
+        <Route path='forgotpassword' element={<ForgotPassword />}></Route>
+        <Route path='resetpassword/:token' element={<ResetPassword />}></Route>
+      </Routes>
     </>
   );
 }
