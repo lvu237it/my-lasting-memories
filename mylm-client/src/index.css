@@ -100,3 +100,7 @@ a {
 .nav-link-routing {
   @apply my-2 hover:-translate-x-3 ease-in-out duration-500 hover:text-left hover:border-slate-50;
 }
+
+.no-scroll {
+  overflow: hidden;
+}

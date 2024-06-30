@@ -10,6 +10,7 @@ export default {
       // mxs: '500px',
       // xmd: '1023px',
       sm2: '675px',
+      md2: '876px',
       ...defaultTheme.screens,
     },
     extend: {
@@ -29,10 +30,6 @@ export default {
           '0%': { transform: 'translateY(-100%)' },
           '100%': { transform: 'translateY(0)' },
         },
-        navbarSlide: {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(0)' },
-        },
         fadeIn: {
           from: { opacity: 0 },
           to: { opacity: 1 },
@@ -41,11 +38,7 @@ export default {
       animation: {
         slideDown: 'slideDown 0.5s ease-in-out',
         fadeIn: 'fadeIn 0.5s ease-in-out',
-        navbarSlide: 'navbarSlide 0.5s ease-in-out',
       },
-      // backgroundImage: {
-      //   'slider-bg': 'url("./img/slider-coffee-style.jpg")',
-      // }
     },
   },
   plugins: [],

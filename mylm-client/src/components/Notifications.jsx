@@ -1,5 +1,245 @@
+import { useState, useEffect } from 'react';
+
 function Notifications() {
-  return <div>Notifications</div>;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-fadeIn');
+      } else {
+        entry.target.classList.remove('animate-fadeIn');
+        entry.target.classList.add('z-0');
+      }
+    });
+  });
+
+  useEffect(() => {
+    const sectionPostedItems = document.querySelectorAll('.result-item');
+    sectionPostedItems.forEach((section) => observer.observe(section));
+
+    return () => {
+      sectionPostedItems.forEach((section) => observer.unobserve(section));
+    };
+  }, []);
+
+  return (
+    <>
+      <div className='wrapper my-3'>
+        <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
+          <div className='grid-search-results'>
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+            <hr className='mb-5' />
+            <div className='result-item grid grid-cols-12 relative mb-[85px]'>
+              <div className='image-avatar col-span-1 absolute top-0 left-0'>
+                <img
+                  src='201587.jpg'
+                  alt=''
+                  className='rounded-full w-12 h-12'
+                />
+              </div>
+              <div className='result-content col-span-9 absolute top-0 left-16'>
+                <div className=''>
+                  <div className='name-and-posted-at'>
+                    <div className='font-semibold'>Luu Vu</div>
+                    <div className='text-slate-700 opacity-70'>Posted at</div>
+                    <div className='result-little-detail w-[200px] md:w-[300px] md2:w-[400px] lg:w-[450px] xl:w-[680px] whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                      Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời.
+                      Dù có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý
+                      khoảng thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình
+                      rằng không được quên đi quá khứ. Bởi chính tôi trong quá
+                      khứ đã vượt qua tất cả để có được tôi ở hiện tại
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='button-view-details col-span-2 absolute top-0 right-0'>
+                <button className='post-button font-semibold px-4 py-2 border-slate-300 rounded-xl shadow shadow-slate-300'>
+                  Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default Notifications;

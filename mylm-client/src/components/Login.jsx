@@ -49,7 +49,7 @@ function Login() {
           'Content-Type': 'application/json',
         },
       });
-      console.log('Login successful:', response.data);
+      console.log('Login successful');
       // Xử lý response sau khi đăng nhập thành công
       navigate('/');
     } catch (error) {
