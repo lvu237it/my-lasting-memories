@@ -202,7 +202,7 @@ function HomePage() {
                     </div>
                   </div>
                   <div className='post-content-description mt-10 sm2:my-0'>
-                    <div className=' sm:flex gap-2'>
+                    <div className='sm:flex gap-2'>
                       <div className='sm:basis-1/10'>
                         <img
                           className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'

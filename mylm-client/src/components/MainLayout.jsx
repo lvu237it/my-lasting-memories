@@ -99,7 +99,7 @@ const MainLayout = () => {
     } else if (headerIconsClicked === 'header-icon-bi-message') {
       navigate('/messages');
     }
-  }, [headerIconsClicked]);
+  }, [headerIconsClicked, navigate]);
 
   const handleClickOutside = (event) => {
     if (
