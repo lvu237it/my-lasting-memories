@@ -25,11 +25,6 @@ function Search() {
   return (
     <>
       <div className='wrapper my-3 relative'>
-        <div className='flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed z-[1000] right-10 bottom-10 sm2:right-20 sm2:bottom-8 md:right-3 md:bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'>
-          <div className='add-post-icon text-2xl p-3'>
-            <BiPencil />
-          </div>
-        </div>
         <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
           <div className=' search-input tracking-wide rounded-2xl leading-8 border border-slate-300 mb-6'>
             <div className='flex gap-2 px-4 py-2 rounded-2xl bg-slate-50'>

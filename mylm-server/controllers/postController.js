@@ -73,8 +73,8 @@ exports.createPost = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePost = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id; //post_id là giá trị được tạo trực tiếp trong quá trình chạy, không phải đối tượng {}
   //Not need to check if post_id is exist because using getPostById before
-  const post_id = req.post_id;
   const { content } = req.body;
 
   await poolExecute('UPDATE posts SET content = ? where post_id = ?', [
@@ -89,9 +89,7 @@ exports.updatePost = catchAsync(async (req, res, next) => {
 });
 
 exports.deletePost = catchAsync(async (req, res, next) => {
-  const post_id = req.post_id; //post_id là giá trị trực tiếp được tạo trong quá trình chạy, không phải đối tượng {}
-  console.log('post id', post_id);
-
+  const post_id = req.post_id; //post_id là giá trị được tạo trực tiếp trong quá trình chạy, không phải đối tượng {}
   //Not need to check if post_id is exist because using getPostById before
 
   const currentDateTime = moment()
