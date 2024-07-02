@@ -122,52 +122,12 @@ const MainLayout = () => {
     }
   }, [headerIconsClicked]);
 
-  // const handleClickOutside = (event) => {
-  //   if (
-  //     navbarIconRef.current &&
-  //     navbarSliderRef.current &&
-  //     !navbarIconRef.current.contains(event.target) &&
-  //     !navbarSliderRef.current.contains(event.target)
-  //   ) {
-  //     setShowNavbarSlider(false);
-  //   }
-  // };
-
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // const handleClickNavbarIcon = () => {
-  //   setShowNavbarSlider(!showNavbarSlider);
-  // };
-
-  // const handleOpenPostModal = () => {
-  //   setPostModal(true);
-  //   console.log('open modal');
-  // };
-
-  // const handleClosePostModal = (e) => {
-  //   e.preventDefault();
-  //   if (hasPostContent) {
-  //     setShowDiscardModal(true);
-  //   } else {
-  //     setPostModal(false);
-  //   }
-  // };
-
-  // const handleClickPostNew = (e) => {
-  //   console.log('ok');
-  //   if (e.target.value.trim()) {
-  //     setHasPostContent(true);
-  //     console.log('change');
-  //   } else {
-  //     setHasPostContent(false);
-  //     console.log('not change');
-  //   }
-  // };
 
   useEffect(() => {
     if (discard) {

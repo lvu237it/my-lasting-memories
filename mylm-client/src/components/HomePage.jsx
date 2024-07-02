@@ -12,35 +12,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { useCommon } from '../contexts/CommonContext';
 
 function HomePage() {
-  const {
-    showNavbarSlider,
-    setShowNavbarSlider,
-    navbarIconRef,
-    navbarSliderRef,
-    headerIconsClicked,
-    setHeaderIconsClicked,
-    showIcon,
-    setShowIcon,
-    handleClickHeaderIcons,
-    handleClickNavbarIcon,
-    handleOpenPostModal,
-    handleClosePostModal,
-    handleClickPostNew,
-    handleClickOutside,
-    postModal,
-    setPostModal,
-    hasPostContent,
-    setHasPostContent,
-    showdiscardModal,
-    setShowDiscardModal,
-    clickCancelDiscard,
-    setClickCancelDiscard,
-    discard,
-    setDiscard,
-    textareaRef,
-  } = useCommon();
-
-  const navigate = useNavigate();
+  const { handleOpenPostModal, postModal } = useCommon();
 
   // useEffect(() => {
   //   const checkRememberMeSession = async () => {
