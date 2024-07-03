@@ -6,9 +6,10 @@ const { promisify } = require('util');
 const userController = require('./userController');
 const moment = require('moment-timezone');
 
+//Get existed posts (EXCEPT deleted posts)
 exports.getAllPosts = catchAsync(async (req, res, next) => {
   const [rows, fields] = await poolQuery(
-    'select * from posts order by created_at desc'
+    'select * from posts where true and posts.is_deleted = false order by created_at desc'
   );
 
   if (!rows) {

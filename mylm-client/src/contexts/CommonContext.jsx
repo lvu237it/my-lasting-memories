@@ -27,6 +27,7 @@ export const Common = ({ children }) => {
   const [clickCancelDiscard, setClickCancelDiscard] = useState(false);
   const [discard, setDiscard] = useState(false);
   const textareaRef = useRef(null);
+  const addPostIconRef = useRef(null);
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
@@ -158,6 +159,7 @@ export const Common = ({ children }) => {
         getAuthorNameOfPostByUserId,
         handleCreatePost,
         ToastContainer,
+        addPostIconRef,
         // notify,
       }}
     >

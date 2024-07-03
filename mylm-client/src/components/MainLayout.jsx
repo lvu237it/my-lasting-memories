@@ -53,6 +53,7 @@ const MainLayout = () => {
     textareaRef,
     handleCreatePost,
     ToastContainer,
+    addPostIconRef,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -167,6 +168,7 @@ const MainLayout = () => {
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
       <div
         id='add-post-icon'
+        ref={addPostIconRef}
         className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-3 bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
       >
         <div onClick={handleOpenPostModal} className='text-2xl p-3'>

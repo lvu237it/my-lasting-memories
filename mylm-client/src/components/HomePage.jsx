@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import {
+  BiBookmark,
+  BiBookmarkAltMinus,
+  BiBookmarkMinus,
   BiDotsHorizontalRounded,
   BiDotsVertical,
   BiDotsVerticalRounded,
+  BiEdit,
   BiFileBlank,
   BiImageAdd,
+  BiLogoMarkdown,
   BiPencil,
   BiPlusCircle,
+  BiSave,
+  BiTrash,
+  BiTrashAlt,
   BiUserVoice,
   BiVideoPlus,
 } from 'react-icons/bi';
@@ -25,11 +34,19 @@ function HomePage() {
     getAllUsers,
     getAllPosts,
     getAuthorNameOfPostByUserId,
+    addPostIconRef,
+    ToastContainer,
   } = useCommon();
+
   const [viewPostDetails, setViewPostDetails] = useState(false);
   const postDetailsRef = useRef(null);
+  const optionsModalRef = useRef(null);
   const [chosenPost, setChosenPost] = useState(null);
+  const [isSavedPost, setIsSavedPost] = useState(true);
+  const [openOptionsModal, setOpenOptionsModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
+  const navigate = useNavigate();
   // useEffect(() => {
   //   const checkRememberMeSession = async () => {
   //     try {
@@ -48,6 +65,44 @@ function HomePage() {
   //   };
   //   checkRememberMeSession();
   // });
+
+  const handleFinallyRemovePost = async () => {
+    try {
+      await axios.patch(
+        `http://127.0.0.1:3000/posts/delete/${chosenPost.post_id}`
+      );
+      // setPostModal(false);
+      // textareaRef.current.value = '';
+      // setHasPostContent(false);
+      setOpenDeleteModal(false);
+      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000); // Tự động reload sau 3 giây
+    } catch (error) {
+      console.error('Error deleting post', error);
+      setOpenDeleteModal(false);
+      toast.error('Xoá bài không thành công. Vui lòng thử lại.');
+    }
+  };
+
+  const handleRemovePostWarning = () => {
+    setOpenOptionsModal(false);
+    setOpenDeleteModal(true);
+  };
+
+  const handleClickOutsideOptionsModal = (event) => {
+    if (
+      optionsModalRef.current &&
+      !optionsModalRef.current.contains(event.target)
+    ) {
+      setOpenOptionsModal(false);
+    }
+  };
+
+  const handleSetOptionsModal = () => {
+    setOpenOptionsModal(!openOptionsModal);
+  };
 
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
@@ -102,6 +157,25 @@ function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    const addPostIcon = addPostIconRef.current;
+
+    if (openOptionsModal || openDeleteModal) {
+      addPostIcon.classList.remove('z-[1000]');
+      addPostIcon.classList.add('hidden');
+    } else {
+      addPostIcon.classList.remove('hidden');
+      addPostIcon.classList.add('z-[1000]');
+    }
+  }, [openOptionsModal, openDeleteModal]);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutsideOptionsModal);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideOptionsModal);
+    };
+  }, []);
+
   return (
     <>
       <div className='header-feedscontent my-3'>
@@ -114,7 +188,96 @@ function HomePage() {
               >
                 <BiArrowBack />
               </button>
-              <div className='post-details max-w-screen-md mx-auto text-sm sm2:text-base'>
+              <div className='relative post-details max-w-screen-md mx-auto text-sm sm2:text-base'>
+                {openOptionsModal && (
+                  <>
+                    <div
+                      id='options-modal-background'
+                      className='z-10 block sm2:hidden fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                    ></div>
+                    <div
+                      ref={optionsModalRef}
+                      className=' options-modal z-20 absolute w-full translate-y-3/4 sm2:translate-y-0 sm2:top-8 sm2:right-0 sm2:w-[155px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
+                    >
+                      <div className=' '>
+                        <div
+                          id='saved-unsaved-post'
+                          className='cursor-pointer px-3 py-2 hover:bg-slate-100 hover:rounded-lg'
+                        >
+                          {isSavedPost ? (
+                            <div className=' grid grid-cols-12'>
+                              <div className='col-span-11'>Lưu bài viết</div>
+                              <BiBookmark className='col-span-1 my-auto' />
+                            </div>
+                          ) : (
+                            <div className='grid grid-cols-12 '>
+                              <div className='col-span-11'>Bỏ lưu</div>
+                              <BiBookmarkMinus className='col-span-1 my-auto' />
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          id='edit-post'
+                          className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                        >
+                          <div className='col-span-11'>Chỉnh sửa</div>
+                          <BiEdit className='col-span-1 my-auto' />
+                        </div>
+                        <div
+                          onClick={handleRemovePostWarning}
+                          id='delete-post'
+                          className='delete-post grid grid-cols-12 text-red-500 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                        >
+                          <div className='col-span-11'>Xoá bài </div>
+                          <BiTrashAlt className='col-span-1 my-auto' />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Modal delete post */}
+                {openDeleteModal && (
+                  <>
+                    <div
+                      id='background-delete-post-modal'
+                      className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                    >
+                      <div className='w-full h-full flex justify-center items-center'>
+                        <div id='delete-post-modal' className='relative z-20'>
+                          <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                            <div className='mb-4'>
+                              <div className='font-semibold text-center mb-4'>
+                                Xoá bài đăng?
+                              </div>
+                              <div className='text-center mb-3'>
+                                Sau khi xoá, bạn sẽ không thể khôi phục.
+                              </div>
+                            </div>
+                            <hr className='' />
+                            <div className='grid grid-cols-2 text-center divide-x-2'>
+                              <div
+                                id='cancel-final-delete'
+                                onClick={() => setOpenDeleteModal(false)}
+                                className='col-span-1 cursor-pointer p-2'
+                              >
+                                Huỷ
+                              </div>
+                              <div
+                                onClick={handleFinallyRemovePost}
+                                id='finally-delete'
+                                className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                              >
+                                Xoá
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 <div className='details-chosen-post grid grid-cols-12 relative'>
                   <div className='col-span-1'>
                     <img
@@ -137,7 +300,10 @@ function HomePage() {
                           </div>
                         </div>
                       </div>
-                      <div className='absolute top-0 right-0 text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'>
+                      <div
+                        onClick={handleSetOptionsModal}
+                        className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                      >
                         <BiDotsHorizontalRounded />
                       </div>
                     </div>
@@ -145,7 +311,6 @@ function HomePage() {
                 </div>
                 <div className='content feeds-content-bottom-description break-words mt-16'>
                   {chosenPost.content}
-                  iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsadsads123456789
                 </div>
               </div>
             </div>
