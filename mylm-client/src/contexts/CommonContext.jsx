@@ -1,4 +1,7 @@
 import { createContext, useContext, useRef, useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CommonContext = createContext();
 
@@ -24,6 +27,12 @@ export const Common = ({ children }) => {
   const [clickCancelDiscard, setClickCancelDiscard] = useState(false);
   const [discard, setDiscard] = useState(false);
   const textareaRef = useRef(null);
+
+  const [postsList, setPostsList] = useState([]);
+  const [usersList, setUsersList] = useState([]);
+  const [postContent, setPostContent] = useState('');
+
+  // const notify = () => toast('Đăng bài thành công!');
 
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
@@ -52,9 +61,11 @@ export const Common = ({ children }) => {
     if (e.target.value.trim()) {
       setHasPostContent(true);
       console.log('change');
+      setPostContent(e.target.value.trim());
     } else {
       setHasPostContent(false);
       console.log('not change');
+      setPostContent('');
     }
   };
 
@@ -66,6 +77,47 @@ export const Common = ({ children }) => {
       !navbarSliderRef.current.contains(event.target)
     ) {
       setShowNavbarSlider(false);
+    }
+  };
+
+  const getAllPosts = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:3000/posts/');
+      setPostsList(response.data);
+    } catch (error) {
+      console.error('Error getting all posts', error);
+    }
+  };
+
+  const getAllUsers = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:3000/users/');
+      setUsersList(response.data);
+    } catch (error) {
+      console.error('Error getting all users', error);
+    }
+  };
+
+  const getAuthorNameOfPostByUserId = (userId) => {
+    const user = usersList.find((user) => user.user_id === userId);
+    return user?.username;
+  };
+
+  const handleCreatePost = async () => {
+    try {
+      await axios.post('http://127.0.0.1:3000/posts/createpost', {
+        user_id: '7634b4ee-e27e-4d03-8e61-d7d6d4459607', //admin
+        // user_id: 'a5d5d5ce-d544-439d-86c2-0069690245c2', //user
+        content: postContent,
+      });
+      setPostModal(false);
+      textareaRef.current.value = '';
+      setHasPostContent(false);
+      toast.success('Đăng bài thành công!');
+    } catch (error) {
+      console.error('Error creating post', error);
+      setPostModal(false);
+      toast.error('Đăng bài không thành công. Vui lòng thử lại.');
     }
   };
 
@@ -88,6 +140,8 @@ export const Common = ({ children }) => {
         handleClickOutside,
         postModal,
         setPostModal,
+        postContent,
+        setPostContent,
         hasPostContent,
         setHasPostContent,
         showdiscardModal,
@@ -97,6 +151,14 @@ export const Common = ({ children }) => {
         discard,
         setDiscard,
         textareaRef,
+        getAllUsers,
+        getAllPosts,
+        postsList,
+        usersList,
+        getAuthorNameOfPostByUserId,
+        handleCreatePost,
+        ToastContainer,
+        // notify,
       }}
     >
       {children}

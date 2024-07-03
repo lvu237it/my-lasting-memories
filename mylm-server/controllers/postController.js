@@ -7,19 +7,25 @@ const userController = require('./userController');
 const moment = require('moment-timezone');
 
 exports.getAllPosts = catchAsync(async (req, res, next) => {
-  const [rows, fields] = await poolQuery('select * from posts');
+  const [rows, fields] = await poolQuery(
+    'select * from posts order by created_at desc'
+  );
 
   if (!rows) {
     return next(new AppError('No posts found', 404));
   }
 
-  res.status(200).json({
-    status: 'success',
-    results: rows.length,
-    data: {
-      data: rows,
-    },
-  });
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
 });
 
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
@@ -48,13 +54,17 @@ exports.getPostById = catchAsync(async (req, res, next) => {
     return next(new AppError('No post found', 404));
   }
 
-  res.status(200).json({
-    status: 'success',
-    results: rows.length,
-    data: {
-      data: rows,
-    },
-  });
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
 });
 
 exports.createPost = catchAsync(async (req, res, next) => {

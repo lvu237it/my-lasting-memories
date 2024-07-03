@@ -12,14 +12,78 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   if (!rows) {
     return next(new AppError('No users found', 404));
   }
-  res.status(200).json({
-    status: 'success',
-    // requestedAt: req.requestTime,
-    results: rows.length,
-    data: {
-      data: rows,
-    },
-  });
+
+  // Lọc các trường cần hiển thị
+  const filteredRows = rows.map((user) => ({
+    user_id: user.user_id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  }));
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   // requestedAt: req.requestTime,
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(filteredRows);
+});
+
+exports.getUserByPostId = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id;
+  const [rows, fields] = await poolQuery(
+    'SELECT * FROM users join posts where posts.user_id = users.user_id and posts.post_id = ?',
+    [post_id]
+  );
+  if (!rows) {
+    return next(new AppError('No users found', 404));
+  }
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
+exports.getUserByUserId = catchAsync(async (req, res, next) => {
+  const { userid } = req.params;
+  const [rows, fields] = await poolQuery(
+    'select * from users where user_id = ?',
+    [userid]
+  );
+
+  if (!rows) {
+    return next(new AppError('No post found', 404));
+  }
+
+  res.status(200).json(rows);
+});
+
+exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
+  const { userid } = req.params;
+  const [rows, fields] = await poolQuery(
+    'select * from users where user_id = ?',
+    [userid]
+  );
+
+  if (!rows) {
+    return next(new AppError('No post found', 404));
+  }
+
+  req.userid = userid;
+  next();
 });
 
 exports.findUserByEmail = async (email) => {

@@ -40,6 +40,8 @@ const MainLayout = () => {
     handleClickOutside,
     postModal,
     setPostModal,
+    postContent,
+    setPostContent,
     hasPostContent,
     setHasPostContent,
     showdiscardModal,
@@ -49,14 +51,11 @@ const MainLayout = () => {
     discard,
     setDiscard,
     textareaRef,
+    handleCreatePost,
+    ToastContainer,
   } = useCommon();
 
   const navigate = useNavigate();
-
-  // const handleClickHeaderIcons = (e) => {
-  //   const iconId = e.currentTarget.id;
-  //   setHeaderIconsClicked(iconId);
-  // };
 
   useEffect(() => {
     const iconClicked = document.getElementById(headerIconsClicked);
@@ -136,6 +135,7 @@ const MainLayout = () => {
       setPostModal(false);
       setShowDiscardModal(false);
       setHasPostContent(false);
+      setPostContent('');
     }
   }, [discard]);
 
@@ -167,12 +167,15 @@ const MainLayout = () => {
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
       <div
         id='add-post-icon'
-        className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-10 bottom-10 sm2:right-20 sm2:bottom-8 md:right-3 md:bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
+        className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-3 bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
       >
         <div onClick={handleOpenPostModal} className='text-2xl p-3'>
           <BiPencil />
         </div>
       </div>
+
+      {/* Successful notification after creating post */}
+      <ToastContainer />
 
       {/* Discard new content modal */}
       <div
@@ -234,7 +237,7 @@ const MainLayout = () => {
                   <div className='sm:basis-[95%]'>
                     <div className=''>
                       <div className='font-semibold tracking-wide text-indigo-500'>
-                        Luu Vu
+                        Lưu Vũ
                       </div>
                       <div className='relative'>
                         <textarea
@@ -276,7 +279,10 @@ const MainLayout = () => {
               />
               <div className='post-myself-button'>
                 {hasPostContent ? (
-                  <button className='post-button absolute top-[1.5rem] right-[1.5rem] sm2:top-[17rem] sm2:right-[1rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'>
+                  <button
+                    onClick={handleCreatePost}
+                    className='post-button absolute top-[1.5rem] right-[1.5rem] sm2:top-[17rem] sm2:right-[1rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'
+                  >
                     Post
                   </button>
                 ) : (
