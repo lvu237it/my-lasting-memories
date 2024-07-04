@@ -251,9 +251,7 @@ const MainLayout = () => {
                   </div>
                   <div className='sm:basis-[95%]'>
                     <div className=''>
-                      <div className='font-semibold tracking-wide text-indigo-500'>
-                        Lưu Vũ
-                      </div>
+                      <div className='font-semibold tracking-wide'>Lưu Vũ</div>
                       <div className='relative'>
                         <textarea
                           ref={textareaRef}

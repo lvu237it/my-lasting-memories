@@ -36,6 +36,7 @@ function HomePage() {
     getAuthorNameOfPostByUserId,
     addPostIconRef,
     ToastContainer,
+    numberCharactersAllowed,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -51,6 +52,11 @@ function HomePage() {
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
+
+  const [
+    redundantEditingCharactersNumber,
+    setRedundantEditingCharactersNumber,
+  ] = useState(0);
 
   const navigate = useNavigate();
   // useEffect(() => {
@@ -92,22 +98,28 @@ function HomePage() {
 
   //Editing post
   const handleEditingPost = async () => {
-    try {
-      await axios.patch(
-        `http://127.0.0.1:3000/posts/update/${chosenPost.post_id}`,
-        {
-          content: contentForUpdate,
-        }
+    if (contentForUpdate.length > 1000) {
+      toast.error(
+        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
       );
-      setIsEditing(false);
-      // Cập nhật contentBeforeUpdate khi cập nhật thành công
-      //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
-      setContentBeforeUpdate(contentForUpdate);
-      toast.success('Chỉnh sửa bài thành công!');
-    } catch (error) {
-      console.error('Error editing post', error);
-      setIsEditing(false);
-      toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
+    } else {
+      try {
+        await axios.patch(
+          `http://127.0.0.1:3000/posts/update/${chosenPost.post_id}`,
+          {
+            content: contentForUpdate,
+          }
+        );
+        setIsEditing(false);
+        // Cập nhật contentBeforeUpdate khi cập nhật thành công
+        //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
+        setContentBeforeUpdate(contentForUpdate);
+        toast.success('Chỉnh sửa bài thành công!');
+      } catch (error) {
+        console.error('Error editing post', error);
+        setIsEditing(false);
+        toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -188,6 +200,13 @@ function HomePage() {
     return createdAt.split('T')[0];
   };
 
+  //Counting redundant editing characters number
+  useEffect(() => {
+    const countRedundantCharacter =
+      numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
+    setRedundantEditingCharactersNumber(countRedundantCharacter);
+  }, [contentForUpdate, redundantEditingCharactersNumber]);
+
   useEffect(() => {
     if (isEditing && contentEditableRef.current) {
       const range = document.createRange();
@@ -198,8 +217,7 @@ function HomePage() {
       selection.addRange(range);
       contentEditableRef.current.focus();
     }
-    console.log('contentForUpdate', contentForUpdate);
-  }, [isEditing, contentForUpdate]);
+  }, [isEditing]);
 
   useEffect(() => {
     if (!viewPostDetails) {
@@ -264,6 +282,7 @@ function HomePage() {
       <div className='header-feedscontent my-3'>
         <div className='feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 mx-3 md:mx-10 lg:mx-14 py-5 md:py-10 my-5 '>
           {viewPostDetails ? (
+            //View details of a post
             <div className='wrapper-post-details'>
               <button
                 onClick={handleBackHome}
@@ -374,7 +393,7 @@ function HomePage() {
                         <div className=''>
                           {getAuthorNameOfPostByUserId(chosenPost.user_id)}
                         </div>
-                        <div className='flex flex-row gap-1 items-center'>
+                        <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
                           <BiPencil />
                           <div className=''>
                             {getPostedTime(chosenPost.created_at)}
@@ -391,7 +410,13 @@ function HomePage() {
                   </div>
                 </div>
                 {isEditing ? (
-                  <div className='wrapper-editing mt-16'>
+                  //Edit mode
+                  <div className='wrapper-editing mt-16 relative'>
+                    <div className='redundant-editing-characters-number absolute -top-11 right-2 text-red-600 tracking-wide'>
+                      {redundantEditingCharactersNumber < 0
+                        ? redundantEditingCharactersNumber
+                        : ''}
+                    </div>
                     <div
                       id='feeds-content-bottom-description'
                       className='break-words'
@@ -461,6 +486,8 @@ function HomePage() {
                     )}
                   </div>
                 ) : (
+                  //Default mode
+                  // Default content of post details
                   <div
                     id='feeds-content-bottom-description'
                     className='break-words mt-16'
@@ -471,6 +498,7 @@ function HomePage() {
               </div>
             </div>
           ) : (
+            //Home page screen with list of posts
             <>
               <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
                 <img
@@ -521,8 +549,11 @@ function HomePage() {
                           <div className='author-name font-semibold'>
                             {getAuthorNameOfPostByUserId(post.user_id)}
                           </div>
-                          <div className='text-slate-700 opacity-70'>
-                            Posted at {getPostedTime(post.created_at)}
+                          <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                            <BiPencil />
+                            <div className=''>
+                              {getPostedTime(post.created_at)}
+                            </div>
                           </div>
                           <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
                             {post.content}

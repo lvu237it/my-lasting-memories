@@ -33,6 +33,7 @@ export const Common = ({ children }) => {
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
 
+  const numberCharactersAllowed = 1000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
 
   const handleClickHeaderIcons = (e) => {
@@ -104,7 +105,6 @@ export const Common = ({ children }) => {
     return user?.username;
   };
 
-  const numberCharactersAllowed = 1000;
   const handleCreatePost = async () => {
     //content không vượt quá 1000 ký tự
     if (postContent.length > 1000) {

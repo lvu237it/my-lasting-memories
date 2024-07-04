@@ -4,9 +4,9 @@ function NavBar() {
   return (
     <nav className='navbar text-[18px]'>
       <ul className='drop-down'>
-        <li className='nav-link flex justify-end items-center text-3xl w-[86%]'>
+        {/* <li className='nav-link flex justify-end items-center text-3xl w-[86%]'>
           <BiMenu />
-        </li>
+        </li> */}
         <li className='nav-link-routing'>
           <Link className='nav-link-dropdown' to={'/'}>
             Home
