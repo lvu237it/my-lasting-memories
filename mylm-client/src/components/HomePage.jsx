@@ -41,10 +41,16 @@ function HomePage() {
   const [viewPostDetails, setViewPostDetails] = useState(false);
   const postDetailsRef = useRef(null);
   const optionsModalRef = useRef(null);
+  const contentEditableRef = useRef(null);
+
   const [chosenPost, setChosenPost] = useState(null);
   const [isSavedPost, setIsSavedPost] = useState(true);
   const [openOptionsModal, setOpenOptionsModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
+  const [contentForUpdate, setContentForUpdate] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
 
   const navigate = useNavigate();
   // useEffect(() => {
@@ -66,6 +72,57 @@ function HomePage() {
   //   checkRememberMeSession();
   // });
 
+  //Cancel editing post
+  //Click "Không" when Modal opened
+  const handleConfirmCancelEditingPost = () => {
+    setOpenCancelEditingModal(true);
+  };
+
+  //Click "Huỷ" when Modal opened
+  const handleDefinitelyCancelEditingPost = () => {
+    console.log('contentBeforeUpdate', contentBeforeUpdate);
+    if (contentForUpdate !== contentBeforeUpdate) {
+      //Có sự thay đổi content so với ban đầu nhưng Huỷ - không tiếp tục chỉnh sửa
+      //=> Giữ content ban đầu
+      setContentForUpdate(contentBeforeUpdate);
+    }
+    setOpenCancelEditingModal(false);
+    setIsEditing(false);
+  };
+
+  //Editing post
+  const handleEditingPost = async () => {
+    try {
+      await axios.patch(
+        `http://127.0.0.1:3000/posts/update/${chosenPost.post_id}`,
+        {
+          content: contentForUpdate,
+        }
+      );
+      setIsEditing(false);
+      // Cập nhật contentBeforeUpdate khi cập nhật thành công
+      //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
+      setContentBeforeUpdate(contentForUpdate);
+      toast.success('Chỉnh sửa bài thành công!');
+    } catch (error) {
+      console.error('Error editing post', error);
+      setIsEditing(false);
+      toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
+    }
+  };
+
+  const handleOpenEditingPost = () => {
+    setIsEditing(true);
+    setOpenOptionsModal(false);
+  };
+
+  //Click ra ngoài phạm vi của phần tử editing
+  const handleInputBlur = () => {
+    // setIsEditing(false);
+    setContentForUpdate(contentEditableRef.current.innerText);
+  };
+
+  //Deleting post
   const handleFinallyRemovePost = async () => {
     try {
       await axios.patch(
@@ -89,8 +146,11 @@ function HomePage() {
   const handleRemovePostWarning = () => {
     setOpenOptionsModal(false);
     setOpenDeleteModal(true);
+    //disable editing if it opened
+    setIsEditing(false);
   };
 
+  //Click outside of options modal
   const handleClickOutsideOptionsModal = (event) => {
     if (
       optionsModalRef.current &&
@@ -100,29 +160,52 @@ function HomePage() {
     }
   };
 
+  //Open options modal
   const handleSetOptionsModal = () => {
     setOpenOptionsModal(!openOptionsModal);
   };
 
+  //View post details
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
+    //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
+    setContentBeforeUpdate(post.content);
+    //Hiển thị content của selected post (to view details) lần đầu tiên,
+    //sau đó mặc định đặt giá trị content đó cho updated content
+    //Để phục vụ cho việc update content
+    setContentForUpdate(post.content); // Cập nhật contentForUpdate khi chọn post
     setViewPostDetails(true);
   };
 
+  //Back home from view post details
   const handleBackHome = () => {
-    console.log('back home clicked');
     setViewPostDetails(false);
+    getAllPosts();
   };
+
+  //Format posted time to yyyy/mm/dd
+  const getPostedTime = (createdAt) => {
+    return createdAt.split('T')[0];
+  };
+
+  useEffect(() => {
+    if (isEditing && contentEditableRef.current) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(contentEditableRef.current);
+      range.collapse(false); // Đặt con trỏ ở cuối nội dung
+      selection.removeAllRanges();
+      selection.addRange(range);
+      contentEditableRef.current.focus();
+    }
+    console.log('contentForUpdate', contentForUpdate);
+  }, [isEditing, contentForUpdate]);
 
   useEffect(() => {
     if (!viewPostDetails) {
       setChosenPost(null);
     }
   }, [viewPostDetails]);
-
-  const getPostedTime = (createdAt) => {
-    return createdAt.split('T')[0];
-  };
 
   useEffect(() => {
     getAllUsers();
@@ -160,14 +243,14 @@ function HomePage() {
   useEffect(() => {
     const addPostIcon = addPostIconRef.current;
 
-    if (openOptionsModal || openDeleteModal) {
+    if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
       addPostIcon.classList.remove('z-[1000]');
       addPostIcon.classList.add('hidden');
     } else {
       addPostIcon.classList.remove('hidden');
       addPostIcon.classList.add('z-[1000]');
     }
-  }, [openOptionsModal, openDeleteModal]);
+  }, [openOptionsModal, openDeleteModal, openCancelEditingModal]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideOptionsModal);
@@ -217,6 +300,7 @@ function HomePage() {
                           )}
                         </div>
                         <div
+                          onClick={handleOpenEditingPost}
                           id='edit-post'
                           className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
                         >
@@ -235,7 +319,6 @@ function HomePage() {
                     </div>
                   </>
                 )}
-
                 {/* Modal delete post */}
                 {openDeleteModal && (
                   <>
@@ -255,7 +338,7 @@ function HomePage() {
                               </div>
                             </div>
                             <hr className='' />
-                            <div className='grid grid-cols-2 text-center divide-x-2'>
+                            <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
                               <div
                                 id='cancel-final-delete'
                                 onClick={() => setOpenDeleteModal(false)}
@@ -277,7 +360,6 @@ function HomePage() {
                     </div>
                   </>
                 )}
-
                 <div className='details-chosen-post grid grid-cols-12 relative'>
                   <div className='col-span-1'>
                     <img
@@ -290,7 +372,6 @@ function HomePage() {
                     <div className='flex justify-between'>
                       <div className='name-and-postedat absolute top-0 left-12 sm2:left-16'>
                         <div className=''>
-                          name:{' '}
                           {getAuthorNameOfPostByUserId(chosenPost.user_id)}
                         </div>
                         <div className='flex flex-row gap-1 items-center'>
@@ -309,9 +390,84 @@ function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className='content feeds-content-bottom-description break-words mt-16'>
-                  {chosenPost.content}
-                </div>
+                {isEditing ? (
+                  <div className='wrapper-editing mt-16'>
+                    <div
+                      id='feeds-content-bottom-description'
+                      className='break-words'
+                      contentEditable={true}
+                      ref={contentEditableRef}
+                      onBlur={handleInputBlur}
+                      suppressContentEditableWarning={true} // Để tránh cảnh báo từ React
+                    >
+                      {contentForUpdate}
+                      {/* same with {chosenPost.content} */}
+                    </div>
+                    <div className='relative h-16'>
+                      <div
+                        onClick={handleConfirmCancelEditingPost}
+                        id='button-cancel-edit-post'
+                        className='absolute right-28 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto text-red-500 duration-300 ease-in-out'
+                      >
+                        Huỷ
+                      </div>
+                      <div
+                        onClick={handleEditingPost}
+                        id='button-edit-post'
+                        className='absolute right-0 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                      >
+                        Cập nhật
+                      </div>
+                    </div>
+
+                    {/* Cancel Editing Modal */}
+                    {openCancelEditingModal && (
+                      <div
+                        id='background-cancel-editing-modal'
+                        className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                      >
+                        <div className='w-full h-full flex justify-center items-center'>
+                          <div
+                            id='cancel-deleting-modal'
+                            className='relative z-20'
+                          >
+                            <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                              <div className='font-semibold text-center mb-4'>
+                                Huỷ bỏ thay đổi?
+                              </div>
+                              <hr className='' />
+                              <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                                <div
+                                  id='continue-edit'
+                                  onClick={() =>
+                                    setOpenCancelEditingModal(false)
+                                  }
+                                  className='col-span-1 cursor-pointer p-2'
+                                >
+                                  Không
+                                </div>
+                                <div
+                                  onClick={handleDefinitelyCancelEditingPost}
+                                  id='finally-edit'
+                                  className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                                >
+                                  Huỷ
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    id='feeds-content-bottom-description'
+                    className='break-words mt-16'
+                  >
+                    {contentForUpdate}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

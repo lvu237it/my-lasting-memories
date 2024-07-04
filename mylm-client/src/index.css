@@ -32,6 +32,10 @@ input:focus {
   outline: none;
 }
 
+#feeds-content-bottom-description:focus {
+  outline: none;
+}
+
 ul {
   list-style: none;
   margin: 0;

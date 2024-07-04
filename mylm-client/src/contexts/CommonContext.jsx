@@ -33,8 +33,6 @@ export const Common = ({ children }) => {
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
 
-  // const notify = () => toast('Đăng bài thành công!');
-
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
     setHeaderIconsClicked(iconId);
@@ -115,6 +113,8 @@ export const Common = ({ children }) => {
       textareaRef.current.value = '';
       setHasPostContent(false);
       toast.success('Đăng bài thành công!');
+      //Sau khi đăng bài thành công thì fetch lại data
+      getAllPosts();
     } catch (error) {
       console.error('Error creating post', error);
       setPostModal(false);
