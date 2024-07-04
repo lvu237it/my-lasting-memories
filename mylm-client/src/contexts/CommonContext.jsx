@@ -33,6 +33,8 @@ export const Common = ({ children }) => {
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
 
+  const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
+
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
     setHeaderIconsClicked(iconId);
@@ -102,23 +104,31 @@ export const Common = ({ children }) => {
     return user?.username;
   };
 
+  const numberCharactersAllowed = 1000;
   const handleCreatePost = async () => {
-    try {
-      await axios.post('http://127.0.0.1:3000/posts/createpost', {
-        user_id: '7634b4ee-e27e-4d03-8e61-d7d6d4459607', //admin
-        // user_id: 'a5d5d5ce-d544-439d-86c2-0069690245c2', //user
-        content: postContent,
-      });
-      setPostModal(false);
-      textareaRef.current.value = '';
-      setHasPostContent(false);
-      toast.success('Đăng bài thành công!');
-      //Sau khi đăng bài thành công thì fetch lại data
-      getAllPosts();
-    } catch (error) {
-      console.error('Error creating post', error);
-      setPostModal(false);
-      toast.error('Đăng bài không thành công. Vui lòng thử lại.');
+    //content không vượt quá 1000 ký tự
+    if (postContent.length > 1000) {
+      toast.error(
+        'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
+      );
+    } else {
+      try {
+        await axios.post('http://127.0.0.1:3000/posts/createpost', {
+          user_id: '7634b4ee-e27e-4d03-8e61-d7d6d4459607', //admin
+          // user_id: 'a5d5d5ce-d544-439d-86c2-0069690245c2', //user
+          content: postContent,
+        });
+        setPostModal(false);
+        textareaRef.current.value = '';
+        setHasPostContent(false);
+        toast.success('Đăng bài thành công!');
+        //Sau khi đăng bài thành công thì fetch lại data
+        getAllPosts();
+      } catch (error) {
+        console.error('Error creating post', error);
+        setPostModal(false);
+        toast.error('Đăng bài không thành công. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -160,6 +170,9 @@ export const Common = ({ children }) => {
         handleCreatePost,
         ToastContainer,
         addPostIconRef,
+        redundantCharactersNumber,
+        setRedundantCharactersNumber,
+        numberCharactersAllowed,
         // notify,
       }}
     >

@@ -54,6 +54,9 @@ const MainLayout = () => {
     handleCreatePost,
     ToastContainer,
     addPostIconRef,
+    redundantCharactersNumber,
+    setRedundantCharactersNumber,
+    numberCharactersAllowed,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -164,6 +167,13 @@ const MainLayout = () => {
     }
   }, [postModal]);
 
+  useEffect(() => {
+    const countRedundantCharacter =
+      numberCharactersAllowed - postContent.length; //Số lượng kí tự dư thừa
+    console.log(countRedundantCharacter);
+    setRedundantCharactersNumber(countRedundantCharacter);
+  }, [postContent]);
+
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
       <div
@@ -215,8 +225,11 @@ const MainLayout = () => {
         className='modal-new-post z-10 fixed top-0 left-0 w-full h-full bg-black bg-opacity-75'
       >
         <div className='w-full h-full flex sm2:justify-center sm2:items-center'>
-          <div className='post-content sm2:rounded-3xl bg-white sm2:w-[65%] md:w-[60%] lg:w-[50%] relative'>
+          <div className='post-content relative sm2:rounded-3xl bg-white sm2:w-[65%] md:w-[60%] lg:w-[50%]'>
             <div className='px-8 py-6 w-[100vw] sm2:w-full h-full'>
+              <div className='number-of-redundant-characters absolute right-[2.25rem] top-[4.75rem] sm2:top-[3rem] sm2:right-[1.5rem] text-red-600'>
+                {redundantCharactersNumber < 0 ? redundantCharactersNumber : ''}
+              </div>
               <div className='absolute sm2:top-[1.2rem] sm2:right-[1.5rem]'>
                 <div
                   onClick={(e) => {
