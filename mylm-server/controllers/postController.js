@@ -68,6 +68,31 @@ exports.getPostById = catchAsync(async (req, res, next) => {
   res.status(200).json(rows);
 });
 
+exports.getPostsByContent = catchAsync(async (req, res, next) => {
+  const { content } = req.body;
+  const searchContent = `%${content}%`;
+  const [rows, fields] = await poolQuery(
+    'select * from posts where true and content like ?',
+    [searchContent]
+  );
+
+  if (!rows) {
+    return next(new AppError('No post found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
 exports.createPost = catchAsync(async (req, res, next) => {
   const { content, user_id } = req.body;
   const post_id = uuidv4();

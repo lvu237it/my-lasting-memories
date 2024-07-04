@@ -4,6 +4,7 @@ const postController = require('../controllers/postController');
 
 //general router: /posts/
 router.get('/', postController.getAllPosts);
+router.post('/bycontent', postController.getPostsByContent);
 router.get('/:postid', postController.getPostById);
 router.post('/createpost', postController.createPost);
 router.patch(
