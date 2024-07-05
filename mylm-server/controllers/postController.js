@@ -72,7 +72,7 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
   const { content } = req.body;
   const searchContent = `%${content}%`;
   const [rows, fields] = await poolQuery(
-    'select * from posts where content like ?',
+    'select * from posts where content like ? and is_deleted = false',
     [searchContent]
   );
 

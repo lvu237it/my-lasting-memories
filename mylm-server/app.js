@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
+const rateLimit = require('express-rate-limit'); //cấu hình giới hạn số lượng request từ client - 1 IP hoặc 1 user có thể gửi trong 1 khoảng thời gian nhất định
 const helmet = require('helmet'); // mũ bảo hiểm (helmet) là tập hợp của nhiều middleware
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
@@ -54,7 +54,8 @@ const limiter = rateLimit({
   //tối đa 100 request trên 1 giờ
   message: 'Too many requests from this IP, please try again in an hour!',
 });
-app.use('/api', limiter);
+// app.use('/api', limiter); //Chỉ giới hạn request đối với những đường dẫn bắt đầu bằng /api
+// app.use(limiter); //Áp dụng rate limiting cho tất cả các request bằng mọi đường dẫn
 
 //Data sanitization against XSS
 app.use(xss());

@@ -37,6 +37,7 @@ function HomePage() {
     addPostIconRef,
     ToastContainer,
     numberCharactersAllowed,
+    getPostedTime,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -193,11 +194,6 @@ function HomePage() {
   const handleBackHome = () => {
     setViewPostDetails(false);
     getAllPosts();
-  };
-
-  //Format posted time to yyyy/mm/dd
-  const getPostedTime = (createdAt) => {
-    return createdAt.split('T')[0];
   };
 
   //Counting redundant editing characters number

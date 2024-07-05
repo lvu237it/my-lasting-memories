@@ -105,6 +105,11 @@ export const Common = ({ children }) => {
     return user?.username;
   };
 
+  //Format posted time to yyyy/mm/dd
+  const getPostedTime = (createdAt) => {
+    return createdAt.split('T')[0];
+  };
+
   const handleCreatePost = async () => {
     //content không vượt quá 1000 ký tự
     if (postContent.length > 1000) {
@@ -167,6 +172,7 @@ export const Common = ({ children }) => {
         postsList,
         usersList,
         getAuthorNameOfPostByUserId,
+        getPostedTime,
         handleCreatePost,
         ToastContainer,
         addPostIconRef,
