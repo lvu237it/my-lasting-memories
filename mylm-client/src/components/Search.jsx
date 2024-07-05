@@ -1,11 +1,13 @@
-import { BiSearch } from 'react-icons/bi';
-import { useState, useEffect } from 'react';
+import { BiExit, BiSearch, BiX, BiXCircle } from 'react-icons/bi';
+import { useState, useEffect, useRef } from 'react';
 import { BiPen, BiPencil } from 'react-icons/bi';
 import axios from 'axios';
 
 function Search() {
   const [searchContent, setSearchContent] = useState('');
   const [postsResult, setPostsResult] = useState([]);
+
+  const searchContentRef = useRef();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -19,11 +21,25 @@ function Search() {
   });
 
   const handleClick = () => {
-    console.log('click');
+    // console.log('click');
   };
+
+  const handleClearSearchContent = () => {
+    setSearchContent('');
+    searchContentRef.current.value = '';
+  };
+
+  // useEffect(() => {
+  //   const searchInput = document.getElementById('search-input');
+  //   if (searchContent) {
+  //     searchInput.classList.add('mb-6');
+  //   }
+  //   searchInput.classList.remove('mb-6');
+  // }, [postsResult]);
 
   useEffect(() => {
     const handleSearchPostsByContent = async () => {
+      // if (searchContent !== null) {
       try {
         const response = await axios.post(
           'http://127.0.0.1:3000/posts/bycontent',
@@ -35,10 +51,24 @@ function Search() {
       } catch (error) {
         console.error('Error finding post', error);
       }
+      // }
     };
-    handleSearchPostsByContent();
-    console.log(postsResult);
+    if (searchContent.length !== 0) {
+      handleSearchPostsByContent();
+    } else {
+      setPostsResult([]);
+    }
   }, [searchContent]);
+
+  useEffect(() => {
+    const searchInput = document.getElementById('search-input');
+    if (postsResult.length !== 0) {
+      searchInput.classList.add('mb-6');
+    } else if (postsResult.length === 0) {
+      searchInput.classList.remove('mb-6');
+    }
+    console.log(postsResult);
+  }, [postsResult]);
 
   useEffect(() => {
     const sectionPostedItems = document.querySelectorAll('.result-item');
@@ -51,29 +81,37 @@ function Search() {
   return (
     <>
       <div className='wrapper my-3 relative'>
-        <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
-          <div className=' search-input tracking-wide rounded-2xl leading-8 border border-slate-300 mb-6'>
-            <div className='flex gap-2 px-4 py-2 rounded-2xl bg-slate-50'>
+        <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 md:mx-10 lg:mx-14 md:py-10 mx-3 my-5'>
+          <div
+            id='search-input'
+            className='tracking-wide rounded-2xl leading-8 border border-slate-300'
+          >
+            <div className='relative flex gap-2 px-4 py-2 rounded-2xl bg-slate-50'>
               <div className='my-auto text-2xl'>
                 <BiSearch />
               </div>
               <input
                 onChange={(e) => setSearchContent(e.target.value)}
+                ref={searchContentRef}
                 autoFocus
-                className='bg-slate-50 w-full'
+                className='bg-slate-50 w-[91%]'
                 type='text'
                 placeholder='Search a post'
+              />
+              <BiXCircle
+                onClick={handleClearSearchContent}
+                className='absolute top-[14px] right-4 text-xl cursor-pointer'
               />
             </div>
           </div>
           <div className='grid-search-results'>
             {searchContent && (
-              <div className='mb-[85px]'>
+              <div className='mb-[50px]'>
                 {postsResult.map((post, index) => (
                   <div
                     onClick={handleClick}
                     key={index}
-                    className='result-item grid relative mb-4 cursor-pointer hover:bg-slate-700'
+                    className='result-item grid relative mb-4 cursor-pointer'
                   >
                     <div className=''>
                       <div className='image-avatar absolute top-0 left-0'>
@@ -103,6 +141,9 @@ function Search() {
               </div>
             )}
           </div>
+          {searchContent && postsResult.length === 0 && (
+            <div className='text-center text-lg'>Không có kết quả</div>
+          )}
         </div>
       </div>
     </>
