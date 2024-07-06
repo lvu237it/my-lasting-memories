@@ -38,6 +38,11 @@ const MainLayout = () => {
     handleClosePostModal,
     handleClickPostNew,
     handleClickOutside,
+    handleClickAddImageIcon,
+    handleFileChange,
+    imageUrlsList,
+    setImageUrlsList,
+    handleSwipe,
     postModal,
     setPostModal,
     postContent,
@@ -51,6 +56,8 @@ const MainLayout = () => {
     discard,
     setDiscard,
     textareaRef,
+    postItemsUploadRef,
+    scrollContainerRef,
     handleCreatePost,
     ToastContainer,
     addPostIconRef,
@@ -135,6 +142,7 @@ const MainLayout = () => {
   useEffect(() => {
     if (discard) {
       textareaRef.current.value = '';
+      setImageUrlsList([]);
       setDiscard(false);
       setPostModal(false);
       setShowDiscardModal(false);
@@ -164,6 +172,18 @@ const MainLayout = () => {
       stickyHeader.classList.add('z-10');
       htmlPage.classList.remove('no-scroll');
       body.classList.remove('no-scroll');
+    }
+  }, [postModal]);
+
+  useEffect(() => {
+    const addPostIcon = addPostIconRef.current;
+
+    if (postModal) {
+      addPostIcon.classList.remove('z-[1000]');
+      addPostIcon.classList.add('hidden');
+    } else {
+      addPostIcon.classList.remove('hidden');
+      addPostIcon.classList.add('z-[1000]');
     }
   }, [postModal]);
 
@@ -252,11 +272,28 @@ const MainLayout = () => {
                   <div className='sm:basis-[95%]'>
                     <div className=''>
                       <div className='font-semibold tracking-wide'>Lưu Vũ</div>
-                      <div className='relative'>
+                      <div className=''>
+                        {/* Display images after upload to post */}
+                        <div
+                          ref={scrollContainerRef}
+                          className='vulv-uploaded-images flex flex-row gap-2 overflow-x-auto vulv-scrollbar-hide'
+                          onMouseDown={handleSwipe}
+                          onDragStart={(e) => e.preventDefault()}
+                        >
+                          {imageUrlsList.map((url, index) => (
+                            <img
+                              key={index}
+                              ref={postItemsUploadRef}
+                              src={url}
+                              className='w-[25%] h-auto rounded-lg'
+                              alt='uploaded images'
+                            />
+                          ))}
+                        </div>
                         <textarea
                           ref={textareaRef}
                           onChange={(e) => handleClickPostNew(e)}
-                          className='w-full tracking-wide py-1 sm:py-0 sm:w-[90%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                          className='w-full tracking-wide py-1 sm:py-0 sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                           name=''
                           id='post-content-details'
                           placeholder='Speak your mind...'
@@ -270,10 +307,13 @@ const MainLayout = () => {
 
               <div className='list-icon-attachment sm:ml-14'>
                 <ul className='flex gap-5 text-2xl mt-3 sm2:mt-2 cursor-pointer '>
-                  <li>
+                  <li
+                    id='upload-attachment-icon'
+                    onClick={() => handleClickAddImageIcon()}
+                  >
                     <BiImageAdd />
                   </li>
-                  <li>
+                  {/* <li>
                     <BiVideoPlus />
                   </li>
                   <li>
@@ -281,27 +321,29 @@ const MainLayout = () => {
                   </li>
                   <li>
                     <BiFileBlank />
-                  </li>
+                  </li> */}
                 </ul>
               </div>
               <input
+                id='bi-attachment-add'
                 hidden
                 accept='image/jpeg,image/png,video/mp4,video/quicktime'
                 type='file'
                 multiple
+                onChange={(e) => handleFileChange(e)}
               />
               <div className='post-myself-button'>
-                {hasPostContent ? (
+                {hasPostContent || imageUrlsList.length !== 0 ? (
                   <button
                     onClick={handleCreatePost}
-                    className='post-button absolute top-[1.5rem] right-[1.5rem] sm2:top-[17rem] sm2:right-[1rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'
+                    className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'
                   >
                     Post
                   </button>
                 ) : (
                   <button
                     disabled={true}
-                    className='post-button absolute top-[1.5rem] right-[1.5rem] sm2:top-[17rem] sm2:right-[1rem] font-semibold px-4 py-2 my-auto border-slate-400 opacity-50 rounded-xl shadow shadow-slate-300'
+                    className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 opacity-50 rounded-xl shadow shadow-slate-300'
                   >
                     Post
                   </button>

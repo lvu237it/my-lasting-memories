@@ -108,3 +108,20 @@ a {
 .no-scroll {
   overflow: hidden;
 }
+
+/* Hide scroll bar when scrolling images in post */
+.vulv-scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.vulv-scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.vulv-uploaded-images {
+  cursor: grab;
+}
+
+.vulv-uploaded-images.grabbing {
+  cursor: grabbing;
+}

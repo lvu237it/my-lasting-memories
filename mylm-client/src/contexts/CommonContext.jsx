@@ -28,10 +28,13 @@ export const Common = ({ children }) => {
   const [discard, setDiscard] = useState(false);
   const textareaRef = useRef(null);
   const addPostIconRef = useRef(null);
+  const postItemsUploadRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
+  const [imageUrlsList, setImageUrlsList] = useState([]);
 
   const numberCharactersAllowed = 1000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
@@ -45,6 +48,60 @@ export const Common = ({ children }) => {
     setShowNavbarSlider(!showNavbarSlider);
   };
 
+  //Increase UX when scrolling
+
+  const handleSwipe = (e) => {
+    e.preventDefault(); // Ngăn chặn hành động mặc định của trình duyệt
+    const container = scrollContainerRef.current;
+    let startX = e.pageX - container.offsetLeft;
+    let scrollLeft = container.scrollLeft;
+
+    container.classList.add('grabbing'); //Đổi thành biểu tượng bàn tay nắm -> kéo
+
+    const onMouseMove = (e) => {
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2; // Tăng tốc độ cuộn
+      container.scrollLeft = scrollLeft - walk;
+    };
+
+    const onMouseUp = () => {
+      container.classList.remove('grabbing');
+      container.removeEventListener('mousemove', onMouseMove);
+      container.removeEventListener('mouseup', onMouseUp);
+      container.removeEventListener('mouseleave', onMouseUp);
+    };
+
+    container.addEventListener('mousemove', onMouseMove);
+    container.addEventListener('mouseup', onMouseUp);
+    container.addEventListener('mouseleave', onMouseUp); // Xử lý trường hợp chuột rời khỏi vùng cuộn
+  };
+
+  //Add attachments of post
+  const handleClickAddImageIcon = () => {
+    const uploadImageIcon = document.getElementById('upload-attachment-icon');
+    // Thêm sự kiện click (vào thẻ input với type='file') khi click vào các icon
+    uploadImageIcon.addEventListener('click', () => {
+      document.getElementById('bi-attachment-add').click();
+    });
+  };
+
+  const handleFileChange = (e) => {
+    const file = Array.from(e.target.files);
+    const newImageUrls = file.map((file) => URL.createObjectURL(file));
+    setImageUrlsList((prevUrls) => [...prevUrls, ...newImageUrls]);
+
+    //Đọc 1 file duy nhất đầu tiên
+    // const file = e.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = (e) => {
+    //     postItemsUploadRef.current.src = e.target.result;
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
+  };
+
+  //Post Modal
   const handleOpenPostModal = () => {
     setPostModal(true);
     console.log('open modal');
@@ -52,7 +109,7 @@ export const Common = ({ children }) => {
 
   const handleClosePostModal = (e) => {
     e.preventDefault();
-    if (hasPostContent) {
+    if (hasPostContent || imageUrlsList.length !== 0) {
       setShowDiscardModal(true);
     } else {
       setPostModal(false);
@@ -154,6 +211,8 @@ export const Common = ({ children }) => {
         handleClosePostModal,
         handleClickPostNew,
         handleClickOutside,
+        handleClickAddImageIcon,
+        handleFileChange,
         postModal,
         setPostModal,
         postContent,
@@ -167,6 +226,11 @@ export const Common = ({ children }) => {
         discard,
         setDiscard,
         textareaRef,
+        postItemsUploadRef,
+        scrollContainerRef,
+        imageUrlsList,
+        setImageUrlsList,
+        handleSwipe,
         getAllUsers,
         getAllPosts,
         postsList,
@@ -179,6 +243,7 @@ export const Common = ({ children }) => {
         redundantCharactersNumber,
         setRedundantCharactersNumber,
         numberCharactersAllowed,
+
         // notify,
       }}
     >
