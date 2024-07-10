@@ -22,6 +22,8 @@ function Search() {
     getPostedTime,
     addPostIconRef,
     numberCharactersAllowed,
+    scrollContainerRef,
+    handleSwipe,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -42,6 +44,7 @@ function Search() {
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
+  const [localUrlImages, setLocalUrlImages] = useState([]);
 
   const [
     redundantEditingCharactersNumber,
@@ -127,6 +130,8 @@ function Search() {
 
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
+    //Lấy images url
+    getImageUrlsByPostId(post);
     //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
     setContentBeforeUpdate(post.content);
     //Hiển thị content của selected post (to view details) lần đầu tiên,
@@ -136,11 +141,27 @@ function Search() {
     setViewPostDetails(true);
   };
 
+  const getImageUrlsByPostId = async (post) => {
+    try {
+      const urlImageListLocal = await axios.get(
+        `http://127.0.0.1:3000/posts/${post.post_id}/images`
+      );
+      setLocalUrlImages(urlImageListLocal.data);
+    } catch (error) {
+      console.error('Error finding images url by post id', error);
+    }
+  };
+
   useEffect(() => {
     if (!viewPostDetails) {
       setChosenPost(null);
     }
   }, [viewPostDetails]);
+
+  useEffect(() => {
+    console.log('localUrlImages.length', localUrlImages.length);
+    console.log('localUrlImages', localUrlImages);
+  }, [localUrlImages]);
 
   //Open options modal
   const handleSetOptionsModal = () => {
@@ -199,6 +220,7 @@ function Search() {
   const handleBackSearch = () => {
     setSearchContent('');
     setViewPostDetails(false);
+    setLocalUrlImages([]);
   };
 
   const handleClearSearchContent = () => {
@@ -477,10 +499,42 @@ function Search() {
                     //Default mode
                     // Default content of post details
                     <div
-                      id='feeds-content-bottom-description'
+                      id='feeds-content-bottom-description-search'
                       className='break-words mt-16'
                     >
-                      {contentForUpdate}
+                      <div className='content-description break-words'>
+                        {contentForUpdate}
+                      </div>
+                      {localUrlImages.length === 1 ? (
+                        <div className='content-attachments w-full'>
+                          <img
+                            src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
+                            alt='attached items'
+                            className='rounded-lg'
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className='vulv-scrollbar-hide flex flex-col justify-center items-center gap-3 overflow-x-auto mt-4'
+                          ref={scrollContainerRef}
+                          onMouseDown={handleSwipe}
+                          onDragStart={(e) => e.preventDefault()}
+                        >
+                          {localUrlImages.length > 1 &&
+                            localUrlImages.map((imgurl, index) => (
+                              <div
+                                key={index}
+                                className='content-attachments w-full sm2:w-[65%]'
+                              >
+                                <img
+                                  src={`http://localhost:3000${imgurl?.attacheditem_path}`}
+                                  alt='attached items'
+                                  className='rounded-lg'
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -504,10 +558,12 @@ function Search() {
                     type='text'
                     placeholder='Search a post'
                   />
-                  <BiXCircle
-                    onClick={handleClearSearchContent}
-                    className='absolute top-[14px] right-4 text-xl cursor-pointer'
-                  />
+                  {searchContent && (
+                    <BiXCircle
+                      onClick={handleClearSearchContent}
+                      className='absolute top-[14px] right-4 text-xl cursor-pointer'
+                    />
+                  )}
                 </div>
               </div>
               <div className='grid-search-results'>

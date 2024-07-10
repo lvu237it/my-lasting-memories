@@ -31,6 +31,8 @@ function HomePage() {
     postModal,
     postsList,
     usersList,
+    imageUrlsList,
+    setImageUrlsList,
     getAllUsers,
     getAllPosts,
     getAuthorNameOfPostByUserId,
@@ -38,6 +40,8 @@ function HomePage() {
     ToastContainer,
     numberCharactersAllowed,
     getPostedTime,
+    scrollContainerRef,
+    handleSwipe,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -46,13 +50,14 @@ function HomePage() {
   const contentEditableRef = useRef(null);
 
   const [chosenPost, setChosenPost] = useState(null);
-  const [isSavedPost, setIsSavedPost] = useState(true);
+  const [isSavedPost, setIsSavedPost] = useState(true); //not yet
   const [openOptionsModal, setOpenOptionsModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
+  const [localUrlImages, setLocalUrlImages] = useState([]);
 
   const [
     redundantEditingCharactersNumber,
@@ -145,10 +150,10 @@ function HomePage() {
       // textareaRef.current.value = '';
       // setHasPostContent(false);
       setOpenDeleteModal(false);
-      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
       setTimeout(() => {
         window.location.reload();
-      }, 3000); // Tự động reload sau 3 giây
+      }, 2000); // Tự động reload sau 2 giây
+      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
     } catch (error) {
       console.error('Error deleting post', error);
       setOpenDeleteModal(false);
@@ -181,6 +186,8 @@ function HomePage() {
   //View post details
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
+    //Lấy images url
+    getImageUrlsByPostId(post);
     //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
     setContentBeforeUpdate(post.content);
     //Hiển thị content của selected post (to view details) lần đầu tiên,
@@ -194,6 +201,18 @@ function HomePage() {
   const handleBackHome = () => {
     setViewPostDetails(false);
     getAllPosts();
+    setLocalUrlImages([]);
+  };
+
+  const getImageUrlsByPostId = async (post) => {
+    try {
+      const urlImageListLocal = await axios.get(
+        `http://127.0.0.1:3000/posts/${post.post_id}/images`
+      );
+      setLocalUrlImages(urlImageListLocal.data);
+    } catch (error) {
+      console.error('Error finding images url by post id', error);
+    }
   };
 
   //Counting redundant editing characters number
@@ -220,6 +239,11 @@ function HomePage() {
       setChosenPost(null);
     }
   }, [viewPostDetails]);
+
+  useEffect(() => {
+    console.log('localUrlImages.length', localUrlImages.length);
+    console.log('localUrlImages', localUrlImages);
+  }, [localUrlImages]);
 
   useEffect(() => {
     getAllUsers();
@@ -375,8 +399,10 @@ function HomePage() {
                     </div>
                   </>
                 )}
+                {/* View information details of post */}
                 <div className='details-chosen-post grid grid-cols-12 relative'>
                   <div className='col-span-1'>
+                    {/* avatar */}
                     <img
                       src='201587.jpg'
                       alt=''
@@ -384,6 +410,7 @@ function HomePage() {
                     />
                   </div>
                   <div className='col-span-11 flex flex-col'>
+                    {/* Author and post time*/}
                     <div className='flex justify-between'>
                       <div className='name-and-postedat absolute top-0 left-12 sm2:left-16'>
                         <div className=''>
@@ -405,8 +432,8 @@ function HomePage() {
                     </div>
                   </div>
                 </div>
+                {/* Editing mode */}
                 {isEditing ? (
-                  //Edit mode
                   <div className='wrapper-editing mt-16 relative'>
                     <div className='redundant-editing-characters-number absolute -top-11 right-2 text-red-600 tracking-wide'>
                       {redundantEditingCharactersNumber < 0
@@ -482,13 +509,41 @@ function HomePage() {
                     )}
                   </div>
                 ) : (
-                  //Default mode
                   // Default content of post details
-                  <div
-                    id='feeds-content-bottom-description'
-                    className='break-words mt-16'
-                  >
-                    {contentForUpdate}
+                  <div id='feeds-content-bottom-description' className='mt-16'>
+                    <div className='content-description break-words'>
+                      {contentForUpdate}
+                    </div>
+                    {localUrlImages.length === 1 ? (
+                      <div className='content-attachments w-full'>
+                        <img
+                          src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
+                          alt='attached items'
+                          className='rounded-lg'
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className='vulv-scrollbar-hide flex flex-col justify-center items-center gap-3 overflow-x-auto mt-4'
+                        ref={scrollContainerRef}
+                        onMouseDown={handleSwipe}
+                        onDragStart={(e) => e.preventDefault()}
+                      >
+                        {localUrlImages.length > 1 &&
+                          localUrlImages.map((imgurl, index) => (
+                            <div
+                              key={index}
+                              className='content-attachments w-full sm2:w-[65%]'
+                            >
+                              <img
+                                src={`http://localhost:3000${imgurl?.attacheditem_path}`}
+                                alt='attached items'
+                                className='rounded-lg'
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

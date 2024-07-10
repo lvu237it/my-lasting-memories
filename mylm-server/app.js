@@ -20,14 +20,19 @@ const postRouter = require('./routes/postRoutes');
 
 // 1) GLOBAL MIDDLEWARE
 //Setting Security Http Headers
-app.use(helmet());
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 
 //Cross-Origin Resource Sharing
 //CORS là cơ chế cho phép các tài nguyên trên một trang web được yêu cầu từ một tên miền khác với tên miền mà tài nguyên đó được lưu trữ.
 //Đây là một tính năng bảo mật của các trình duyệt để ngăn chặn các trang web khác nhau truy cập vào các tài nguyên của nhau mà không có sự cho phép.
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Frontend URL
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend và Backend URLs
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type'], //Chỉ định các header được cho phép trong request - Nếu ko cần header cụ thể có thể bỏ qua
     credentials: true, // Nếu bạn cần hỗ trợ phiên đăng nhập hoặc sử dụng cookies
@@ -36,6 +41,15 @@ app.use(
 
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(express.json());
+
+// Serve static files từ thư mục assets
+app.use(
+  '/assets/images',
+  express.static(path.join(__dirname, 'assets/images'), { fallthrough: false })
+);
+//Điều này sẽ cho phép các tệp tĩnh trong thư mục assets của bạn có thể được truy cập từ frontend thông qua đường dẫn /assets.
+//Ví dụ, nếu bạn có một hình ảnh logo.png trong assets/images, bạn có thể truy cập nó qua đường dẫn http://localhost:5173/assets/images/logo.png
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {

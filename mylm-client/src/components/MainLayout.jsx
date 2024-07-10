@@ -40,6 +40,8 @@ const MainLayout = () => {
     handleClickOutside,
     handleClickAddImageIcon,
     handleFileChange,
+    images,
+    setImages,
     imageUrlsList,
     setImageUrlsList,
     handleSwipe,
@@ -143,6 +145,7 @@ const MainLayout = () => {
     if (discard) {
       textareaRef.current.value = '';
       setImageUrlsList([]);
+      setImages([]);
       setDiscard(false);
       setPostModal(false);
       setShowDiscardModal(false);
@@ -193,6 +196,14 @@ const MainLayout = () => {
     console.log(countRedundantCharacter);
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
+
+  // useEffect(() => {
+  //   if (imageUrlsList.length === 0) {
+  //     return;
+  //   } else {
+  //     //Upload link của các bức ảnh lên database
+  //   }
+  // }, [imageUrlsList]);
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
@@ -273,7 +284,7 @@ const MainLayout = () => {
                     <div className=''>
                       <div className='font-semibold tracking-wide'>Lưu Vũ</div>
                       <div className=''>
-                        {/* Display images after upload to post */}
+                        {/* Display images before uploading to database */}
                         <div
                           ref={scrollContainerRef}
                           className='vulv-uploaded-images flex flex-row gap-2 overflow-x-auto vulv-scrollbar-hide'
@@ -286,7 +297,7 @@ const MainLayout = () => {
                               ref={postItemsUploadRef}
                               src={url}
                               className='w-[25%] h-auto rounded-lg'
-                              alt='uploaded images'
+                              alt={`Preview ${index}`}
                             />
                           ))}
                         </div>
@@ -309,7 +320,7 @@ const MainLayout = () => {
                 <ul className='flex gap-5 text-2xl mt-3 sm2:mt-2 cursor-pointer '>
                   <li
                     id='upload-attachment-icon'
-                    onClick={() => handleClickAddImageIcon()}
+                    onClick={handleClickAddImageIcon}
                   >
                     <BiImageAdd />
                   </li>
