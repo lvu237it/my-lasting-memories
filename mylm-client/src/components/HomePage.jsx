@@ -560,7 +560,7 @@ function HomePage() {
                 <input
                   className='post-input basis-[80%] hidden sm2:block tracking-wide'
                   type='text'
-                  placeholder='Speak your mind...'
+                  placeholder='Viết ra những suy nghĩ của bạn...'
                   readOnly
                   onClick={handleOpenPostModal}
                 />
@@ -574,7 +574,7 @@ function HomePage() {
                   onClick={handleOpenPostModal}
                   className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
                 >
-                  Post
+                  Đăng
                 </button>
               </div>
               <hr className='my-3 border-slate-300' />

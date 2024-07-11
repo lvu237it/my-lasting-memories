@@ -228,7 +228,7 @@ const MainLayout = () => {
         <div className='bg-white h-[120px] rounded-2xl fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2'>
           <div className='grid divide-y-2 w-[280px] h-full'>
             <div className='mx-auto my-auto font-bold tracking-wide'>
-              Discard content?
+              Loại bỏ bài đăng này?
             </div>
             <div className='flex relative'>
               <div className='absolute border border-slate-200 h-full font-medium text-xl left-1/2'></div>
@@ -236,13 +236,13 @@ const MainLayout = () => {
                 onClick={() => setClickCancelDiscard(true)}
                 className='basis-1/2 relative before:absolute before:inset-0 before:-my-4 before:content-[""] mx-auto my-auto cursor-pointer'
               >
-                Cancel
+                Tiếp tục viết
               </button>
               <button
                 onClick={() => setDiscard(true)}
                 className='basis-1/2 relative before:absolute before:inset-0 before:-my-4 before:content-[""] mx-auto my-auto font-bold tracking-wide text-red-500 cursor-pointer'
               >
-                Discard
+                Loại bỏ
               </button>
             </div>
           </div>
@@ -268,7 +268,7 @@ const MainLayout = () => {
                   }}
                   className='post-cancel font-semibold text-red-500 opacity-55 hover:opacity-75 text-base cursor-pointer left-[2.0rem] top-[1.8rem] '
                 >
-                  Cancel
+                  Huỷ
                 </div>
               </div>
               <div className='post-content-description mt-10 sm2:my-0'>
@@ -307,7 +307,7 @@ const MainLayout = () => {
                           className='w-full tracking-wide py-1 sm:py-0 sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                           name=''
                           id='post-content-details'
-                          placeholder='Speak your mind...'
+                          placeholder='Viết ra những suy nghĩ của bạn...'
                         ></textarea>
                       </div>
                       <hr className='my-1 w-[95%] sm:w-[87%] sm2:w-[84%]' />
@@ -349,14 +349,14 @@ const MainLayout = () => {
                     onClick={handleCreatePost}
                     className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'
                   >
-                    Post
+                    Đăng
                   </button>
                 ) : (
                   <button
                     disabled={true}
                     className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 opacity-50 rounded-xl shadow shadow-slate-300'
                   >
-                    Post
+                    Đăng
                   </button>
                 )}
               </div>

@@ -85,7 +85,7 @@ export const Common = ({ children }) => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages((preImages) => [...preImages, files]);
+    setImages((preImages) => [...preImages, ...files]);
     // Tạo URL blob cho ảnh để xem trước
     //Với định dạng "blob:http://localhost:5173/..."
     const newImageUrls = files.map((file) => URL.createObjectURL(file));
@@ -168,41 +168,32 @@ export const Common = ({ children }) => {
   };
 
   const handleCreatePost = async () => {
-    //content không vượt quá 1000 ký tự
+    console.log('images.length', images.length);
     if (postContent.length > 1000) {
       toast.error(
         'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
       );
-    } else if (images[0].length > 10) {
+    } else if (images.length > 10) {
       toast.error('Đăng bài không thành công. Tối đa không quá 10 ảnh.');
     } else {
       const formData = new FormData();
       formData.append('content', postContent);
       formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin
-      images[0].forEach((file) => {
+      images.forEach((file) => {
         formData.append('images', file);
         console.log('Added image to formData:', file);
       });
 
-      // for (let pair of formData.entries()) {
-      //   console.log(pair[0] + ': ' + pair[1]);
-      // }
-
-      // console.log('formData', formData.get('content'));
       try {
         await axios.post('http://127.0.0.1:3000/posts/createpost', formData, {
-          // user_id: 'a5d5d5ce-d544-439d-86c2-0069690245c2', //user
-          // user_id: '7634b4ee-e27e-4d03-8e61-d7d6d4459607', //admin
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        // console.log('Post created:', response.data);
         setPostModal(false);
         textareaRef.current.value = '';
         setHasPostContent(false);
         toast.success('Đăng bài thành công!');
-        //Sau khi đăng bài thành công thì fetch lại data
         getAllPosts();
         setImageUrlsList([]);
         setImages([]);
