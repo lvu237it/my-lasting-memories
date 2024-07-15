@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -19,6 +19,7 @@ export const Common = ({ children }) => {
     'header-icon-bi-playlist',
     'header-icon-bi-bookmark-before',
     'header-icon-bi-message',
+    'header-icon-profile',
   ]);
 
   const [postModal, setPostModal] = useState(false);
@@ -28,6 +29,7 @@ export const Common = ({ children }) => {
   const [discard, setDiscard] = useState(false);
   const textareaRef = useRef(null);
   const addPostIconRef = useRef(null);
+  const logoutIconRef = useRef(null);
   const postItemsUploadRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -36,6 +38,15 @@ export const Common = ({ children }) => {
   const [postContent, setPostContent] = useState('');
   const [images, setImages] = useState([]);
   const [imageUrlsList, setImageUrlsList] = useState([]);
+  const isLoggedByAdmin = JSON.parse(localStorage.getItem('admin'));
+  const [isUser, setIsUser] = useState(true);
+
+  useEffect(() => {
+    //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
+    if (isLoggedByAdmin) {
+      setIsUser(false);
+    }
+  }, [isUser]);
 
   const numberCharactersAllowed = 1000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
@@ -50,7 +61,6 @@ export const Common = ({ children }) => {
   };
 
   //Increase UX when scrolling
-
   const handleSwipe = (e) => {
     e.preventDefault(); // Ngăn chặn hành động mặc định của trình duyệt
     const container = scrollContainerRef.current;
@@ -253,10 +263,13 @@ export const Common = ({ children }) => {
         handleCreatePost,
         ToastContainer,
         addPostIconRef,
+        logoutIconRef,
         redundantCharactersNumber,
         setRedundantCharactersNumber,
         numberCharactersAllowed,
-
+        isUser,
+        setIsUser,
+        isLoggedByAdmin,
         // notify,
       }}
     >

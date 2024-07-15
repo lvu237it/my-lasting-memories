@@ -37,11 +37,14 @@ function HomePage() {
     getAllPosts,
     getAuthorNameOfPostByUserId,
     addPostIconRef,
+    logoutIconRef,
     ToastContainer,
     numberCharactersAllowed,
     getPostedTime,
     scrollContainerRef,
     handleSwipe,
+    isUser,
+    setIsUser,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -82,7 +85,7 @@ function HomePage() {
   //     }
   //   };
   //   checkRememberMeSession();
-  // });
+  // }, []);
 
   //Cancel editing post
   //Click "Không" when Modal opened
@@ -92,7 +95,6 @@ function HomePage() {
 
   //Click "Huỷ" when Modal opened
   const handleDefinitelyCancelEditingPost = () => {
-    console.log('contentBeforeUpdate', contentBeforeUpdate);
     if (contentForUpdate !== contentBeforeUpdate) {
       //Có sự thay đổi content so với ban đầu nhưng Huỷ - không tiếp tục chỉnh sửa
       //=> Giữ content ban đầu
@@ -241,11 +243,6 @@ function HomePage() {
   }, [viewPostDetails]);
 
   useEffect(() => {
-    console.log('localUrlImages.length', localUrlImages.length);
-    console.log('localUrlImages', localUrlImages);
-  }, [localUrlImages]);
-
-  useEffect(() => {
     getAllUsers();
     getAllPosts();
   }, []);
@@ -278,16 +275,32 @@ function HomePage() {
     };
   }, []);
 
+  // Handle modals and z-index
   useEffect(() => {
-    const addPostIcon = addPostIconRef.current;
+    const updateZIndex = () => {
+      const addPostIcon = addPostIconRef.current;
+      const logoutIcon = logoutIconRef.current;
 
-    if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
-      addPostIcon.classList.remove('z-[1000]');
-      addPostIcon.classList.add('hidden');
-    } else {
-      addPostIcon.classList.remove('hidden');
-      addPostIcon.classList.add('z-[1000]');
-    }
+      if (addPostIcon) {
+        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+          addPostIcon.classList.add('hidden');
+        } else {
+          addPostIcon.classList.remove('hidden');
+          addPostIcon.style.zIndex = '1000';
+        }
+      }
+
+      if (logoutIcon) {
+        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+          logoutIcon.classList.add('hidden');
+        } else {
+          logoutIcon.classList.remove('hidden');
+          logoutIcon.style.zIndex = '1000';
+        }
+      }
+    };
+
+    updateZIndex();
   }, [openOptionsModal, openDeleteModal, openCancelEditingModal]);
 
   useEffect(() => {
@@ -423,12 +436,16 @@ function HomePage() {
                           </div>
                         </div>
                       </div>
-                      <div
-                        onClick={handleSetOptionsModal}
-                        className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
-                      >
-                        <BiDotsHorizontalRounded />
-                      </div>
+                      {isUser === true ? (
+                        ''
+                      ) : (
+                        <div
+                          onClick={handleSetOptionsModal}
+                          className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                        >
+                          <BiDotsHorizontalRounded />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -550,35 +567,42 @@ function HomePage() {
             </div>
           ) : (
             //Home page screen with list of posts
-            <>
-              <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
-                <img
-                  src='201587.jpg'
-                  alt=''
-                  className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                />
-                <input
-                  className='post-input basis-[80%] hidden sm2:block tracking-wide'
-                  type='text'
-                  placeholder='Viết ra những suy nghĩ của bạn...'
-                  readOnly
-                  onClick={handleOpenPostModal}
-                />
-                <div
-                  onClick={handleOpenPostModal}
-                  className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
-                >
-                  <BiPlusCircle />
-                </div>
-                <button
-                  onClick={handleOpenPostModal}
-                  className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
-                >
-                  Đăng
-                </button>
+            <div>
+              <div>
+                {isUser === true ? (
+                  ''
+                ) : (
+                  <div>
+                    <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
+                      <img
+                        src='201587.jpg'
+                        alt=''
+                        className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                      />
+                      <input
+                        className='post-input basis-[80%] hidden sm2:block tracking-wide'
+                        type='text'
+                        placeholder='Viết ra những suy nghĩ của bạn...'
+                        readOnly
+                        onClick={handleOpenPostModal}
+                      />
+                      <div
+                        onClick={handleOpenPostModal}
+                        className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
+                      >
+                        <BiPlusCircle />
+                      </div>
+                      <button
+                        onClick={handleOpenPostModal}
+                        className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                      >
+                        Đăng
+                      </button>
+                    </div>
+                    <hr className='my-3 border-slate-300' />
+                  </div>
+                )}
               </div>
-              <hr className='my-3 border-slate-300' />
-
               {/* List of posts */}
               {postsList &&
                 postsList.map((post, index) => (
@@ -607,7 +631,7 @@ function HomePage() {
                             </div>
                           </div>
                           <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                            {post.content}
+                            {post.content || '* Bài viết không có tiêu đề'}
                           </div>
                         </div>
                       </div>
@@ -617,7 +641,7 @@ function HomePage() {
                     )}
                   </div>
                 ))}
-            </>
+            </div>
           )}
         </div>
       </div>

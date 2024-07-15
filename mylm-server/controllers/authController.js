@@ -137,7 +137,7 @@ exports.login = catchAsync(async (req, res, next) => {
       }
       // Đặt cookie Remember Me
       const cookieOptions = {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       };
       if (process.env.NODE_ENV === 'production') {
@@ -163,40 +163,48 @@ exports.checkRememberMe = async (req, res, next) => {
       [series, hashedToken]
     );
 
+    //Có tồn tại phiên đăng nhập trước đó - vẫn còn hiệu lực
     if (rows.length > 0) {
       // const user = await poolExecute('SELECT * FROM users WHERE user_id = ?', [
       //   rows[0].user_id,
       // ]);
       // req.user = user[0];
-
-      // // Tạo mới token và cập nhật lại trong cơ sở dữ liệu
-      // const newToken = crypto.randomBytes(32).toString('hex');
-      // const newHashedToken = crypto
-      //   .createHash('sha256')
-      //   .update(newToken)
-      //   .digest('hex');
-      // const newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-
-      // await poolExecute(
-      //   'UPDATE remember_me_tokens SET token = ?, expires_at = ? WHERE series = ?',
-      //   [newHashedToken, newExpiresAt, series]
-      // );
-
-      // // Đặt lại cookie Remember Me với token mới
-      // res.cookie('remember_me', `${series}:${newToken}`, {
-      //   httpOnly: true,
-      //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      //   secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được truyền qua kết nối HTTPS
-      // });
-
       // Giữ trạng thái đăng nhập và tiếp tục xử lý request
-      return next();
+      res.status(200).json({
+        status: 'success',
+        message: 'Is logged and not expire',
+      });
     }
+  } else {
+    // Nếu không có cookie Remember Me, chuyển hướng đến trang đăng nhập
+
+    //Phiên đăng nhập đã hết hạn hoặc chưa từng đăng nhập
+    // Nếu không tìm thấy hoặc cookie đã hết hạn, xóa cookie và chuyển hướng đến trang đăng nhập
+    res.clearCookie('remember_me');
+    res.status(200).json({
+      status: 'success',
+      message: 'Chưa từng có cookie - chuyển hướng tới trang đăng nhập',
+    });
   }
-  // Nếu không tìm thấy hoặc cookie đã hết hạn, xóa cookie và chuyển hướng đến trang đăng nhập
-  res.clearCookie('remember_me');
-  // Nếu không có cookie Remember Me, chuyển hướng đến trang đăng nhập
-  res.redirect('/login');
+  // // Tạo mới token và cập nhật lại trong cơ sở dữ liệu
+  // const newToken = crypto.randomBytes(32).toString('hex');
+  // const newHashedToken = crypto
+  //   .createHash('sha256')
+  //   .update(newToken)
+  //   .digest('hex');
+  // const newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+  // await poolExecute(
+  //   'UPDATE remember_me_tokens SET token = ?, expires_at = ? WHERE series = ?',
+  //   [newHashedToken, newExpiresAt, series]
+  // );
+
+  // // Đặt lại cookie Remember Me với token mới
+  // res.cookie('remember_me', `${series}:${newToken}`, {
+  //   httpOnly: true,
+  //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  //   secure: process.env.NODE_ENV === 'production', // Đảm bảo cookie được truyền qua kết nối HTTPS
+  // });
 };
 
 //So sánh input password và password trong database

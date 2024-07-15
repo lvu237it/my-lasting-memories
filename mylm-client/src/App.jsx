@@ -16,6 +16,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import AuthLayout from './components/AuthLayout';
+import Profile from './components/Profile';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path='/myplaylists' element={<MyPlaylists />} />
           <Route path='/savedposts' element={<SavedPosts />} />
           <Route path='/messages' element={<Messages />} />
+          <Route path='/profile' element={<Profile />} />
         </Route>
       </Routes>
     </>

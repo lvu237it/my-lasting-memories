@@ -7,6 +7,7 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
 } from 'react-icons/ai';
+import { useCommon } from '../contexts/CommonContext';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,8 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+
+  const { isUser, setIsUser } = useCommon();
 
   // Effect to transform labels when inputs are filled
   useEffect(() => {
@@ -51,6 +54,12 @@ function Login() {
       });
       console.log('Login successful');
       // Xử lý response sau khi đăng nhập thành công
+      const admin = response.data.data.user;
+      if (admin.role === 'admin') {
+        setIsUser(false);
+        localStorage.setItem('admin', JSON.stringify(admin));
+        console.log('admin', admin);
+      }
       navigate('/');
     } catch (error) {
       console.error('Error logging in:', error);
@@ -59,6 +68,13 @@ function Login() {
     }
   };
 
+  useEffect(() => {
+    const admin = JSON.parse(localStorage.getItem('admin'));
+    if (admin) {
+      setIsUser(false);
+      navigate('/');
+    }
+  }, []);
   return (
     <>
       <div className='background-image-common'>

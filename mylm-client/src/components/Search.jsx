@@ -21,9 +21,12 @@ function Search() {
     getAuthorNameOfPostByUserId,
     getPostedTime,
     addPostIconRef,
+    logoutIconRef,
     numberCharactersAllowed,
     scrollContainerRef,
     handleSwipe,
+    isUser,
+    setIsUser,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -185,16 +188,32 @@ function Search() {
     setIsEditing(false);
   };
 
+  // Handle modals and z-index
   useEffect(() => {
-    const addPostIcon = addPostIconRef.current;
+    const updateZIndex = () => {
+      const addPostIcon = addPostIconRef.current;
+      const logoutIcon = logoutIconRef.current;
 
-    if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
-      addPostIcon.classList.remove('z-[1000]');
-      addPostIcon.classList.add('hidden');
-    } else {
-      addPostIcon.classList.remove('hidden');
-      addPostIcon.classList.add('z-[1000]');
-    }
+      if (addPostIcon) {
+        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+          addPostIcon.classList.add('hidden');
+        } else {
+          addPostIcon.classList.remove('hidden');
+          addPostIcon.style.zIndex = '1000';
+        }
+      }
+
+      if (logoutIcon) {
+        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+          logoutIcon.classList.add('hidden');
+        } else {
+          logoutIcon.classList.remove('hidden');
+          logoutIcon.style.zIndex = '1000';
+        }
+      }
+    };
+
+    updateZIndex();
   }, [openOptionsModal, openDeleteModal, openCancelEditingModal]);
 
   useEffect(() => {
@@ -253,11 +272,14 @@ function Search() {
 
   useEffect(() => {
     const searchInput = document.getElementById('search-input');
-    if (postsResult.length !== 0) {
-      searchInput.classList.add('mb-6');
-    } else if (postsResult.length === 0) {
-      searchInput.classList.remove('mb-6');
+    if (searchInput) {
+      if (postsResult.length !== 0) {
+        searchInput.classList.add('mb-6');
+      } else if (postsResult.length === 0) {
+        searchInput.classList.remove('mb-6');
+      }
     }
+
     console.log(postsResult);
   }, [postsResult]);
 
@@ -290,7 +312,7 @@ function Search() {
   return (
     <>
       <div className='wrapper my-3 relative'>
-        <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 md:mx-10 lg:mx-14 md:py-10 mx-3 my-5'>
+        <div className=' md:border-slate-300 md:rounded-3xl md:shadow md:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 md:mx-10 lg:mx-14 md:py-10 mx-3 my-5'>
           {viewPostDetails ? (
             <>
               <div className='wrapper-post-details'>
@@ -410,12 +432,16 @@ function Search() {
                             </div>
                           </div>
                         </div>
-                        <div
-                          onClick={handleSetOptionsModal}
-                          className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
-                        >
-                          <BiDotsHorizontalRounded />
-                        </div>
+                        {isUser === true ? (
+                          ''
+                        ) : (
+                          <div
+                            onClick={handleSetOptionsModal}
+                            className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                          >
+                            <BiDotsHorizontalRounded />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -556,7 +582,7 @@ function Search() {
                     autoFocus
                     className='bg-slate-50 w-[75%] sm:w-[80%] sm2:[85%] md:w-[90%]'
                     type='text'
-                    placeholder='Search a post'
+                    placeholder='Tìm kiếm bài viết'
                   />
                   {searchContent && (
                     <BiXCircle

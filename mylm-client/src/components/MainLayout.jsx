@@ -16,6 +16,9 @@ import {
   BiVideoPlus,
   BiUserVoice,
   BiFileBlank,
+  BiUserCheck,
+  BiUser,
+  BiLogOut,
 } from 'react-icons/bi';
 import { AiFillBell, AiFillHome } from 'react-icons/ai';
 import NavBar from './NavBar';
@@ -63,12 +66,21 @@ const MainLayout = () => {
     handleCreatePost,
     ToastContainer,
     addPostIconRef,
+    logoutIconRef,
     redundantCharactersNumber,
     setRedundantCharactersNumber,
     numberCharactersAllowed,
+    isUser,
+    setIsUser,
   } = useCommon();
 
   const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    localStorage.removeItem('admin');
+    setIsUser(true);
+    navigate('/login');
+  };
 
   useEffect(() => {
     const iconClicked = document.getElementById(headerIconsClicked);
@@ -131,6 +143,8 @@ const MainLayout = () => {
       navigate('/savedposts');
     } else if (headerIconsClicked === 'header-icon-bi-message') {
       navigate('/messages');
+    } else if (headerIconsClicked === 'header-icon-profile') {
+      navigate('/profile');
     }
   }, [headerIconsClicked]);
 
@@ -180,20 +194,40 @@ const MainLayout = () => {
 
   useEffect(() => {
     const addPostIcon = addPostIconRef.current;
+  }, []);
 
-    if (postModal) {
-      addPostIcon.classList.remove('z-[1000]');
-      addPostIcon.classList.add('hidden');
-    } else {
-      addPostIcon.classList.remove('hidden');
-      addPostIcon.classList.add('z-[1000]');
-    }
+  // Handle modals and z-index
+  useEffect(() => {
+    const updateZIndex = () => {
+      const addPostIcon = addPostIconRef.current;
+      const logoutIcon = logoutIconRef.current;
+
+      if (addPostIcon) {
+        if (postModal) {
+          addPostIcon.classList.remove('z-[1000]');
+          addPostIcon.classList.add('hidden');
+        } else {
+          addPostIcon.classList.remove('hidden');
+          addPostIcon.classList.add('z-[1000]');
+        }
+      }
+
+      if (logoutIcon) {
+        if (postModal) {
+          logoutIcon.classList.add('hidden');
+        } else {
+          logoutIcon.classList.remove('hidden');
+          logoutIcon.style.zIndex = '1000';
+        }
+      }
+    };
+
+    updateZIndex();
   }, [postModal]);
 
   useEffect(() => {
     const countRedundantCharacter =
       numberCharactersAllowed - postContent.length; //Số lượng kí tự dư thừa
-    console.log(countRedundantCharacter);
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
 
@@ -207,15 +241,33 @@ const MainLayout = () => {
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
-      <div
-        id='add-post-icon'
-        ref={addPostIconRef}
-        className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-3 bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
-      >
-        <div onClick={handleOpenPostModal} className='text-2xl p-3'>
-          <BiPencil />
+      {isUser === false ? (
+        <div
+          id='log-out-icon'
+          ref={logoutIconRef}
+          className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
+        >
+          <div onClick={handleLogOut} className='text-2xl p-3'>
+            <BiLogOut />
+          </div>
         </div>
-      </div>
+      ) : (
+        ''
+      )}
+
+      {isUser === false ? (
+        <div
+          id='add-post-icon'
+          ref={addPostIconRef}
+          className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-3 bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
+        >
+          <div onClick={handleOpenPostModal} className='text-2xl p-3'>
+            <BiPencil />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
 
       {/* Successful notification after creating post */}
       <ToastContainer />
@@ -418,19 +470,34 @@ const MainLayout = () => {
               >
                 <BiSolidPlaylist />
               </div>
+              {isUser === false ? (
+                <div
+                  id='header-icon-bi-bookmark'
+                  className='left-sidebar-icons'
+                  onClick={handleClickHeaderIcons}
+                >
+                  <BiBookmark id='header-icon-bi-bookmarka-before' />
+                </div>
+              ) : (
+                ''
+              )}
+              {isUser === false ? (
+                <div
+                  id='header-icon-bi-message'
+                  className='left-sidebar-icons'
+                  onClick={handleClickHeaderIcons}
+                >
+                  <BiMessage />
+                </div>
+              ) : (
+                ''
+              )}
               <div
-                id='header-icon-bi-bookmark'
+                id='header-icon-profile'
                 className='left-sidebar-icons'
                 onClick={handleClickHeaderIcons}
               >
-                <BiBookmark id='header-icon-bi-bookmark-before' />
-              </div>
-              <div
-                id='header-icon-bi-message'
-                className='left-sidebar-icons'
-                onClick={handleClickHeaderIcons}
-              >
-                <BiMessage />
+                <BiUser />
               </div>
             </div>
           </div>

@@ -30,7 +30,7 @@ function Messages() {
             <div className='col-start-11 col-span-1 text-right'>
               <button className='font-semibold px-5 py-3 my-auto border-slate-400 hover:bg-slate-100 duration-300 ease-in-out rounded-xl shadow shadow-slate-300'>
                 <div className='flex items-center justify-center gap-2'>
-                  <div className=''>Sort by</div>
+                  <div className=''>Thứ tự</div>
                   <BiFilter className='text-2xl' />
                 </div>
               </button>
