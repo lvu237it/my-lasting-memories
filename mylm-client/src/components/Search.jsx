@@ -27,6 +27,12 @@ function Search() {
     handleSwipe,
     isUser,
     setIsUser,
+    adminInfor,
+    openViewImageModal,
+    setOpenViewImageModal,
+    handleOpenViewImageModal,
+    imageChoseToView,
+    setImageChoseToView,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -414,7 +420,7 @@ function Search() {
                   <div className='details-chosen-post grid grid-cols-12 relative'>
                     <div className='col-span-1'>
                       <img
-                        src='201587.jpg'
+                        src={adminInfor && adminInfor.avatar_path}
                         alt=''
                         className='my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                       />
@@ -422,7 +428,7 @@ function Search() {
                     <div className='col-span-11 flex flex-col'>
                       <div className='flex justify-between'>
                         <div className='name-and-postedat absolute top-0 left-12 sm2:left-16'>
-                          <div className=''>
+                          <div className='font-semibold'>
                             {getAuthorNameOfPostByUserId(chosenPost.user_id)}
                           </div>
                           <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
@@ -455,7 +461,7 @@ function Search() {
                       </div>
                       <div
                         id='feeds-content-bottom-description'
-                        className='break-words'
+                        className='break-words whitespace-pre-wrap leading-7'
                         contentEditable={true}
                         ref={contentEditableRef}
                         onBlur={handleInputBlur}
@@ -528,12 +534,13 @@ function Search() {
                       id='feeds-content-bottom-description-search'
                       className='break-words mt-16'
                     >
-                      <div className='content-description break-words'>
+                      <div className='content-description break-words whitespace-pre-wrap leading-7'>
                         {contentForUpdate}
                       </div>
                       {localUrlImages.length === 1 ? (
-                        <div className='content-attachments w-full'>
+                        <div className='content-attachments w-full mt-4 cursor-pointer'>
                           <img
+                            onClick={(e) => handleOpenViewImageModal(e)}
                             src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
                             alt='attached items'
                             className='rounded-lg'
@@ -550,9 +557,10 @@ function Search() {
                             localUrlImages.map((imgurl, index) => (
                               <div
                                 key={index}
-                                className='content-attachments w-full sm2:w-[65%]'
+                                className='content-attachments w-full cursor-pointer'
                               >
                                 <img
+                                  onClick={(e) => handleOpenViewImageModal(e)}
                                   src={`http://localhost:3000${imgurl?.attacheditem_path}`}
                                   alt='attached items'
                                   className='rounded-lg'
@@ -604,7 +612,7 @@ function Search() {
                         <div className=''>
                           <div className='image-avatar absolute top-0 left-0'>
                             <img
-                              src='201587.jpg'
+                              src={adminInfor && adminInfor.avatar_path}
                               alt=''
                               className='rounded-full w-12 h-12'
                             />

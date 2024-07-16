@@ -79,15 +79,16 @@ function ResetPassword() {
       <div className='background-image-common'>
         <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
           <h1 className='text-4xl font-bold text-center mb-6'>
-            Reset Password
+            Cài đặt mật khẩu
           </h1>
           {showMessageSuccessful && (
             <div className='max-w-[288px] '>
               <div className='text-center text-base text-green-300'>
-                Your password has been reset
+                {/* Your password has been reset */}
+                Mật khẩu của bạn đã được cài đặt lại.
               </div>
               <div className='text-center text-base text-green-300'>
-                Redirecting to login...
+                Tự động trở về trang đăng nhập...
               </div>
             </div>
           )}
@@ -95,11 +96,13 @@ function ResetPassword() {
           {showMessageErrorToken && (
             <div className='max-w-[288px] '>
               <div className='text-center text-[18px] text-red-400'>
-                Token is invalid or expired
+                {/* Token is invalid or expired */}
+                Mã Token không hợp lệ
               </div>
               <Link to={'/forgotpassword'}>
                 <button className='w-full mb-4 text-base mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'>
-                  Back to Forgot Password
+                  {/* Back to Forgot Password */}
+                  Quay về trang Quên mật khẩu
                 </button>
               </Link>
             </div>
@@ -120,7 +123,7 @@ function ResetPassword() {
                 type={showPassword ? 'text' : 'password'}
               />
               <label className='absolute flex text-base  duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-                Your Password
+                Mật khẩu
               </label>
               <div
                 className='absolute top-[14px] right-10 cursor-pointer'
@@ -139,7 +142,7 @@ function ResetPassword() {
                 type={showConfirmPassword ? 'text' : 'password'}
               />
               <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-                Confirm Password
+                Xác nhận lại mật khẩu
               </label>
               <div
                 className='absolute top-[14px] right-10 cursor-pointer'
@@ -159,7 +162,7 @@ function ResetPassword() {
               className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
               type='submit'
             >
-              Submit
+              Gửi
             </button>
           </form>
         </div>

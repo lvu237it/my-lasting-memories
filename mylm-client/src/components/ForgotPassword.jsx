@@ -50,19 +50,19 @@ function ForgotPassword() {
     <>
       <div className='background-image-common'>
         <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
-          <h1 className='text-4xl font-bold text-center mb-6'>
-            Forgot Password
-          </h1>
+          <h1 className='text-4xl font-bold text-center mb-6'>Quên mật khẩu</h1>
           {showSuccessfulMessage && (
             <div className='max-w-[288px] '>
               <div className='text-center text-green-300'>
-                A reset URL has been sent. Please check your inbox
+                {/* A reset URL has been sent. Please check your inbox */}
+                Một đường dẫn dùng để cài đặt lại mật khẩu đã được gửi tới hòm
+                thư của bạn. Vui lòng kiểm tra email
               </div>
             </div>
           )}
           <form action='' id='form-reset-token'>
             <div className='max-w-[288px] text-center mb-6'>
-              Please enter email to reset password
+              Vui lòng nhập email của bạn
             </div>
             {errorMessage && (
               <div className='max-w-[288px] text-center text-yellow-200 mb-4'>
@@ -79,7 +79,7 @@ function ForgotPassword() {
                 type='text'
               />
               <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-                Your Email
+                Email
               </label>
               <BiUser className='absolute top-[14px] right-4' />
             </div>
@@ -90,7 +90,7 @@ function ForgotPassword() {
               className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
               type='submit'
             >
-              Send
+              Gửi
             </button>
           </form>
         </div>

@@ -1,7 +1,10 @@
 import { BiPencil, BiFilter } from 'react-icons/bi';
 import { useEffect, useState } from 'react';
+import { useCommon } from '../contexts/CommonContext';
 
 function SavedPosts() {
+  const { adminInfor } = useCommon();
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -36,121 +39,28 @@ function SavedPosts() {
               </button>
             </div>
           </div>
-          <div className='grid-search-results'>
+          <div className='grid-savedposts-results'>
             <div className='result-item grid relative mb-[85px]'>
               <div className='image-avatar absolute top-0 left-0'>
                 <img
-                  src='201587.jpg'
+                  src={adminInfor && adminInfor.avatar_path}
                   alt=''
                   className='rounded-full w-12 h-12'
                 />
               </div>
               <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
                 <div className='name-and-posted-at'>
-                  <div className='font-semibold'>Luu Vu</div>
+                  <div className='font-semibold'>
+                    {adminInfor && adminInfor.username}
+                  </div>
                   <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail  whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời. Dù
-                    có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý khoảng
-                    thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình rằng không
-                    được quên đi quá khứ. Bởi chính tôi trong quá khứ đã vượt
-                    qua tất cả để có được tôi ở hiện tại
+                  <div className='result-little-detail whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                    Đang cập nhật...
                   </div>
                 </div>
               </div>
             </div>
             <hr className='mb-5' />
-            <div className='result-item grid relative mb-[85px]'>
-              <div className='image-avatar absolute top-0 left-0'>
-                <img
-                  src='201587.jpg'
-                  alt=''
-                  className='rounded-full w-12 h-12'
-                />
-              </div>
-              <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
-                <div className='name-and-posted-at'>
-                  <div className='font-semibold'>Luu Vu</div>
-                  <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail  whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời. Dù
-                    có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý khoảng
-                    thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình rằng không
-                    được quên đi quá khứ. Bởi chính tôi trong quá khứ đã vượt
-                    qua tất cả để có được tôi ở hiện tại
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr className='mb-5' />
-            <div className='result-item grid relative mb-[85px]'>
-              <div className='image-avatar absolute top-0 left-0'>
-                <img
-                  src='201587.jpg'
-                  alt=''
-                  className='rounded-full w-12 h-12'
-                />
-              </div>
-              <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
-                <div className='name-and-posted-at'>
-                  <div className='font-semibold'>Luu Vu</div>
-                  <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail  whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời. Dù
-                    có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý khoảng
-                    thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình rằng không
-                    được quên đi quá khứ. Bởi chính tôi trong quá khứ đã vượt
-                    qua tất cả để có được tôi ở hiện tại
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr className='mb-5' />
-            <div className='result-item grid relative mb-[85px]'>
-              <div className='image-avatar absolute top-0 left-0'>
-                <img
-                  src='201587.jpg'
-                  alt=''
-                  className='rounded-full w-12 h-12'
-                />
-              </div>
-              <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
-                <div className='name-and-posted-at'>
-                  <div className='font-semibold'>Luu Vu</div>
-                  <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail  whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời. Dù
-                    có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý khoảng
-                    thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình rằng không
-                    được quên đi quá khứ. Bởi chính tôi trong quá khứ đã vượt
-                    qua tất cả để có được tôi ở hiện tại
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr className='mb-5' />
-            <div className='result-item grid relative mb-[85px]'>
-              <div className='image-avatar absolute top-0 left-0'>
-                <img
-                  src='201587.jpg'
-                  alt=''
-                  className='rounded-full w-12 h-12'
-                />
-              </div>
-              <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
-                <div className='name-and-posted-at'>
-                  <div className='font-semibold'>Luu Vu</div>
-                  <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail  whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đây là một trong những kỉ niệm mà tôi nhớ nhất trong đời. Dù
-                    có trải qua bao nhiêu thăng trầm, tôi vẫn trân quý khoảng
-                    thời gian đó và đôi lúc tôi vẫn tự nhắc nhở mình rằng không
-                    được quên đi quá khứ. Bởi chính tôi trong quá khứ đã vượt
-                    qua tất cả để có được tôi ở hiện tại
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

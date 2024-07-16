@@ -4,11 +4,12 @@ class User {
     name,
     email,
     password,
-    role = 'user',
+    role, //default 'user'
     createdAt = new Date(),
     isDeleted = false,
     deletedAt = null,
-    updatedAt = new Date()
+    updatedAt = new Date(),
+    avatarPath = null
   ) {
     this.id = id;
     this.name = name;
@@ -19,6 +20,7 @@ class User {
     this.isDeleted = isDeleted;
     this.deletedAt = deletedAt;
     this.updatedAt = updatedAt;
+    this.avatarPath = avatarPath;
   }
 
   // Getters
@@ -56,6 +58,10 @@ class User {
 
   getUpdatedAt() {
     return this.updatedAt;
+  }
+
+  getAvatarPath() {
+    return this.avatarPath;
   }
 
   // Setters
@@ -106,5 +112,9 @@ class User {
     if (!(updatedAt instanceof Date))
       throw new Error('UpdatedAt must be a Date object');
     this.updatedAt = updatedAt;
+  }
+
+  setAvatarPath(avatarPath) {
+    this.avatarPath = avatarPath;
   }
 }

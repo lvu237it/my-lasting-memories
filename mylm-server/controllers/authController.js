@@ -51,7 +51,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   if (!username.match(/^[a-zA-Z\s]+$/)) {
     return next(
       new AppError(
-        'User name only contain alphabets characters and spaces',
+        // 'User name only contain alphabets characters and spaces',
+        'Họ và Tên chỉ chứa kí tự alphabet và khoảng trắng',
         400
       )
     );
@@ -59,13 +60,13 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   // Kiểm tra sự tồn tại của email và password
   if (!email || !password) {
-    return next(new AppError('Please provide email and password', 400));
+    return next(new AppError('Vui lòng cung cấp email và mật khẩu', 400));
   }
 
   // kiểm tra email tồn tại hay chưa
   const isEmailExisted = await this.checkExistedUserByEmail(email);
   if (isEmailExisted) {
-    return next(new AppError('Email already exists', 409));
+    return next(new AppError('Email đã tồn tại', 409));
   }
 
   if (
@@ -93,19 +94,19 @@ exports.login = catchAsync(async (req, res, next) => {
 
   //1. Check if email and password exist
   if (!email || !password) {
-    return next(new AppError('Please provide email and password', 400));
+    return next(new AppError('Vui lòng cung cấp email và mật khẩu', 400));
   }
 
   // 2. Check if user exists && password is correct
   try {
     const user = await userController.findUserByEmail(email);
     if (!user) {
-      return next(new AppError('User undefined', 404));
+      return next(new AppError('Người dùng không xác định', 404));
     }
     const passwordComparing = !(await correctPassword(password, user.password));
     if (!user || passwordComparing) {
       console.log('passwordComparing', passwordComparing);
-      return next(new AppError('Incorrect email or password', 401));
+      return next(new AppError('Email hoặc mật khẩu không đúng', 401));
     }
 
     // 3. Handle RememberMe logic
@@ -148,7 +149,7 @@ exports.login = catchAsync(async (req, res, next) => {
     // 4. If everything ok, send token to client
     createSendToken(user, 200, res);
   } catch (err) {
-    return next(new AppError('Account does NOT exist', 500));
+    return next(new AppError('Tài khoản KHÔNG tồn tại', 500));
   }
 });
 
@@ -249,7 +250,10 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   if (!token) {
     return next(
-      new AppError('You are not logged in! Please log in to get access.', 401)
+      new AppError(
+        'Bạn chưa đăng nhập! Vui lòng đăng nhập để có quyền truy cập vào tính năng này.',
+        401
+      )
     );
   }
   //2. Verification token - Xác minh token
@@ -290,7 +294,8 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword, newPasswordConfirm } = req.body;
   if (!currentPassword || !newPassword || !newPasswordConfirm) {
     return next(
-      new AppError('Current password and new password are required', 404)
+      // new AppError('Current password and new password are required', 404)
+      new AppError('Vui lòng nhập mật khẩu hiện tại và mật khẩu mới', 404)
     );
   }
 
@@ -300,11 +305,13 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
     user.password
   );
   if (!passwordComparing) {
-    return next(new AppError('Your current password is wrong', 401));
+    // return next(new AppError('Your current password is wrong', 401));
+    return next(new AppError('Mật khẩu hiện tại của bạn không đúng', 401));
   }
   if (newPassword !== newPasswordConfirm) {
     return next(
-      new AppError('New password does NOT match with new password confirm', 401)
+      // new AppError('New password does NOT match with new password confirm', 401)
+      new AppError('Xác nhận mật khẩu mới KHÔNG trùng khớp', 401)
     );
   }
 

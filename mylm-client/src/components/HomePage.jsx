@@ -36,6 +36,7 @@ function HomePage() {
     getAllUsers,
     getAllPosts,
     getAuthorNameOfPostByUserId,
+    getAuthorAvatarByUserId,
     addPostIconRef,
     logoutIconRef,
     ToastContainer,
@@ -45,6 +46,12 @@ function HomePage() {
     handleSwipe,
     isUser,
     setIsUser,
+    adminInfor,
+    openViewImageModal,
+    setOpenViewImageModal,
+    handleOpenViewImageModal,
+    imageChoseToView,
+    setImageChoseToView,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -417,7 +424,7 @@ function HomePage() {
                   <div className='col-span-1'>
                     {/* avatar */}
                     <img
-                      src='201587.jpg'
+                      src={adminInfor && adminInfor.avatar_path}
                       alt=''
                       className='my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                     />
@@ -426,7 +433,7 @@ function HomePage() {
                     {/* Author and post time*/}
                     <div className='flex justify-between'>
                       <div className='name-and-postedat absolute top-0 left-12 sm2:left-16'>
-                        <div className=''>
+                        <div className='font-semibold'>
                           {getAuthorNameOfPostByUserId(chosenPost.user_id)}
                         </div>
                         <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
@@ -459,7 +466,7 @@ function HomePage() {
                     </div>
                     <div
                       id='feeds-content-bottom-description'
-                      className='break-words'
+                      className='break-words whitespace-pre-wrap leading-7'
                       contentEditable={true}
                       ref={contentEditableRef}
                       onBlur={handleInputBlur}
@@ -528,12 +535,13 @@ function HomePage() {
                 ) : (
                   // Default content of post details
                   <div id='feeds-content-bottom-description' className='mt-16'>
-                    <div className='content-description break-words'>
+                    <div className='content-description break-words whitespace-pre-wrap leading-7'>
                       {contentForUpdate}
                     </div>
                     {localUrlImages.length === 1 ? (
-                      <div className='content-attachments w-full'>
+                      <div className='content-attachments w-full mt-4 cursor-pointer'>
                         <img
+                          onClick={(e) => handleOpenViewImageModal(e)}
                           src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
                           alt='attached items'
                           className='rounded-lg'
@@ -550,9 +558,10 @@ function HomePage() {
                           localUrlImages.map((imgurl, index) => (
                             <div
                               key={index}
-                              className='content-attachments w-full sm2:w-[65%]'
+                              className='content-attachments w-full cursor-pointer'
                             >
                               <img
+                                onClick={(e) => handleOpenViewImageModal(e)}
                                 src={`http://localhost:3000${imgurl?.attacheditem_path}`}
                                 alt='attached items'
                                 className='rounded-lg'
@@ -575,7 +584,7 @@ function HomePage() {
                   <div>
                     <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
                       <img
-                        src='201587.jpg'
+                        src={adminInfor && adminInfor.avatar_path}
                         alt=''
                         className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
                       />
@@ -614,7 +623,7 @@ function HomePage() {
                     <div className='feeds-content-posts grid relative mb-[85px]'>
                       <div className='feeds-content-top-about absolute top-0 left-0'>
                         <img
-                          src='201587.jpg'
+                          src={adminInfor && adminInfor.avatar_path}
                           alt=''
                           className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
                         />

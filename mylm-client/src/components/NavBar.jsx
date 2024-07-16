@@ -4,9 +4,12 @@ import { useCommon } from '../contexts/CommonContext';
 
 function NavBar() {
   const { isUser } = useCommon();
+  const isExistLogin =
+    JSON.parse(localStorage.getItem('admin')) ||
+    JSON.parse(localStorage.getItem('user'));
 
   return (
-    <nav className='navbar text-[16px]'>
+    <nav className='navbar text-[17px]'>
       <ul className='drop-down'>
         {/* <li className='nav-link flex justify-end items-center text-3xl w-[86%]'>
           <BiMenu />
@@ -49,11 +52,19 @@ function NavBar() {
         ) : (
           ''
         )}
-        <li className='nav-link-routing'>
-          <Link className='nav-link-dropdown' to={'/profile'}>
-            Về tác giả
-          </Link>
-        </li>
+        {isExistLogin ? (
+          <li className='nav-link-routing'>
+            <Link className='nav-link-dropdown' to={'/profile'}>
+              Thông tin cá nhân
+            </Link>
+          </li>
+        ) : (
+          <li className='nav-link-routing'>
+            <Link className='nav-link-dropdown' to={'/profile'}>
+              Về tác giả
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

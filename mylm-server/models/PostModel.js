@@ -5,13 +5,15 @@ class Post {
   //   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   //   is_deleted BOOLEAN DEFAULT FALSE,
   //   deletedAt DATETIME DEFAULT NULL,
+  //   access_range enum('public, private, exceptional') default 'public'
   constructor(
     id,
     content,
     createdAt = new Date(),
     updatedAt = new Date(),
     isDeleted = false,
-    deletedAt = null
+    deletedAt = null,
+    access_range // default 'public'
   ) {
     this.id = id;
     this.content = content;
@@ -19,6 +21,7 @@ class Post {
     this.updatedAt = updatedAt;
     this.isDeleted = isDeleted;
     this.deletedAt = deletedAt;
+    this.access_range = access_range;
   }
 
   //Getters
@@ -44,6 +47,10 @@ class Post {
 
   getDeletedAt() {
     return this.deletedAt;
+  }
+
+  getAccessRange() {
+    return this.access_range;
   }
 
   //Setters
@@ -79,5 +86,10 @@ class Post {
     if (deletedAt && !(deletedAt instanceof Date))
       throw new Error('DeletedAt must be a Date object or null');
     this.deletedAt = deletedAt;
+  }
+
+  setAccessRange(access_range) {
+    if (!access_range) throw new Error('Access range is required');
+    this.access_range = access_range;
   }
 }

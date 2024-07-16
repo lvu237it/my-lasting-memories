@@ -32,6 +32,7 @@ export const Common = ({ children }) => {
   const logoutIconRef = useRef(null);
   const postItemsUploadRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const imageChoseToViewRef = useRef(null);
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
@@ -39,7 +40,11 @@ export const Common = ({ children }) => {
   const [images, setImages] = useState([]);
   const [imageUrlsList, setImageUrlsList] = useState([]);
   const isLoggedByAdmin = JSON.parse(localStorage.getItem('admin'));
+  const [adminInfor, setAdminInfor] = useState(null);
   const [isUser, setIsUser] = useState(true);
+
+  const [openViewImageModal, setOpenViewImageModal] = useState(false);
+  const [imageChoseToView, setImageChoseToView] = useState(null);
 
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
@@ -47,6 +52,21 @@ export const Common = ({ children }) => {
       setIsUser(false);
     }
   }, [isUser]);
+
+  useEffect(() => {
+    const getAdminInformation = async () => {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:3000/admin/information'
+        );
+        setAdminInfor(response.data[0]);
+      } catch (err) {
+        console.log('Error when getting admin information', err);
+      }
+    };
+
+    getAdminInformation();
+  }, []);
 
   const numberCharactersAllowed = 1000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
@@ -111,6 +131,15 @@ export const Common = ({ children }) => {
     // }
   };
 
+  //View image modal
+  const handleOpenViewImageModal = (e) => {
+    setOpenViewImageModal(true);
+    const imageSrc = e.target.src;
+    if (imageSrc) {
+      setImageChoseToView(imageSrc);
+    }
+  };
+
   //Post Modal
   const handleOpenPostModal = () => {
     setPostModal(true);
@@ -138,7 +167,7 @@ export const Common = ({ children }) => {
     }
   };
 
-  const handleClickOutside = (event) => {
+  const handleClickOutsideNavBar = (event) => {
     if (
       navbarIconRef.current &&
       navbarSliderRef.current &&
@@ -147,6 +176,15 @@ export const Common = ({ children }) => {
     ) {
       setShowNavbarSlider(false);
     }
+  };
+
+  const handleClickOutsideImageViewModal = (event) => {
+    // if (
+    //   imageChoseToViewRef.current &&
+    //   !imageChoseToViewRef.current.contains(event.target)
+    // ) {
+    setOpenViewImageModal(false);
+    // }
   };
 
   const getAllPosts = async () => {
@@ -170,6 +208,11 @@ export const Common = ({ children }) => {
   const getAuthorNameOfPostByUserId = (userId) => {
     const user = usersList.find((user) => user.user_id === userId);
     return user?.username;
+  };
+
+  const getAuthorAvatarByUserId = (userId) => {
+    const user = usersList.find((user) => user.user_id === userId);
+    return user?.avatar_path;
   };
 
   //Format posted time to yyyy/mm/dd
@@ -231,7 +274,7 @@ export const Common = ({ children }) => {
         handleOpenPostModal,
         handleClosePostModal,
         handleClickPostNew,
-        handleClickOutside,
+        handleClickOutsideNavBar,
         handleClickAddImageIcon,
         handleFileChange,
         postModal,
@@ -259,6 +302,7 @@ export const Common = ({ children }) => {
         postsList,
         usersList,
         getAuthorNameOfPostByUserId,
+        getAuthorAvatarByUserId,
         getPostedTime,
         handleCreatePost,
         ToastContainer,
@@ -270,6 +314,14 @@ export const Common = ({ children }) => {
         isUser,
         setIsUser,
         isLoggedByAdmin,
+        adminInfor,
+        openViewImageModal,
+        setOpenViewImageModal,
+        handleOpenViewImageModal,
+        imageChoseToViewRef,
+        handleClickOutsideImageViewModal,
+        imageChoseToView,
+        setImageChoseToView,
         // notify,
       }}
     >

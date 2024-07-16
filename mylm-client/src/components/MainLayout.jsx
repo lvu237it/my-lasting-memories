@@ -40,7 +40,7 @@ const MainLayout = () => {
     handleOpenPostModal,
     handleClosePostModal,
     handleClickPostNew,
-    handleClickOutside,
+    handleClickOutsideNavBar,
     handleClickAddImageIcon,
     handleFileChange,
     images,
@@ -72,6 +72,14 @@ const MainLayout = () => {
     numberCharactersAllowed,
     isUser,
     setIsUser,
+    adminInfor,
+    openViewImageModal,
+    setOpenViewImageModal,
+    handleOpenViewImageModal,
+    imageChoseToViewRef,
+    handleClickOutsideImageViewModal,
+    imageChoseToView,
+    setImageChoseToView,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -149,9 +157,19 @@ const MainLayout = () => {
   }, [headerIconsClicked]);
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutsideNavBar);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutsideNavBar);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutsideImageViewModal);
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideImageViewModal
+      );
     };
   }, []);
 
@@ -231,16 +249,21 @@ const MainLayout = () => {
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
 
-  // useEffect(() => {
-  //   if (imageUrlsList.length === 0) {
-  //     return;
-  //   } else {
-  //     //Upload link của các bức ảnh lên database
-  //   }
-  // }, [imageUrlsList]);
-
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
+      {openViewImageModal && (
+        <div
+          style={{ display: 'flex' }}
+          className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
+        >
+          <img
+            ref={imageChoseToViewRef}
+            src={imageChoseToView}
+            alt='image-modal'
+            className='max-w-full max-h-full shadow shadow-slate-300'
+          ></img>
+        </div>
+      )}
       {isUser === false ? (
         <div
           id='log-out-icon'
@@ -328,13 +351,15 @@ const MainLayout = () => {
                   <div className='sm:basis-1/10'>
                     <img
                       className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
-                      src='201587.jpg'
+                      src={adminInfor && adminInfor.avatar_path}
                       alt=''
                     />
                   </div>
                   <div className='sm:basis-[95%]'>
                     <div className=''>
-                      <div className='font-semibold tracking-wide'>Lưu Vũ</div>
+                      <div className='font-semibold tracking-wide'>
+                        {adminInfor && adminInfor.username}
+                      </div>
                       <div className=''>
                         {/* Display images before uploading to database */}
                         <div
@@ -423,7 +448,9 @@ const MainLayout = () => {
           className='max-w-screen-xl z-10 lg:max-w-[300px] sm2:sticky top-0 border-slate-50 bg-white'
         >
           <div className='left-sidebar sticky top-0 flex flex-row lg:flex-col my-5 lg:my-3 border-slate-50 bg-white'>
-            <h5 className='MyLM font-semibold text-4xl mx-auto'>MyLM</h5>
+            <h5 id='logo-mylm' className='MyLM font-semibold text-4xl mx-auto'>
+              MyLM
+            </h5>
             <div className='left-sidebar-icons-wrapper mx-auto'>
               <div className='flex sm2:hidden justify-center items-center text-3xl cursor-pointer relative'>
                 <div ref={navbarIconRef} onClick={handleClickNavbarIcon}>
@@ -433,7 +460,7 @@ const MainLayout = () => {
                   <div
                     ref={navbarSliderRef}
                     id='navbar-slide'
-                    className='absolute sm2:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-400 rounded-xl'
+                    className='absolute w-[200px] sm2:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-200 shadow-md rounded-xl'
                   >
                     <NavBar />
                   </div>

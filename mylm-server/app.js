@@ -15,6 +15,7 @@ const globalErrorHandler = require('./controllers/errorController');
 
 // Import routers
 //using this below like a middleware
+const adminRouter = require('./routes/adminRoutes');
 const userRouter = require('./routes/userRoutes');
 const postRouter = require('./routes/postRoutes');
 
@@ -92,6 +93,8 @@ app.use(xss());
 
 // 2) ROUTING HANDLERS
 //Routing for each HTTP requests
+//Admin
+app.use('/admin', adminRouter);
 //Users
 app.use('/users', userRouter);
 //Posts

@@ -62,7 +62,7 @@ function Register() {
     <>
       <div className='background-image-common'>
         <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
-          <h1 className='text-4xl font-bold text-center mb-6'>Register</h1>
+          <h1 className='text-4xl font-bold text-center mb-6'>Tạo tài khoản</h1>
           <form action=''>
             {errorMessage && (
               <div className='max-w-[288px] text-center text-yellow-200 mb-4'>
@@ -79,7 +79,7 @@ function Register() {
                 type='text'
               />
               <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
-                Your User name
+                Họ và Tên
               </label>
               <BiUser className='absolute top-[14px] right-4' />
             </div>
@@ -92,7 +92,7 @@ function Register() {
                 type='text'
               />
               <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:-translate-y-6'>
-                Your Email
+                Email
               </label>
               <BiUser className='absolute top-[14px] right-4' />
             </div>
@@ -105,7 +105,7 @@ function Register() {
                 type={showPassword ? 'text' : 'password'}
               />
               <label className='absolute flex text-base  duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-                Your Password
+                Mật khẩu
               </label>
               <div
                 className='absolute top-[14px] right-10 cursor-pointer'
@@ -124,7 +124,7 @@ function Register() {
                 type={showConfirmPassword ? 'text' : 'password'}
               />
               <label className='absolute flex text-base duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0  peer-focus:-translate-y-6'>
-                Confirm Password
+                Xác nhận lại mật khẩu
               </label>
               <div
                 className='absolute top-[14px] right-10 cursor-pointer'
@@ -144,12 +144,12 @@ function Register() {
               className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
               type='submit'
             >
-              Register
+              Gửi
             </button>
             <div className='flex justify-center items-center gap-3'>
-              <span className=''>Already Create an Account? </span>
+              <span className=''>Bạn vừa tạo tài khoản? </span>
               <Link className='text-blue-500' to='/login'>
-                Login
+                Đăng nhập
               </Link>
             </div>
           </form>

@@ -7,6 +7,18 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
 } from 'react-icons/ai';
+import { BiHappy } from 'react-icons/bi';
+import { BiSmile } from 'react-icons/bi';
+import {
+  FaThumbsUp,
+  FaThumbsDown,
+  FaMeh,
+  FaSadCry,
+  Fa500Px,
+  FaAmazonPay,
+  FaSmileBeam,
+} from 'react-icons/fa';
+import { FaSmile } from 'react-icons/fa';
 import { useCommon } from '../contexts/CommonContext';
 
 function Login() {
@@ -79,7 +91,9 @@ function Login() {
     <>
       <div className='background-image-common'>
         <div className='bg-slate-800 border border-slate-600 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 relative'>
-          <h1 className='text-4xl font-bold text-center mb-6'>Login</h1>
+          <h1 className='text-3xl font-bold mb-6 flex justify-center items-center gap-2'>
+            <div className=''>Cảm ơn vì đã đến</div> <FaSmileBeam />
+          </h1>
           <form action=''>
             {errorMessage && (
               <div className='max-w-[288px] text-center text-yellow-200 mb-4'>
@@ -97,7 +111,7 @@ function Login() {
                 type='text'
               />
               <label id='email-label' className='absolute flex text-base'>
-                Your Email
+                Email
               </label>
               <BiUser className='absolute top-[14px] right-4' />
             </div>
@@ -111,7 +125,7 @@ function Login() {
                 type={showPassword ? 'text' : 'password'}
               />
               <label id='password-label' className='absolute flex text-base'>
-                Your Password
+                Mật khẩu
               </label>
               <AiOutlineLock className='absolute top-[14px] right-4' />
               <div
@@ -122,7 +136,7 @@ function Login() {
               </div>
             </div>
             <div className='flex justify-between items-center'>
-              <div className='flex gap-2 items-center'>
+              {/* <div className='flex gap-2 items-center'>
                 <input
                   type='checkbox'
                   name=''
@@ -131,10 +145,12 @@ function Login() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 <label htmlFor='Remember Me'>Remember Me</label>
+              </div> */}
+              <div className='mx-auto'>
+                <Link to='/forgotpassword' className='text-blue-500'>
+                  Quên mật khẩu?
+                </Link>
               </div>
-              <Link to='/forgotpassword' className='text-blue-500'>
-                Forgot Password?
-              </Link>
             </div>
             <button
               onClick={(e) => {
@@ -143,12 +159,12 @@ function Login() {
               className='w-full mb-4 text-[18px] mt-6 rounded-full bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white py-2 transition-colors duration-300'
               type='submit'
             >
-              Login
+              Đăng nhập
             </button>
             <div className='flex justify-center items-center gap-3'>
-              <span className=''>New Here? </span>
+              <span className=''>Chưa có tài khoản? </span>
               <Link className='text-blue-500' to='/register'>
-                Create an Account
+                Tạo tài khoản
               </Link>
             </div>
           </form>
