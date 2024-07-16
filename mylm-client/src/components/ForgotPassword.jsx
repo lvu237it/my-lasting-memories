@@ -18,7 +18,14 @@ function ForgotPassword() {
     e.preventDefault();
 
     if (!email) {
-      setErrorMessage('Please provide an email');
+      setErrorMessage('Vui lòng cung cấp email');
+      return;
+    } else if (
+      !email.match(
+        /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/
+      )
+    ) {
+      setErrorMessage('Email không hợp lệ');
       return;
     }
 
@@ -34,12 +41,10 @@ function ForgotPassword() {
         },
       });
       console.log('Forgot password successful:', response.data);
-      if (!errorMessage) {
-        const formResetToken = document.getElementById('form-reset-token');
-        formResetToken.classList.add('hidden');
-        setShowSuccessfulMessage(!showSuccessfulMessage);
-        // navigate('/resetpassword');
-      }
+      const formResetToken = document.getElementById('form-reset-token');
+      formResetToken.classList.add('hidden');
+      setShowSuccessfulMessage(true);
+      // navigate('/resetpassword');
     } catch (error) {
       console.error('Error forgotting password:', error);
       // Xử lý lỗi khi đăng ký

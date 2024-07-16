@@ -22,16 +22,16 @@ function Register() {
     e.preventDefault();
 
     if (!username) {
-      setErrorMessage('Please provide an user name');
+      setErrorMessage('Vui lòng cung cấp Họ và Tên');
       return;
     } else if (!email) {
-      setErrorMessage('Please provide an email');
+      setErrorMessage('Vui lòng cung cấp email');
       return;
     } else if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
+      setErrorMessage('Xác nhận mật khẩu KHÔNG khớp');
       return;
     } else if (password.length < 6) {
-      setErrorMessage('Passwords must be at least 6 characters');
+      setErrorMessage('Mật khẩu cần tối thiểu 6 kí tự');
       return;
     }
 

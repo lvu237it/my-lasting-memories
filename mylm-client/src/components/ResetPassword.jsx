@@ -41,11 +41,11 @@ function ResetPassword() {
     e.preventDefault();
 
     if (!password || !passwordConfirm) {
-      setErrorMessage('Please provide password and password confirm');
+      setErrorMessage('Vui lòng cung cấp đầy đủ mật khẩu');
     } else if (password !== passwordConfirm) {
-      setErrorMessage('Passwords do not match');
+      setErrorMessage('Xác nhận mật khẩu KHÔNG khớp');
     } else if (password.length < 6) {
-      setErrorMessage('Passwords must be at least 6 characters');
+      setErrorMessage('Mật khẩu cần tối thiểu 6 kí tự');
     } else {
       try {
         const response = await axios({

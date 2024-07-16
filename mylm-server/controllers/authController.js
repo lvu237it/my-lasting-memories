@@ -74,7 +74,8 @@ exports.signup = catchAsync(async (req, res, next) => {
       /^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/
     )
   ) {
-    return next(new AppError('Invalid email format', 400));
+    // return next(new AppError('Invalid email format', 400));
+    return next(new AppError('Email không hợp lệ', 400));
   }
 
   // Mã hóa mật khẩu

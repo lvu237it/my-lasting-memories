@@ -10,7 +10,7 @@ const { promisify } = require('util');
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const [rows, fields] = await poolQuery('SELECT * FROM users');
   if (!rows) {
-    return next(new AppError('No users found', 404));
+    return next(new AppError('KHÔNG tìm thấy thông tin người dùng', 404));
   }
 
   // Lọc các trường cần hiển thị
@@ -42,7 +42,7 @@ exports.getUserByPostId = catchAsync(async (req, res, next) => {
     [post_id]
   );
   if (!rows) {
-    return next(new AppError('No users found', 404));
+    return next(new AppError('KHÔNG tìm thấy thông tin người dùng', 404));
   }
   //Test API using Postman
   // res.status(200).json({
@@ -92,7 +92,7 @@ exports.findUserByEmail = async (email) => {
     [email]
   );
   if (!rows || rows.length === 0) {
-    throw new AppError('No users found', 404);
+    throw new AppError('KHÔNG tìm thấy thông tin người dùng', 404);
   }
   return rows[0];
 };
@@ -103,7 +103,7 @@ exports.findUserById = async (user_id) => {
     [user_id]
   );
   if (!rows || rows.length === 0) {
-    throw new AppError('No users found', 404);
+    throw new AppError('KHÔNG tìm thấy thông tin người dùng', 404);
   }
   return rows[0];
 };

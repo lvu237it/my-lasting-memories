@@ -9,7 +9,9 @@ function Profile() {
         <div className='relative max-w-screen-lg sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5'>
           <div className='personal-information relative flex items-center'>
             <div className='absolute top-0 left-0 h-[80px] flex flex-col justify-around'>
-              <div className='username'>Lưu Vũ</div>
+              <div className='username font-semibold'>
+                {adminInfor && adminInfor.username}
+              </div>
               <div className='social-url'>link mạng xã hội</div>
             </div>
             <div className='avatar-infor absolute top-0 right-0'>
@@ -21,10 +23,7 @@ function Profile() {
             </div>
           </div>
           <div className='mt-28 whitespace-pre-wrap overflow-hidden overflow-ellipsis'>
-            aaa cần sửa lại kích cỡ nếu quá nhiều văn bảnaaa cần sửa lại kích cỡ
-            nếu quá nhiều văn bản cần sửa lại kích cỡ nếu quá nhiều văn bản cần
-            sửa lại kích cỡ nếu quá nhiều văn bảnaaa cần sửa lại kích cỡ nếu quá
-            nhiều văn bảnaaa cần sửa lại kích cỡ nếu quá nhiều văn bản
+            Tiểu sử chưa được cập nhật...
           </div>
         </div>
       </div>

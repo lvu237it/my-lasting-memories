@@ -54,7 +54,7 @@ function Notifications() {
                   </div>
                   <div className='text-slate-700 opacity-70'>Posted at</div>
                   <div className='result-little-detail whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Đang cập nhật...
+                    Tính năng này đang trong quá trình triển khai...
                   </div>
                 </div>
               </div>
