@@ -12,7 +12,7 @@ function Profile() {
               <div className='username font-semibold'>
                 {adminInfor && adminInfor.username}
               </div>
-              <div className='social-url'>link mạng xã hội</div>
+              <div className='social-url'>...</div>
             </div>
             <div className='avatar-infor absolute top-0 right-0'>
               <img

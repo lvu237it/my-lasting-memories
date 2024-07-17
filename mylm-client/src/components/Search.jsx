@@ -33,6 +33,7 @@ function Search() {
     handleOpenViewImageModal,
     imageChoseToView,
     setImageChoseToView,
+    decodeEntities,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -467,7 +468,7 @@ function Search() {
                         onBlur={handleInputBlur}
                         suppressContentEditableWarning={true} // Để tránh cảnh báo từ React
                       >
-                        {contentForUpdate}
+                        {decodeEntities(contentForUpdate)}
                         {/* same with {chosenPost.content} */}
                       </div>
                       <div className='relative h-16'>
@@ -535,15 +536,15 @@ function Search() {
                       className='break-words mt-16'
                     >
                       <div className='content-description break-words whitespace-pre-wrap leading-7'>
-                        {contentForUpdate}
+                        {decodeEntities(contentForUpdate)}
                       </div>
                       {localUrlImages.length === 1 ? (
-                        <div className='content-attachments w-full mt-4 cursor-pointer'>
+                        <div className='content-attachments w-[95%] mt-4 cursor-pointer'>
                           <img
                             onClick={(e) => handleOpenViewImageModal(e)}
                             src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
                             alt='attached items'
-                            className='rounded-lg'
+                            className='rounded-lg mx-auto'
                           />
                         </div>
                       ) : (
@@ -557,13 +558,13 @@ function Search() {
                             localUrlImages.map((imgurl, index) => (
                               <div
                                 key={index}
-                                className='content-attachments w-full cursor-pointer'
+                                className='content-attachments w-[95%] cursor-pointer'
                               >
                                 <img
                                   onClick={(e) => handleOpenViewImageModal(e)}
                                   src={`http://localhost:3000${imgurl?.attacheditem_path}`}
                                   alt='attached items'
-                                  className='rounded-lg'
+                                  className='rounded-lg mx-auto'
                                 />
                               </div>
                             ))}

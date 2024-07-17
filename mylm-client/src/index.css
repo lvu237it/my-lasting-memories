@@ -75,7 +75,7 @@ a {
 }
 
 .left-sidebar-icons {
-  @apply hidden sm2:flex justify-center items-center text-3xl cursor-pointer duration-300 ease-in-out border-slate-600 rounded-2xl hover:bg-gray-100 hover:shadow hover:shadow-slate-200 p-3;
+  @apply hidden md:flex justify-center items-center text-3xl cursor-pointer duration-300 ease-in-out border-slate-600 rounded-2xl hover:bg-gray-100 hover:shadow hover:shadow-slate-200 p-3;
 }
 
 .left-sidebar-icons-wrapper {

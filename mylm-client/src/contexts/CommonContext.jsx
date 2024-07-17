@@ -68,6 +68,12 @@ export const Common = ({ children }) => {
     getAdminInformation();
   }, []);
 
+  const decodeEntities = (encodedString) => {
+    const textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+  };
+
   const numberCharactersAllowed = 1000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
 
@@ -84,27 +90,29 @@ export const Common = ({ children }) => {
   const handleSwipe = (e) => {
     e.preventDefault(); // Ngăn chặn hành động mặc định của trình duyệt
     const container = scrollContainerRef.current;
-    let startX = e.pageX - container.offsetLeft;
-    let scrollLeft = container.scrollLeft;
+    if (container) {
+      let startX = e.pageX - container.offsetLeft;
+      let scrollLeft = container.scrollLeft;
 
-    container.classList.add('grabbing'); //Đổi thành biểu tượng bàn tay nắm -> kéo
+      container.classList.add('grabbing'); //Đổi thành biểu tượng bàn tay nắm -> kéo
 
-    const onMouseMove = (e) => {
-      const x = e.pageX - container.offsetLeft;
-      const walk = (x - startX) * 2; // Tăng tốc độ cuộn
-      container.scrollLeft = scrollLeft - walk;
-    };
+      const onMouseMove = (e) => {
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // Tăng tốc độ cuộn
+        container.scrollLeft = scrollLeft - walk;
+      };
 
-    const onMouseUp = () => {
-      container.classList.remove('grabbing');
-      container.removeEventListener('mousemove', onMouseMove);
-      container.removeEventListener('mouseup', onMouseUp);
-      container.removeEventListener('mouseleave', onMouseUp);
-    };
+      const onMouseUp = () => {
+        container.classList.remove('grabbing');
+        container.removeEventListener('mousemove', onMouseMove);
+        container.removeEventListener('mouseup', onMouseUp);
+        container.removeEventListener('mouseleave', onMouseUp);
+      };
 
-    container.addEventListener('mousemove', onMouseMove);
-    container.addEventListener('mouseup', onMouseUp);
-    container.addEventListener('mouseleave', onMouseUp); // Xử lý trường hợp chuột rời khỏi vùng cuộn
+      container.addEventListener('mousemove', onMouseMove);
+      container.addEventListener('mouseup', onMouseUp);
+      container.addEventListener('mouseleave', onMouseUp); // Xử lý trường hợp chuột rời khỏi vùng cuộn
+    }
   };
 
   //Add attachments of post
@@ -322,6 +330,7 @@ export const Common = ({ children }) => {
         handleClickOutsideImageViewModal,
         imageChoseToView,
         setImageChoseToView,
+        decodeEntities,
         // notify,
       }}
     >

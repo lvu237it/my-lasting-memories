@@ -333,7 +333,7 @@ const MainLayout = () => {
         <div className='w-full h-full flex sm2:justify-center sm2:items-center'>
           <div className='post-content relative sm2:rounded-3xl bg-white sm2:w-[65%] md:w-[60%] lg:w-[50%]'>
             <div className='px-8 py-6 w-[100vw] sm2:w-full h-full'>
-              <div className='number-of-redundant-characters absolute right-[2.25rem] top-[4.75rem] sm2:top-[3rem] sm2:right-[1.5rem] text-red-600'>
+              <div className='number-of-redundant-characters absolute right-[1.5rem] top-[4.75rem] sm2:top-[3rem] sm2:right-[1.5rem] text-red-600'>
                 {redundantCharactersNumber < 0 ? redundantCharactersNumber : ''}
               </div>
               <div className='absolute sm2:top-[1.2rem] sm2:right-[1.5rem]'>
@@ -347,24 +347,24 @@ const MainLayout = () => {
                 </div>
               </div>
               <div className='post-content-description mt-10 sm2:my-0'>
-                <div className='sm:flex gap-2'>
-                  <div className='sm:basis-1/10'>
+                <div className='w-[90%] sm:w-[95%]'>
+                  <div className='fixed'>
                     <img
                       className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
                       src={adminInfor && adminInfor.avatar_path}
                       alt=''
                     />
                   </div>
-                  <div className='sm:basis-[95%]'>
-                    <div className=''>
+                  <div className='ml-0 sm:ml-16'>
+                    <div className='pt-14 sm:pt-0'>
                       <div className='font-semibold tracking-wide'>
                         {adminInfor && adminInfor.username}
                       </div>
-                      <div className=''>
+                      <div className='w-full sm2:w-[95%]'>
                         {/* Display images before uploading to database */}
                         <div
                           ref={scrollContainerRef}
-                          className='vulv-uploaded-images flex flex-row gap-2 overflow-x-auto vulv-scrollbar-hide'
+                          className='vulv-uploaded-images w-full sm:w-[95%] flex flex-row gap-2 overflow-x-auto vulv-scrollbar-hide'
                           onMouseDown={handleSwipe}
                           onDragStart={(e) => e.preventDefault()}
                         >
@@ -381,7 +381,7 @@ const MainLayout = () => {
                         <textarea
                           ref={textareaRef}
                           onChange={(e) => handleClickPostNew(e)}
-                          className='w-full tracking-wide py-1 sm:py-0 sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                          className='w-full tracking-wide sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                           name=''
                           id='post-content-details'
                           placeholder='Viết ra những suy nghĩ của bạn...'
@@ -452,7 +452,7 @@ const MainLayout = () => {
               MyLM
             </h5>
             <div className='left-sidebar-icons-wrapper mx-auto'>
-              <div className='flex sm2:hidden justify-center items-center text-3xl cursor-pointer relative'>
+              <div className='flex md:hidden justify-center items-center text-3xl cursor-pointer relative'>
                 <div ref={navbarIconRef} onClick={handleClickNavbarIcon}>
                   <BiMenu id='navbar-icon-bi-menu' />
                 </div>
@@ -460,7 +460,7 @@ const MainLayout = () => {
                   <div
                     ref={navbarSliderRef}
                     id='navbar-slide'
-                    className='absolute w-[200px] sm2:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-200 shadow-md rounded-xl'
+                    className='absolute w-[200px] md:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-200 shadow-md rounded-xl'
                   >
                     <NavBar />
                   </div>
