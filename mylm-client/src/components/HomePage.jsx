@@ -4,26 +4,16 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import {
   BiBookmark,
-  BiBookmarkAltMinus,
   BiBookmarkMinus,
   BiDotsHorizontalRounded,
-  BiDotsVertical,
-  BiDotsVerticalRounded,
   BiEdit,
-  BiFileBlank,
-  BiImageAdd,
-  BiLogoMarkdown,
   BiPencil,
   BiPlusCircle,
-  BiSave,
-  BiTrash,
   BiTrashAlt,
-  BiUserVoice,
-  BiVideoPlus,
 } from 'react-icons/bi';
-import { AiOutlineClose } from 'react-icons/ai';
 import { useCommon } from '../contexts/CommonContext';
 import { BiArrowBack } from 'react-icons/bi';
+import { FaChevronRight } from 'react-icons/fa';
 
 function HomePage() {
   const {
@@ -340,7 +330,7 @@ function HomePage() {
                     ></div>
                     <div
                       ref={optionsModalRef}
-                      className=' options-modal z-20 absolute w-full translate-y-3/4 sm2:translate-y-0 sm2:top-8 sm2:right-0 sm2:w-[155px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
+                      className=' options-modal z-20 absolute w-full translate-y-3/4 sm2:translate-y-0 sm2:top-8 sm2:right-0 sm2:w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
                     >
                       <div className=' '>
                         <div
@@ -358,6 +348,13 @@ function HomePage() {
                               <BiBookmarkMinus className='col-span-1 my-auto' />
                             </div>
                           )}
+                        </div>
+                        <div
+                          id='change-post-status'
+                          className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                        >
+                          <div className='col-span-11'>Đổi trạng thái</div>
+                          <FaChevronRight className='col-span-1 my-auto' />
                         </div>
                         <div
                           onClick={handleOpenEditingPost}
