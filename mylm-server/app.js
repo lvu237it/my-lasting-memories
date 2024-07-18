@@ -107,6 +107,13 @@ app.use('/users', userRouter);
 //Posts
 app.use('/posts', postRouter);
 
+//Test
+app.use('/quak', (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'quak',
+  });
+});
 // Handle other routers that do NOT match with any declared routers before
 /*
 Middleware app.all('*', ...) trong Express 
@@ -118,12 +125,6 @@ app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-app.get('/quak', (req, res, next) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'quak',
-  });
-});
 /*
    vấn đề liên quan đến thứ tự thực hiện các middleware và routing trong quá trình xử lý request - response trong ứng dụng Express. Cụ thể hơn:
 
