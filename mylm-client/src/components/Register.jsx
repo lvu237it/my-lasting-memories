@@ -41,7 +41,7 @@ function Register() {
     try {
       const response = await axios({
         method: 'post',
-        url: 'http://127.0.0.1:3000/users/signup',
+        url: `${apiBaseUrl}/users/signup`,
         data: {
           username,
           email,

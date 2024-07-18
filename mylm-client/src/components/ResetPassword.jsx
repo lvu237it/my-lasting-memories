@@ -26,7 +26,7 @@ function ResetPassword() {
       //Kiểm tra token trên params có hợp lệ hay không, nếu đường dẫn chứa token không hợp lệ thì không tiếp tục reset
       try {
         const response = await axios.get(
-          `http://127.0.0.1:3000/users/verifyResetToken/${token}`
+          `${apiBaseUrl}/users/verifyResetToken/${token}`
         );
       } catch (error) {
         console.error('Invalid token:', error);
@@ -52,7 +52,7 @@ function ResetPassword() {
       try {
         const response = await axios({
           method: 'patch',
-          url: `http://127.0.0.1:3000/users/resetPassword/${token}`,
+          url: `${apiBaseUrl}/users/resetPassword/${token}`,
           data: {
             password,
             passwordConfirm,

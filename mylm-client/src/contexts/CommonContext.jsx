@@ -58,9 +58,7 @@ export const Common = ({ children }) => {
   useEffect(() => {
     const getAdminInformation = async () => {
       try {
-        const response = await axios.get(
-          'http://127.0.0.1:3000/admin/information'
-        );
+        const response = await axios.get(`${apiBaseUrl}/admin/information`);
         setAdminInfor(response.data[0]);
       } catch (err) {
         console.log('Error when getting admin information', err);
@@ -199,7 +197,7 @@ export const Common = ({ children }) => {
 
   const getAllPosts = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:3000/posts/');
+      const response = await axios.get(`${apiBaseUrl}/posts/`);
       setPostsList(response.data);
     } catch (error) {
       console.error('Error getting all posts', error);
@@ -208,7 +206,7 @@ export const Common = ({ children }) => {
 
   const getAllUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:3000/users/');
+      const response = await axios.get(`${apiBaseUrl}/users/`);
       setUsersList(response.data);
     } catch (error) {
       console.error('Error getting all users', error);
@@ -248,7 +246,7 @@ export const Common = ({ children }) => {
       });
 
       try {
-        await axios.post('http://127.0.0.1:3000/posts/createpost', formData, {
+        await axios.post(`${apiBaseUrl}/posts/createpost`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

@@ -72,7 +72,7 @@ function HomePage() {
   //     try {
   //       await axios({
   //         method: 'post',
-  //         url: 'http://127.0.0.1:3000/users/checkrememberme',
+  //         url: '${apiBaseUrl}/users/checkrememberme',
   //         headers: {
   //           'Content-Type': 'application/json',
   //         },
@@ -111,12 +111,9 @@ function HomePage() {
       );
     } else {
       try {
-        await axios.patch(
-          `http://127.0.0.1:3000/posts/update/${chosenPost.post_id}`,
-          {
-            content: contentForUpdate,
-          }
-        );
+        await axios.patch(`${apiBaseUrl}/posts/update/${chosenPost.post_id}`, {
+          content: contentForUpdate,
+        });
         setIsEditing(false);
         // Cập nhật contentBeforeUpdate khi cập nhật thành công
         //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
@@ -144,9 +141,7 @@ function HomePage() {
   //Deleting post
   const handleFinallyRemovePost = async () => {
     try {
-      await axios.patch(
-        `http://127.0.0.1:3000/posts/delete/${chosenPost.post_id}`
-      );
+      await axios.patch(`${apiBaseUrl}/posts/delete/${chosenPost.post_id}`);
       // setPostModal(false);
       // textareaRef.current.value = '';
       // setHasPostContent(false);
@@ -208,7 +203,7 @@ function HomePage() {
   const getImageUrlsByPostId = async (post) => {
     try {
       const urlImageListLocal = await axios.get(
-        `http://127.0.0.1:3000/posts/${post.post_id}/images`
+        `${apiBaseUrl}/posts/${post.post_id}/images`
       );
       setLocalUrlImages(urlImageListLocal.data);
     } catch (error) {
@@ -541,7 +536,7 @@ function HomePage() {
                       <div className='content-attachments w-[95%] mt-4 cursor-pointer'>
                         <img
                           onClick={(e) => handleOpenViewImageModal(e)}
-                          src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
+                          src={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
                           alt='attached items'
                           className='rounded-lg mx-auto'
                         />
@@ -561,7 +556,7 @@ function HomePage() {
                             >
                               <img
                                 onClick={(e) => handleOpenViewImageModal(e)}
-                                src={`http://localhost:3000${imgurl?.attacheditem_path}`}
+                                src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
                                 alt='attached items'
                                 className='rounded-lg mx-auto'
                               />

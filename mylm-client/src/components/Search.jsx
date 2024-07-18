@@ -89,12 +89,9 @@ function Search() {
       );
     } else {
       try {
-        await axios.patch(
-          `http://127.0.0.1:3000/posts/update/${chosenPost.post_id}`,
-          {
-            content: contentForUpdate,
-          }
-        );
+        await axios.patch(`${apiBaseUrl}/posts/update/${chosenPost.post_id}`, {
+          content: contentForUpdate,
+        });
         setIsEditing(false);
         // Cập nhật contentBeforeUpdate khi cập nhật thành công
         //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
@@ -122,9 +119,7 @@ function Search() {
   //Deleting post
   const handleFinallyRemovePost = async () => {
     try {
-      await axios.patch(
-        `http://127.0.0.1:3000/posts/delete/${chosenPost.post_id}`
-      );
+      await axios.patch(`${apiBaseUrl}/posts/delete/${chosenPost.post_id}`);
       // setPostModal(false);
       // textareaRef.current.value = '';
       // setHasPostContent(false);
@@ -156,7 +151,7 @@ function Search() {
   const getImageUrlsByPostId = async (post) => {
     try {
       const urlImageListLocal = await axios.get(
-        `http://127.0.0.1:3000/posts/${post.post_id}/images`
+        `${apiBaseUrl}/posts/${post.post_id}/images`
       );
       setLocalUrlImages(urlImageListLocal.data);
     } catch (error) {
@@ -260,12 +255,9 @@ function Search() {
     const handleSearchPostsByContent = async () => {
       // if (searchContent !== null) {
       try {
-        const response = await axios.post(
-          'http://127.0.0.1:3000/posts/bycontent',
-          {
-            content: searchContent,
-          }
-        );
+        const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
+          content: searchContent,
+        });
         setPostsResult(response.data);
       } catch (error) {
         console.error('Error finding post', error);
@@ -551,7 +543,7 @@ function Search() {
                         <div className='content-attachments w-[95%] mt-4 cursor-pointer'>
                           <img
                             onClick={(e) => handleOpenViewImageModal(e)}
-                            src={`http://localhost:3000${localUrlImages[0]?.attacheditem_path}`}
+                            src={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
                             alt='attached items'
                             className='rounded-lg mx-auto'
                           />
@@ -571,7 +563,7 @@ function Search() {
                               >
                                 <img
                                   onClick={(e) => handleOpenViewImageModal(e)}
-                                  src={`http://localhost:3000${imgurl?.attacheditem_path}`}
+                                  src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
                                   alt='attached items'
                                   className='rounded-lg mx-auto'
                                 />

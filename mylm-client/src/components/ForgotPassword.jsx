@@ -35,7 +35,7 @@ function ForgotPassword() {
     try {
       const response = await axios({
         method: 'post',
-        url: 'http://127.0.0.1:3000/users/forgotPassword',
+        url: `${apiBaseUrl}/users/forgotPassword`,
         data: {
           email,
         },
