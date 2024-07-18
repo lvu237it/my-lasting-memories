@@ -46,6 +46,8 @@ export const Common = ({ children }) => {
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
 
+  console.log('prod', process.env.REACT_APP_API_BASE_URL_PRODUCTION); // Bạn nên thấy giá trị đúng từ .env file
+  console.log('dev', process.env.REACT_APP_API_BASE_URL_DEVELOPMENT); // Bạn nên thấy giá trị đúng từ .env file
   // const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL_PRODUCTION;
 
