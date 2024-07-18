@@ -460,7 +460,7 @@ const MainLayout = () => {
                   <div
                     ref={navbarSliderRef}
                     id='navbar-slide'
-                    className='absolute w-[200px] md:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-200 shadow-md rounded-xl'
+                    className='absolute w-[205px] md:block right-[-3.5rem] top-0 text-right px-2 py-3 bg-slate-100 border-slate-200 shadow-md rounded-xl'
                   >
                     <NavBar />
                   </div>
