@@ -9,7 +9,7 @@ export default ({ mode }) => {
   process.env = { ...process.env, ...env };
 
   return defineConfig({
-    // You can access env variables in your code as `process.env.VAR_NAME`
+    // You can access env variables in your code as `import.meta.env.VAR_NAME`
     define: {
       'process.env': process.env,
     },

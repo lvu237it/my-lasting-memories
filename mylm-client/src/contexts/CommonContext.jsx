@@ -46,10 +46,8 @@ export const Common = ({ children }) => {
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
 
-  console.log('prod', process.env.REACT_APP_API_BASE_URL_PRODUCTION); // Bạn nên thấy giá trị đúng từ .env file
-  console.log('dev', process.env.REACT_APP_API_BASE_URL_DEVELOPMENT); // Bạn nên thấy giá trị đúng từ .env file
-  // const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL_PRODUCTION;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  const apiBaseUrl2 = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
 
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
@@ -60,6 +58,7 @@ export const Common = ({ children }) => {
 
   useEffect(() => {
     console.log('apiBaseUrl', apiBaseUrl);
+    console.log('apiBaseUrl2', apiBaseUrl2);
   }, []);
 
   useEffect(() => {
