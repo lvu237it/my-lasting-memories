@@ -107,13 +107,15 @@ app.use('/users', userRouter);
 //Posts
 app.use('/posts', postRouter);
 
-//Test
+//-----------------Test deploying---------------------
 app.use('/quak', (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'quak',
   });
 });
+// -----------------------------------------------------
+
 // Handle other routers that do NOT match with any declared routers before
 /*
 Middleware app.all('*', ...) trong Express 
