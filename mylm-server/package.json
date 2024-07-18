@@ -25,7 +25,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "start:dev": "nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
@@ -42,5 +43,9 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.2",
     "globals": "^15.6.0"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
   }
 }
