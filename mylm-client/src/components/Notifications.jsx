@@ -3,7 +3,7 @@ import { BiFilter, BiPen, BiPencil } from 'react-icons/bi';
 import { useCommon } from '../contexts/CommonContext';
 
 function Notifications() {
-  const { adminInfor } = useCommon();
+  const { adminInfor, apiBaseUrl } = useCommon();
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {

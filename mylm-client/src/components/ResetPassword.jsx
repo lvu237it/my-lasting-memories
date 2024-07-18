@@ -7,6 +7,7 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
 } from 'react-icons/ai';
+import { useCommon } from '../contexts/CommonContext';
 
 function ResetPassword() {
   const { token } = useParams();
@@ -17,6 +18,7 @@ function ResetPassword() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showMessageErrorToken, setShowMessageErrorToken] = useState(false);
   const [showMessageSuccessful, setShowMessageSuccessful] = useState(false);
+  const { apiBaseUrl } = useCommon();
   const navigate = useNavigate();
 
   useEffect(() => {

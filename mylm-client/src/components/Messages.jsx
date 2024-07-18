@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useCommon } from '../contexts/CommonContext';
 
 function Messages() {
-  const { adminInfor } = useCommon();
+  const { adminInfor, apiBaseUrl } = useCommon();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

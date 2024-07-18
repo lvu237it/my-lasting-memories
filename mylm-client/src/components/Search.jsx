@@ -35,6 +35,7 @@ function Search() {
     imageChoseToView,
     setImageChoseToView,
     decodeEntities,
+    apiBaseUrl,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');

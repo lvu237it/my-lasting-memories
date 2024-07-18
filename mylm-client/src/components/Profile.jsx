@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCommon } from '../contexts/CommonContext';
 function Profile() {
-  const { adminInfor } = useCommon();
+  const { adminInfor, apiBaseUrl } = useCommon();
 
   return (
     <>

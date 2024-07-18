@@ -43,6 +43,7 @@ function HomePage() {
     imageChoseToView,
     setImageChoseToView,
     decodeEntities,
+    apiBaseUrl,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);

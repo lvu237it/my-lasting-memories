@@ -46,6 +46,8 @@ export const Common = ({ children }) => {
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
 
+  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
     if (isLoggedByAdmin) {
@@ -331,6 +333,7 @@ export const Common = ({ children }) => {
         imageChoseToView,
         setImageChoseToView,
         decodeEntities,
+        apiBaseUrl,
         // notify,
       }}
     >

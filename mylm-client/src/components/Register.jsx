@@ -7,6 +7,7 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
 } from 'react-icons/ai';
+import { useCommon } from '../contexts/CommonContext';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -16,6 +17,8 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const { apiBaseUrl } = useCommon();
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {

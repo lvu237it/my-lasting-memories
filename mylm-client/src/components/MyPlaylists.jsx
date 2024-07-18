@@ -4,7 +4,7 @@ import { AiOutlinePlus } from 'react-icons/ai';
 import { useCommon } from '../contexts/CommonContext';
 
 function MyPlaylists() {
-  const { isUser, setIsUser, adminInfor } = useCommon();
+  const { isUser, setIsUser, adminInfor, apiBaseUrl } = useCommon();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

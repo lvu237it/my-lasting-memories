@@ -7,11 +7,14 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
 } from 'react-icons/ai';
+import { useCommon } from '../contexts/CommonContext';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessfulMessage, setShowSuccessfulMessage] = useState(false);
+  const { apiBaseUrl } = useCommon();
+
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e) => {

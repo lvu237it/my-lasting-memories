@@ -29,7 +29,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const { isUser, setIsUser } = useCommon();
+  const { isUser, setIsUser, apiBaseUrl } = useCommon();
 
   // Effect to transform labels when inputs are filled
   useEffect(() => {
