@@ -37,7 +37,7 @@ app.use(
     // origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend và Backend URLs
     origin: [
       'https://my-lasting-memories-2307.web.app',
-      'my-lasting-memories.vercel.app',
+      'https://my-lasting-memories.vercel.app',
     ], // Frontend và Backend URLs
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type'], //Chỉ định các header được cho phép trong request - Nếu ko cần header cụ thể có thể bỏ qua
