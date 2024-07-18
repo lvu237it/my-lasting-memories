@@ -7,6 +7,7 @@ const helmet = require('helmet'); // mũ bảo hiểm (helmet) là tập hợp c
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const mysql = require('mysql2');
@@ -41,6 +42,7 @@ app.use(
 );
 
 app.use(cookieParser());
+app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.set('view engine', 'ejs');
 app.use(express.json());
