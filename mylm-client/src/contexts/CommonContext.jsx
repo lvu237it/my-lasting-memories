@@ -56,6 +56,10 @@ export const Common = ({ children }) => {
   }, [isUser]);
 
   useEffect(() => {
+    console.log('apiBaseUrl', apiBaseUrl);
+  }, []);
+
+  useEffect(() => {
     const getAdminInformation = async () => {
       try {
         const response = await axios.get(`${apiBaseUrl}/admin/information`);
