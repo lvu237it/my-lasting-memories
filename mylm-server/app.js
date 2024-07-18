@@ -34,7 +34,11 @@ app.use(
 //Đây là một tính năng bảo mật của các trình duyệt để ngăn chặn các trang web khác nhau truy cập vào các tài nguyên của nhau mà không có sự cho phép.
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend và Backend URLs
+    // origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend và Backend URLs
+    origin: [
+      'https://my-lasting-memories-2307.web.app',
+      'my-lasting-memories.vercel.app',
+    ], // Frontend và Backend URLs
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type'], //Chỉ định các header được cho phép trong request - Nếu ko cần header cụ thể có thể bỏ qua
     credentials: true, // Nếu bạn cần hỗ trợ phiên đăng nhập hoặc sử dụng cookies
@@ -114,6 +118,12 @@ app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+app.get('/quak', (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'quak',
+  });
+});
 /*
    vấn đề liên quan đến thứ tự thực hiện các middleware và routing trong quá trình xử lý request - response trong ứng dụng Express. Cụ thể hơn:
 
