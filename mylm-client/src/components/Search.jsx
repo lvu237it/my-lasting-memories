@@ -253,36 +253,33 @@ function Search() {
 
   useEffect(() => {
     const handleSearchPostsByContent = async () => {
-      // if (searchContent !== null) {
-      try {
-        const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
-          content: searchContent,
-        });
-        setPostsResult(response.data);
-      } catch (error) {
-        console.error('Error finding post', error);
+      if (searchContent.trim().length > 0) {
+        try {
+          const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
+            content: searchContent,
+          });
+          setPostsResult(response.data);
+        } catch (error) {
+          console.error('Error finding post', error);
+          setPostsResult([]);
+        }
+      } else {
+        setPostsResult([]);
       }
-      // }
     };
-    if (searchContent.length !== 0) {
-      handleSearchPostsByContent();
-    } else {
-      setPostsResult([]);
-    }
+    handleSearchPostsByContent();
   }, [searchContent]);
 
   useEffect(() => {
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
-      if (postsResult.length !== 0) {
+      if (postsResult.length > 0) {
         searchInput.classList.add('mb-6');
-      } else if (postsResult.length === 0) {
+      } else {
         searchInput.classList.remove('mb-6');
       }
     }
-
-    console.log(postsResult);
-  }, [postsResult]);
+  }, [searchContentRef.current, postsResult.length]);
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

@@ -83,7 +83,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const user_id = uuidv4();
   const newUser = await poolExecute(
-    'INSERT INTO users(user_id, username, email, password) VALUES (?,?,?,?)',
+    'INSERT INTO users(user_id, username, email, password) VALUES ($1,$2,$3,$4)',
     [user_id, username, email, hashedPassword]
   );
 
@@ -92,7 +92,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
-
   //1. Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Vui lòng cung cấp email và mật khẩu', 400));
@@ -125,7 +124,7 @@ exports.login = catchAsync(async (req, res, next) => {
       //Nếu có thì ghi đè lên thông tin cũ - đồng nghĩa với việc update thông tin mới, cụ thể là update [series, token, expires_at]
       if (this.checkExistedRememberUser(user.user_id)) {
         await poolExecute(
-          'UPDATE remember_me_tokens SET series = ?, token = ?, expires_at = ?',
+          'UPDATE remember_me_tokens SET series = $1, token = $2, expires_at = $3',
           [series, hashedToken, expiresAt]
         );
         console.log('User này đã từng ghi nhớ phiên đăng nhập');
@@ -133,7 +132,7 @@ exports.login = catchAsync(async (req, res, next) => {
         //Nếu chưa từng tồn tại user_id với token ghi nhớ đăng nhập thì tạo mới
         // Lưu thông tin vào bảng remember_me_tokens
         await poolExecute(
-          'INSERT INTO remember_me_tokens (id, user_id, series, token, expires_at) VALUES (?, ?, ?, ?, ?)',
+          'INSERT INTO remember_me_tokens (id, user_id, series, token, expires_at) VALUES ($1, $2, $3, $4, $5)',
           [rememberId, user.user_id, series, hashedToken, expiresAt]
         );
       }
@@ -160,8 +159,8 @@ exports.checkRememberMe = async (req, res, next) => {
     const [series, token] = req.cookies.remember_me.split(':');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-    const [rows] = await poolExecute(
-      'SELECT * FROM remember_me_tokens WHERE series = ? AND token = ? AND expires_at > NOW()',
+    const rows = await poolExecute(
+      'SELECT * FROM remember_me_tokens WHERE series = $1 AND token = $2 AND expires_at > NOW()',
       [series, hashedToken]
     );
 
@@ -321,7 +320,7 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
   const [result] = await poolExecute(
-    'UPDATE users SET password = ? where users.user_id = ? ',
+    'UPDATE users SET password = $1 where users.user_id = $2',
     [hashedPassword, req.user.user_id]
   );
   res.status(200).json({
@@ -377,7 +376,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     createPasswordResetToken();
 
   await poolExecute(
-    'UPDATE users SET passwordResetToken = ?, passwordResetExpires = ? WHERE user_id = ?',
+    'UPDATE users SET passwordResetToken = $1, passwordResetExpires = $2 WHERE user_id = $3',
     [passwordResetToken, new Date(passwordResetExpires), user.user_id]
   );
 
@@ -405,7 +404,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     });
   } catch (err) {
     await poolExecute(
-      'UPDATE users SET passwordResetToken = ?, passwordResetExpires = ? WHERE user_id = ?',
+      'UPDATE users SET passwordResetToken = $1, passwordResetExpires = $2 WHERE user_id = $3',
       [null, null, user.user_id]
     );
 
@@ -425,8 +424,8 @@ exports.verifyResetToken = catchAsync(async (req, res, next) => {
   // 1. Get user based on the token
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-  const [rows] = await poolQuery(
-    'SELECT * FROM users WHERE passwordResetToken = ? AND passwordResetExpires > ?',
+  const rows = await poolQuery(
+    'SELECT * FROM users WHERE passwordResetToken = $1 AND passwordResetExpires > $2',
     [hashedToken, new Date()]
   );
 
@@ -452,8 +451,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1. Get user based on the token
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-  const [rows] = await poolQuery(
-    'SELECT * FROM users WHERE passwordResetToken = ? AND passwordResetExpires > ?',
+  const rows = await poolQuery(
+    'SELECT * FROM users WHERE passwordResetToken = $1 AND passwordResetExpires > $2',
     [hashedToken, new Date()]
   );
 
@@ -462,7 +461,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   const newPassword = await bcrypt.hash(password, 12);
 
   await poolExecute(
-    'UPDATE users SET password = ?, passwordResetToken = ?, passwordResetExpires = ? WHERE user_id = ?',
+    'UPDATE users SET password = $1, passwordResetToken = $2, passwordResetExpires = $3 WHERE user_id = $4',
     [newPassword, null, null, user.user_id]
   );
 
@@ -472,10 +471,9 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.checkExistedUserByEmail = async (email) => {
-  const [rows, fields] = await poolQuery(
-    'SELECT * FROM users where users.email = ?',
-    [email]
-  );
+  const rows = await poolQuery('SELECT * FROM users where users.email = $1', [
+    email,
+  ]);
   if (!rows || rows.length === 0) {
     return false;
   }
@@ -483,8 +481,8 @@ exports.checkExistedUserByEmail = async (email) => {
 };
 
 exports.checkExistedRememberUser = async (user_id) => {
-  const [rows, fields] = await poolQuery(
-    'SELECT * FROM remember_me_tokens where user_id = ?',
+  const rows = await poolQuery(
+    'SELECT * FROM remember_me_tokens where user_id = $1',
     [user_id]
   );
   if (!rows || rows.length === 0) {

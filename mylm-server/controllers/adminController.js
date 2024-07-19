@@ -8,32 +8,20 @@ const { v4: uuidv4 } = require('uuid');
 const { promisify } = require('util');
 
 exports.getAdminInformation = catchAsync(async (req, res, next) => {
-  const [rows, fields] = await poolQuery(
-    'SELECT * FROM users where role = "admin"'
-  );
+  const rows = await poolQuery(`SELECT * FROM users where role = 'admin'`);
   if (!rows) {
     return next(new AppError('No admin found', 404));
   }
 
   // Lọc các trường cần hiển thị
-  const filteredRows = rows.map((admin) => ({
-    user_id: admin.user_id,
-    username: admin.username,
-    email: admin.email,
-    role: admin.role,
-    avatar_path: admin.avatar_path,
+  const filteredRows = rows.map((row) => ({
+    user_id: row.user_id,
+    username: row.username,
+    email: row.email,
+    role: row.role,
+    avatar_path: row.avatar_path,
   }));
 
-  //Test API using Postman
-  // res.status(200).json({
-  //   status: 'success',
-  //   // requestedAt: req.requestTime,
-  //   results: rows.length,
-  //   data: {
-  //     data: rows,
-  //   },
-  // });
-
-  //Response to client
+  // Response to client
   res.status(200).json(filteredRows);
 });

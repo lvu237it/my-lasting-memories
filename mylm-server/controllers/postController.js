@@ -11,8 +11,8 @@ const fs = require('fs');
 
 //Get existed posts (EXCEPT deleted posts)
 exports.getAllPosts = catchAsync(async (req, res, next) => {
-  const [rows, fields] = await poolQuery(
-    'select * from posts where true and posts.is_deleted = false order by created_at desc'
+  const rows = await poolQuery(
+    'SELECT * FROM posts WHERE is_deleted = 0 ORDER BY created_at DESC;'
   );
 
   if (!rows) {
@@ -34,25 +34,22 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
 
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
-  const [rows, fields] = await poolQuery(
-    'select * from posts where post_id = ?',
-    [postid]
-  );
+  const rows = await poolQuery('select * from posts where post_id LIKE $1', [
+    postid,
+  ]);
 
   if (!rows) {
     return next(new AppError('No post found', 404));
   }
-
   req.post_id = postid;
   next();
 });
 
 exports.getPostById = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
-  const [rows, fields] = await poolQuery(
-    'select * from posts where post_id = ?',
-    [postid]
-  );
+  const rows = await poolQuery('select * from posts where post_id LIKE $1', [
+    postid,
+  ]);
 
   if (!rows) {
     return next(new AppError('No post found', 404));
@@ -73,13 +70,17 @@ exports.getPostById = catchAsync(async (req, res, next) => {
 
 exports.getPostsByContent = catchAsync(async (req, res, next) => {
   const { content } = req.body;
-  const searchContent = `%${content}%`;
-  const [rows, fields] = await poolQuery(
-    'select * from posts where content like ? and is_deleted = false',
+  let searchContent;
+  if (content) {
+    searchContent = `%${content}%`;
+  }
+
+  const rows = await poolQuery(
+    'SELECT * FROM posts WHERE content LIKE $1 AND is_deleted = 0',
     [searchContent]
   );
 
-  if (!rows) {
+  if (!rows || rows.length === 0) {
     return next(new AppError('No post found', 404));
   }
 
@@ -99,8 +100,8 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
 exports.getAllImagesByPostId = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
   console.log('post_id', postid);
-  const [rows, fields] = await poolQuery(
-    'Select * from attached_items join posts on attached_items.post_id = posts.post_id where true and attached_items.post_id = ?',
+  const rows = await poolQuery(
+    'Select * from attached_items join posts on attached_items.post_id = posts.post_id where attached_items.post_id LIKE $1',
     [postid]
   );
   if (!rows) {
@@ -152,21 +153,21 @@ exports.upload = multer({
 
 exports.createPost = catchAsync(async (req, res, next) => {
   const { content, user_id } = req.body;
-  const files = req.files;
+  const files = req.files || [];
   const post_id = uuidv4();
 
-  if (files.length > 10) {
+  if (files && files.length > 10) {
     return next(new AppError('Not exceed 10 files per post', 400));
   }
 
   // Lưu thông tin bài đăng vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO posts(post_id, content, user_id) VALUES (?,?,?)',
+    'INSERT INTO posts(post_id, content, user_id) VALUES ($1, $2, $3)',
     [post_id, content, user_id]
   );
 
   //Chỉ post content mà ko post ảnh
-  if (files.length === 0) {
+  if (!files || files.length === 0) {
     res.status(200).json({
       status: 'success',
       message: 'create post successfully!',
@@ -174,7 +175,9 @@ exports.createPost = catchAsync(async (req, res, next) => {
   }
 
   req.post_id = post_id;
-  req.files = files;
+  if (files) {
+    req.files = files;
+  }
   next();
 });
 
@@ -194,7 +197,7 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
 
     // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
     await poolExecute(
-      'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES (?, ?, ?, ?)',
+      'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
       attachedValues
     );
   });
@@ -213,7 +216,7 @@ exports.updatePost = catchAsync(async (req, res, next) => {
   //Not need to check if post_id is exist because using getPostById before
   const { content } = req.body;
 
-  await poolExecute('UPDATE posts SET content = ? where post_id = ?', [
+  await poolExecute('UPDATE posts SET content = $1 WHERE post_id = $2', [
     content,
     post_id,
   ]);
@@ -233,8 +236,8 @@ exports.deletePost = catchAsync(async (req, res, next) => {
     .format('YYYY-MM-DD HH:mm:ss');
 
   await poolExecute(
-    'UPDATE posts SET is_deleted = ?, deletedAt = ? where post_id = ?',
-    [true, currentDateTime, post_id]
+    'UPDATE posts SET is_deleted = $1, deletedat = $2 where post_id = $3',
+    [1, currentDateTime, post_id]
   );
 
   res.status(200).json({
