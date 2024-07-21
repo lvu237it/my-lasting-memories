@@ -90,11 +90,11 @@ dotenv.config({
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // ssl: {
-  //   rejectUnauthorized: false,
-  // },
-  // max: 20, // Tối đa số lượng kết nối trong pool
-  // idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  max: 20, // Tối đa số lượng kết nối trong pool
+  idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
 });
 
 // Function to execute a query (for SELECT)
