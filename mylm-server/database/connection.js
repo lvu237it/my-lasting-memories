@@ -89,7 +89,8 @@ dotenv.config({
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
-  connectionString: `postgresql://luuvanvua7k16vt:${process.env.DATABASEURLPASSWORD}@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full`,
+  connectionString:
+    'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
 
   // ssl: {
   //   rejectUnauthorized: false,
