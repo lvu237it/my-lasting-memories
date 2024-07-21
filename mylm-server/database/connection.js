@@ -81,24 +81,50 @@
 const { Pool } = require('pg'); // Import pg library
 const dotenv = require('dotenv');
 
-dotenv.config({ path: `${__dirname}/../.env` });
+// const pool = new Pool({
+//   connectionString:
+//     'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
+// });
+
+// app.get('/getadmin', async (req, res, next) => {
+//   try {
+//     const result = await pool.query('SELECT * FROM users WHERE role = $1', [
+//       'admin',
+//     ]);
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({
+//         status: 'fail',
+//         message: 'No admin found',
+//       });
+//     }
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         user: result.rows[0],
+//       },
+//     });
+//   } catch (err) {
+//     next(new AppError('Error fetching admin user', 500));
+//   }
+// });
+
+// dotenv.config({ path: `${__dirname}/../.env` });
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  max: 20, // Tối đa số lượng kết nối trong pool
-  idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
+  // max: 20, // Tối đa số lượng kết nối trong pool
+  // idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
 });
 
 // Function to execute a query (for SELECT)
 const poolQuery = async (text, params) => {
   console.log('DATABASE_URL', process.env.DATABASE_URL);
-  const client = await poolConnection.connect();
   try {
-    const res = await client.query(text, params);
+    const res = await poolConnection.query(text, params);
     // console.log('Query Result at connection.js:', res.rows); // In kết quả truy vấn ra console
     return res.rows; // Return rows for SELECT queries
   } finally {
@@ -110,9 +136,8 @@ const poolQuery = async (text, params) => {
 // Function to execute an update or insert (for INSERT, UPDATE, DELETE)
 const poolExecute = async (text, params) => {
   console.log('DATABASE_URL', process.env.DATABASE_URL);
-  const client = await poolConnection.connect();
   try {
-    const res = await client.query(text, params);
+    const res = await poolConnection.query(text, params);
     return res.rowCount; // Return the number of affected rows
   } finally {
     // client.end(); //Đóng kết nối và không thể sử dụng lại kết nối đó.
