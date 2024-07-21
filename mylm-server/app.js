@@ -14,6 +14,13 @@ const mysql = require('mysql2');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
+const { Pool } = require('pg'); // Import pg Pool
+// Database connection setup
+const pool = new Pool({
+  connectionString:
+    'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
+});
+
 // Import routers
 //using this below like a middleware
 const adminRouter = require('./routes/adminRoutes');
@@ -40,8 +47,8 @@ app.use(
       'https://my-lasting-memories.vercel.app',
     ], // Frontend và Backend URLs
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-    allowedHeaders: ['Content-Type'], //Chỉ định các header được cho phép trong request - Nếu ko cần header cụ thể có thể bỏ qua
-    credentials: true, // Nếu bạn cần hỗ trợ phiên đăng nhập hoặc sử dụng cookies
+    // allowedHeaders: ['Content-Type'], //Chỉ định các header được cho phép trong request - Nếu ko cần header cụ thể có thể bỏ qua
+    // credentials: true, // Nếu bạn cần hỗ trợ phiên đăng nhập hoặc sử dụng cookies
   })
 );
 
@@ -113,6 +120,29 @@ app.use('/quak', (req, res, next) => {
     status: 'success',
     message: 'quak',
   });
+});
+
+// Get admin route
+app.get('/getadmin', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE role = $1', [
+      'admin',
+    ]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No admin found',
+      });
+    }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: result.rows[0],
+      },
+    });
+  } catch (err) {
+    next(new AppError('Error fetching admin user', 500));
+  }
 });
 // -----------------------------------------------------
 
