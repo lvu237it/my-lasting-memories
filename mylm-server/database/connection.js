@@ -79,27 +79,26 @@
 
 // Sử dụng thư viện 'pg'
 const { Pool } = require('pg'); // Import pg library
-// const dotenv = require('dotenv');
+const dotenv = require('dotenv');
 
-// dotenv.config({
-//   //việc đọc các biến môi trường từ file .env xảy ra duy nhất
-//   //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
-//   path: `${__dirname}/../.env`,
-// });
+dotenv.config({
+  //việc đọc các biến môi trường từ file .env xảy ra duy nhất
+  //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
+  path: `${__dirname}/../.env`,
+});
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  max: 20, // Tối đa số lượng kết nối trong pool
-  idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
+  // max: 20, // Tối đa số lượng kết nối trong pool
+  // idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
 });
 
 // Function to execute a query (for SELECT)
 const poolQuery = async (text, params) => {
-  console.log('DATABASE_URL:', process.env.DATABASE_URL);
   try {
     const res = await poolConnection.query(text, params);
     return res.rows; // Return rows for SELECT queries
@@ -111,7 +110,6 @@ const poolQuery = async (text, params) => {
 
 // Function to execute an update or insert (for INSERT, UPDATE, DELETE)
 const poolExecute = async (text, params) => {
-  console.log('DATABASE_URL:', process.env.DATABASE_URL);
   try {
     const res = await poolConnection.query(text, params);
     return res.rowCount; // Return the number of affected rows

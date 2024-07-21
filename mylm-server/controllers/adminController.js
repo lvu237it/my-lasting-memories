@@ -8,7 +8,9 @@ const { v4: uuidv4 } = require('uuid');
 const { promisify } = require('util');
 
 exports.getAdminInformation = catchAsync(async (req, res, next) => {
-  const rows = await poolQuery(`SELECT * FROM users where role = 'admin'`);
+  const rows = await poolQuery(`SELECT * FROM users where role = $1`, [
+    'admin',
+  ]);
   if (!rows) {
     return next(new AppError('No admin found', 404));
   }
