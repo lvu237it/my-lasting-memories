@@ -86,9 +86,9 @@ dotenv.config({ path: `${__dirname}/../.env` });
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // ssl: {
-  //   rejectUnauthorized: true,
-  // },
+  ssl: {
+    rejectUnauthorized: false, // Nếu cần thiết cho kết nối SSL
+  },
 });
 
 // Function to execute a query (for SELECT)
