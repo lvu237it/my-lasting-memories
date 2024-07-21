@@ -92,6 +92,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
+  const rememberMeFinal = rememberMe || false;
   //1. Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Vui lòng cung cấp email và mật khẩu', 400));
@@ -111,7 +112,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
     // 3. Handle RememberMe logic
     //lưu trữ thông tin quan trọng liên quan tới ghi nhớ phiên đăng nhập của user
-    if (rememberMe) {
+    if (rememberMeFinal === true) {
       const series = crypto.randomBytes(16).toString('hex'); //series identifier
       const token = crypto.randomBytes(32).toString('hex');
       const hashedToken = crypto

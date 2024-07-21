@@ -56,7 +56,7 @@ exports.getUserByPostId = catchAsync(async (req, res, next) => {
 
 exports.getUserByUserId = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
-  const rows = await poolQuery('select * from users where user_id = $1', [
+  const rows = await poolQuery('select * from users where user_id like $1', [
     userid,
   ]);
 
@@ -69,7 +69,7 @@ exports.getUserByUserId = catchAsync(async (req, res, next) => {
 
 exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
-  const rows = await poolQuery('select * from users where user_id = $1', [
+  const rows = await poolQuery('select * from users where user_id like $1', [
     userid,
   ]);
 
@@ -82,7 +82,9 @@ exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
 });
 
 exports.findUserByEmail = async (email) => {
-  const rows = await poolQuery('SELECT * FROM users WHERE email = $1', [email]);
+  const rows = await poolQuery('SELECT * FROM users WHERE email like $1', [
+    email,
+  ]);
 
   if (!rows || rows.length === 0) {
     throw new AppError('KHÔNG tìm thấy thông tin người dùng', 404);
