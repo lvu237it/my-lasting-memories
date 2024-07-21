@@ -306,8 +306,8 @@ function HomePage() {
 
   return (
     <>
-      <div className='header-feedscontent my-3'>
-        <div className='feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 mx-3 md:mx-10 lg:mx-14 py-7 md:py-10 my-5'>
+      <div className='header-feedscontent my-5'>
+        <div className='feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 mx-3 md:mx-10 lg:mx-14 py-7 md:py-10'>
           {viewPostDetails ? (
             //View details of a post
             <div className='wrapper-post-details'>
@@ -328,7 +328,7 @@ function HomePage() {
                       ref={optionsModalRef}
                       className=' options-modal z-20 absolute w-full translate-y-3/4 sm2:translate-y-0 sm2:top-8 sm2:right-0 sm2:w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
                     >
-                      <div className=' '>
+                      <div className=''>
                         <div
                           id='saved-unsaved-post'
                           className='cursor-pointer px-3 py-2 hover:bg-slate-100 hover:rounded-lg'
@@ -570,77 +570,81 @@ function HomePage() {
             </div>
           ) : (
             //Home page screen with list of posts
-            <div>
-              {isUser === false && (
-                <div>
-                  <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
-                    <img
-                      src={adminInfor && adminInfor.avatar_path}
-                      alt=''
-                      className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                    />
-                    <input
-                      className='post-input basis-[80%] hidden sm2:block tracking-wide'
-                      type='text'
-                      placeholder='Viết ra những suy nghĩ của bạn...'
-                      readOnly
-                      onClick={handleOpenPostModal}
-                    />
-                    <div
-                      onClick={handleOpenPostModal}
-                      className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
-                    >
-                      <BiPlusCircle />
-                    </div>
-                    <button
-                      onClick={handleOpenPostModal}
-                      className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
-                    >
-                      Đăng
-                    </button>
-                  </div>
-                  <hr className='my-3 border-slate-300' />
-                </div>
-              )}
-              {/* List of posts */}
-              {postsList &&
-                postsList.map((post, index) => (
-                  <div
-                    onClick={() => handleViewPostDetails(post)}
-                    key={post.post_id}
-                    className='cursor-pointer text-sm sm2:text-base'
-                  >
-                    <div className='feeds-content-posts grid relative mb-[80px]'>
-                      <div className='feeds-content-top-about absolute top-0 left-0'>
-                        <img
-                          src={adminInfor && adminInfor.avatar_path}
-                          alt=''
-                          className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
-                        />
+            <>
+              <div>
+                {isUser === false && (
+                  <div>
+                    <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
+                      <img
+                        src={adminInfor && adminInfor.avatar_path}
+                        alt=''
+                        className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                      />
+                      <input
+                        className='post-input basis-[80%] hidden sm2:block tracking-wide'
+                        type='text'
+                        placeholder='Viết ra những suy nghĩ của bạn...'
+                        readOnly
+                        onClick={handleOpenPostModal}
+                      />
+                      <div
+                        onClick={handleOpenPostModal}
+                        className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
+                      >
+                        <BiPlusCircle />
                       </div>
-                      <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
-                        <div className='information-and-posttime'>
-                          <div className='author-name font-semibold'>
-                            {getAuthorNameOfPostByUserId(post.user_id)}
-                          </div>
-                          <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
-                            <BiPencil />
-                            <div className=''>
-                              {getPostedTime(post.created_at)}
+                      <button
+                        onClick={handleOpenPostModal}
+                        className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                      >
+                        Đăng
+                      </button>
+                    </div>
+                    <hr className='mt-3 border-slate-300' />
+                  </div>
+                )}
+              </div>
+              <div className='mt-5'>
+                {/* List of posts */}
+                {postsList &&
+                  postsList.map((post, index) => (
+                    <div
+                      onClick={() => handleViewPostDetails(post)}
+                      key={post.post_id}
+                      className='cursor-pointer text-sm sm2:text-base'
+                    >
+                      <div className='feeds-content-posts grid relative mb-[80px]'>
+                        <div className='feeds-content-top-about absolute top-0 left-0'>
+                          <img
+                            src={adminInfor && adminInfor.avatar_path}
+                            alt=''
+                            className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                          />
+                        </div>
+                        <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
+                          <div className='information-and-posttime'>
+                            <div className='author-name font-semibold'>
+                              {getAuthorNameOfPostByUserId(post.user_id)}
                             </div>
-                          </div>
-                          <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                            {post.content || '* Bài viết không có tiêu đề'}
+                            <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                              <BiPencil />
+                              <div className=''>
+                                {getPostedTime(post.created_at)}
+                              </div>
+                            </div>
+                            <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                              {post.content || '* Bài viết không có tiêu đề'}
+                            </div>
                           </div>
                         </div>
                       </div>
+                      {index !== postsList.length - 1 && (
+                        <hr className='mb-5 border-slate-300' />
+                      )}
                     </div>
-                    {index !== postsList.length - 1 && (
-                      <hr className='mb-5 border-slate-300' />
-                    )}
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
+            </>
           )}
         </div>
       </div>
