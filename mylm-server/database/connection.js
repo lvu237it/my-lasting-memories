@@ -78,44 +78,61 @@
 // };
 
 // Sử dụng thư viện 'pg'
-const { Pool } = require('pg'); // Import pg library
-const dotenv = require('dotenv');
+// const { Pool } = require('pg'); // Import pg library
+// const dotenv = require('dotenv');
 
-dotenv.config({ path: `${__dirname}/../.env` });
+// dotenv.config({ path: `${__dirname}/../.env` });
 
-// Create a new pool instance using the DATABASE_URL from .env
-const poolConnection = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // ssl: {
-  //   rejectUnauthorized: true,
-  // },
-});
+// // Create a new pool instance using the DATABASE_URL from .env
+// const poolConnection = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+//   // ssl: {
+//   //   rejectUnauthorized: true,
+//   // },
+// });
 
-// Function to execute a query (for SELECT)
-const poolQuery = async (text, params) => {
-  const client = await poolConnection.connect();
+// // Function to execute a query (for SELECT)
+// const poolQuery = async (text, params) => {
+//   const client = await poolConnection.connect();
+//   try {
+//     const res = await client.query(text, params);
+//     // console.log('Query Result at connection.js:', res.rows); // In kết quả truy vấn ra console
+//     return res.rows; // Return rows for SELECT queries
+//   } finally {
+//     client.release();
+//   }
+// };
+
+// // Function to execute an update or insert (for INSERT, UPDATE, DELETE)
+// const poolExecute = async (text, params) => {
+//   const client = await poolConnection.connect();
+//   try {
+//     const res = await client.query(text, params);
+//     return res.rowCount; // Return the number of affected rows
+//   } finally {
+//     client.release();
+//   }
+// };
+
+// // Export the query function and pool instance
+// module.exports = {
+//   poolQuery,
+//   poolExecute,
+// };
+
+// --------------Sử dụng tool - Node postgres-------------------
+const { Client } = require('pg');
+
+const client = new Client(process.env.DATABASE_URL);
+
+(async () => {
+  await client.connect();
   try {
-    const res = await client.query(text, params);
-    // console.log('Query Result at connection.js:', res.rows); // In kết quả truy vấn ra console
-    return res.rows; // Return rows for SELECT queries
+    const results = await client.query('SELECT NOW()');
+    console.log(results);
+  } catch (err) {
+    console.error('error executing query:', err);
   } finally {
-    client.release();
+    client.end();
   }
-};
-
-// Function to execute an update or insert (for INSERT, UPDATE, DELETE)
-const poolExecute = async (text, params) => {
-  const client = await poolConnection.connect();
-  try {
-    const res = await client.query(text, params);
-    return res.rowCount; // Return the number of affected rows
-  } finally {
-    client.release();
-  }
-};
-
-// Export the query function and pool instance
-module.exports = {
-  poolQuery,
-  poolExecute,
-};
+})();
