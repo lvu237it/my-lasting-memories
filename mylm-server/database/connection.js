@@ -87,8 +87,10 @@ dotenv.config({ path: `${__dirname}/../.env` });
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // Nếu cần thiết cho kết nối SSL
+    rejectUnauthorized: true, // Nếu cần thiết cho kết nối SSL
   },
+  max: 20, // Tối đa số lượng kết nối trong pool
+  idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
 });
 
 // Function to execute a query (for SELECT)
@@ -99,7 +101,8 @@ const poolQuery = async (text, params) => {
     // console.log('Query Result at connection.js:', res.rows); // In kết quả truy vấn ra console
     return res.rows; // Return rows for SELECT queries
   } finally {
-    client.release();
+    // client.end(); //Đóng kết nối và không thể sử dụng lại kết nối đó.
+    client.release(); // Trả kết nối về pool để tái sử dụng cho các yêu cầu khác.
   }
 };
 
@@ -110,7 +113,8 @@ const poolExecute = async (text, params) => {
     const res = await client.query(text, params);
     return res.rowCount; // Return the number of affected rows
   } finally {
-    client.release();
+    // client.end(); //Đóng kết nối và không thể sử dụng lại kết nối đó.
+    client.release(); // Trả kết nối về pool để tái sử dụng cho các yêu cầu khác.
   }
 };
 
