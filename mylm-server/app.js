@@ -21,6 +21,14 @@ const pool = new Pool({
     'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
 });
 
+const dotenv = require('dotenv');
+
+dotenv.config({
+  //việc đọc các biến môi trường từ file .env xảy ra duy nhất
+  //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
+  path: `${__dirname}/../.env`,
+});
+
 // Import routers
 //using this below like a middleware
 const adminRouter = require('./routes/adminRoutes');

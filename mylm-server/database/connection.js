@@ -79,13 +79,13 @@
 
 // Sử dụng thư viện 'pg'
 const { Pool } = require('pg'); // Import pg library
-const dotenv = require('dotenv');
+// const dotenv = require('dotenv');
 
-dotenv.config({
-  //việc đọc các biến môi trường từ file .env xảy ra duy nhất
-  //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
-  path: `${__dirname}/../.env`,
-});
+// dotenv.config({
+//   //việc đọc các biến môi trường từ file .env xảy ra duy nhất
+//   //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
+//   path: `${__dirname}/../.env`,
+// });
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
