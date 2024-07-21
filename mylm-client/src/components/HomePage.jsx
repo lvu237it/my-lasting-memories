@@ -307,7 +307,7 @@ function HomePage() {
   return (
     <>
       <div className='header-feedscontent my-3'>
-        <div className='feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 mx-3 md:mx-10 lg:mx-14 py-5 md:py-10 my-5 '>
+        <div className='feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 mx-3 md:mx-10 lg:mx-14 py-7 md:py-10 my-5'>
           {viewPostDetails ? (
             //View details of a post
             <div className='wrapper-post-details'>
@@ -571,41 +571,37 @@ function HomePage() {
           ) : (
             //Home page screen with list of posts
             <div>
-              <div>
-                {isUser === true ? (
-                  ''
-                ) : (
-                  <div>
-                    <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
-                      <img
-                        src={adminInfor && adminInfor.avatar_path}
-                        alt=''
-                        className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                      />
-                      <input
-                        className='post-input basis-[80%] hidden sm2:block tracking-wide'
-                        type='text'
-                        placeholder='Viết ra những suy nghĩ của bạn...'
-                        readOnly
-                        onClick={handleOpenPostModal}
-                      />
-                      <div
-                        onClick={handleOpenPostModal}
-                        className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
-                      >
-                        <BiPlusCircle />
-                      </div>
-                      <button
-                        onClick={handleOpenPostModal}
-                        className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
-                      >
-                        Đăng
-                      </button>
+              {isUser === false && (
+                <div>
+                  <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
+                    <img
+                      src={adminInfor && adminInfor.avatar_path}
+                      alt=''
+                      className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                    />
+                    <input
+                      className='post-input basis-[80%] hidden sm2:block tracking-wide'
+                      type='text'
+                      placeholder='Viết ra những suy nghĩ của bạn...'
+                      readOnly
+                      onClick={handleOpenPostModal}
+                    />
+                    <div
+                      onClick={handleOpenPostModal}
+                      className='basis-1/7 text-4xl my-auto block sm2:hidden cursor-pointer'
+                    >
+                      <BiPlusCircle />
                     </div>
-                    <hr className='my-3 border-slate-300' />
+                    <button
+                      onClick={handleOpenPostModal}
+                      className='post-button hidden sm2:block basis-1/7 font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                    >
+                      Đăng
+                    </button>
                   </div>
-                )}
-              </div>
+                  <hr className='my-3 border-slate-300' />
+                </div>
+              )}
               {/* List of posts */}
               {postsList &&
                 postsList.map((post, index) => (
@@ -614,7 +610,7 @@ function HomePage() {
                     key={post.post_id}
                     className='cursor-pointer text-sm sm2:text-base'
                   >
-                    <div className='feeds-content-posts grid relative mb-[85px]'>
+                    <div className='feeds-content-posts grid relative mb-[80px]'>
                       <div className='feeds-content-top-about absolute top-0 left-0'>
                         <img
                           src={adminInfor && adminInfor.avatar_path}

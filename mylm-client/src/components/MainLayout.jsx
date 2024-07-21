@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {
   BiHome,
   BiSolidSearch,
@@ -19,8 +19,11 @@ import {
   BiUserCheck,
   BiUser,
   BiLogOut,
+  BiLogIn,
+  BiLogInCircle,
+  BiSolidLogIn,
 } from 'react-icons/bi';
-import { AiFillBell, AiFillHome } from 'react-icons/ai';
+import { AiFillBell, AiFillHome, AiOutlineLogin } from 'react-icons/ai';
 import NavBar from './NavBar';
 
 import { useCommon } from '../contexts/CommonContext';
@@ -275,7 +278,16 @@ const MainLayout = () => {
           </div>
         </div>
       ) : (
-        ''
+        <Link to={'/login'}>
+          <div
+            id='log-in-icon'
+            className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
+          >
+            <div className='text-2xl p-3'>
+              <BiLogIn />
+            </div>
+          </div>
+        </Link>
       )}
 
       {isUser === false ? (

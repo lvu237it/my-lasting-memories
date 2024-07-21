@@ -77,7 +77,7 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
 
   const rows = await poolQuery(
     'SELECT * FROM posts WHERE content LIKE $1 AND is_deleted = 0',
-    [searchContent]
+    [searchContent.toLowerCase()]
   );
 
   if (!rows || rows.length === 0) {
