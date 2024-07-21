@@ -13,11 +13,14 @@
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
+    "microtime": "^3.1.1",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.10.1",
+    "nan": "^2.20.0",
+    "node": "^20.9.0",
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.3",
     "pg": "^8.12.0",
@@ -51,7 +54,7 @@
     "globals": "^15.6.0"
   },
   "engines": {
-    "node": ">=10.0.0",
+    "node": "20.x",
     "npm": ">=6.0.0"
   }
 }
