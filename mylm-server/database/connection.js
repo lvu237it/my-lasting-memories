@@ -95,6 +95,7 @@ const poolConnection = new Pool({
 
 // Function to execute a query (for SELECT)
 const poolQuery = async (text, params) => {
+  console.log('DATABASE_URL', process.env.DATABASE_URL);
   const client = await poolConnection.connect();
   try {
     const res = await client.query(text, params);
@@ -108,6 +109,7 @@ const poolQuery = async (text, params) => {
 
 // Function to execute an update or insert (for INSERT, UPDATE, DELETE)
 const poolExecute = async (text, params) => {
+  console.log('DATABASE_URL', process.env.DATABASE_URL);
   const client = await poolConnection.connect();
   try {
     const res = await client.query(text, params);
