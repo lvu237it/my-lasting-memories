@@ -87,7 +87,7 @@ dotenv.config({ path: `${__dirname}/../.env` });
 const poolConnection = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: true, // Nếu cần thiết cho kết nối SSL
+    rejectUnauthorized: false,
   },
   max: 20, // Tối đa số lượng kết nối trong pool
   idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
