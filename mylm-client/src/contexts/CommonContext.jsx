@@ -48,7 +48,6 @@ export const Common = ({ children }) => {
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
-
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
     if (isLoggedByAdmin) {
