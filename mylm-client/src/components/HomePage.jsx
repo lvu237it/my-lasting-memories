@@ -44,6 +44,7 @@ function HomePage() {
     setImageChoseToView,
     decodeEntities,
     apiBaseUrl,
+    handleSortImagesPath,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -532,6 +533,7 @@ function HomePage() {
                     <div className='content-description break-words whitespace-pre-wrap leading-7'>
                       {decodeEntities(contentForUpdate)}
                     </div>
+                    {/* Post chỉ có một ảnh duy nhất */}
                     {localUrlImages.length === 1 ? (
                       <div className='content-attachments w-[95%] mt-4 cursor-pointer'>
                         <img
@@ -548,20 +550,23 @@ function HomePage() {
                         onMouseDown={handleSwipe}
                         onDragStart={(e) => e.preventDefault()}
                       >
+                        {/* Post có nhiều ảnh đính kèm */}
                         {localUrlImages.length > 1 &&
-                          localUrlImages.map((imgurl, index) => (
-                            <div
-                              key={index}
-                              className='content-attachments w-[95%] cursor-pointer'
-                            >
-                              <img
-                                onClick={(e) => handleOpenViewImageModal(e)}
-                                src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
-                                alt='attached items'
-                                className='rounded-lg mx-auto'
-                              />
-                            </div>
-                          ))}
+                          handleSortImagesPath(localUrlImages).map(
+                            (imgurl, index) => (
+                              <div
+                                key={index}
+                                className='content-attachments w-[95%] cursor-pointer'
+                              >
+                                <img
+                                  onClick={(e) => handleOpenViewImageModal(e)}
+                                  src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
+                                  alt='attached items'
+                                  className='rounded-lg mx-auto'
+                                />
+                              </div>
+                            )
+                          )}
                       </div>
                     )}
                   </div>

@@ -46,8 +46,8 @@ export const Common = ({ children }) => {
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
-  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
     if (isLoggedByAdmin) {
@@ -138,6 +138,29 @@ export const Common = ({ children }) => {
     //   };
     //   reader.readAsDataURL(file);
     // }
+  };
+
+  const handleSortImagesPath = (localUrlImages) => {
+    // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+    let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+      // Tách phần đầu của tên ảnh (timestamp)
+      const timestamp = urlImageObject.attacheditem_path
+        .split('-')[0]
+        .split('/')[3];
+      return { ...urlImageObject, timestamp };
+    });
+
+    // Sắp xếp theo timestamp
+    imagePathsWithTimestamps.sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp)
+    );
+
+    // Trả về localUrlImages đã được sắp xếp
+    return imagePathsWithTimestamps.map((item) => ({
+      attacheditem_path: item.attacheditem_path,
+      // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+      // Ví dụ: attached_items_id: item.attached_items_id, ...
+    }));
   };
 
   //View image modal
@@ -333,6 +356,7 @@ export const Common = ({ children }) => {
         setImageChoseToView,
         decodeEntities,
         apiBaseUrl,
+        handleSortImagesPath,
         // notify,
       }}
     >

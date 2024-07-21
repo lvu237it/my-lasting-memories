@@ -37,6 +37,7 @@ function Search() {
     setImageChoseToView,
     decodeEntities,
     apiBaseUrl,
+    handleSortImagesPath,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -566,19 +567,21 @@ function Search() {
                           onDragStart={(e) => e.preventDefault()}
                         >
                           {localUrlImages.length > 1 &&
-                            localUrlImages.map((imgurl, index) => (
-                              <div
-                                key={index}
-                                className='content-attachments w-[95%] cursor-pointer'
-                              >
-                                <img
-                                  onClick={(e) => handleOpenViewImageModal(e)}
-                                  src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
-                                  alt='attached items'
-                                  className='rounded-lg mx-auto'
-                                />
-                              </div>
-                            ))}
+                            handleSortImagesPath(localUrlImages).map(
+                              (imgurl, index) => (
+                                <div
+                                  key={index}
+                                  className='content-attachments w-[95%] cursor-pointer'
+                                >
+                                  <img
+                                    onClick={(e) => handleOpenViewImageModal(e)}
+                                    src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
+                                    alt='attached items'
+                                    className='rounded-lg mx-auto'
+                                  />
+                                </div>
+                              )
+                            )}
                         </div>
                       )}
                     </div>
