@@ -80,23 +80,21 @@
 // Sử dụng thư viện 'pg'
 const { Pool } = require('pg'); // Import pg library
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config({
-  //việc đọc các biến môi trường từ file .env xảy ra duy nhất
-  //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
-  path: '../.env',
+  path: path.join(__dirname, '../.env'), // Sử dụng path.join để nối đường dẫn
 });
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
   // connectionString: process.env.DATABASE_URL,
-  connectionString:
-    'luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
+  connectionString: process.env.DATABASE_URL,
   // ssl: {
   //   rejectUnauthorized: false,
   // },
-  max: 20, // Tối đa số lượng kết nối trong pool
-  idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
+  // max: 20, // Tối đa số lượng kết nối trong pool
+  // idleTimeoutMillis: 30000, // Thời gian tối đa giữ kết nối nhàn rỗi trước khi đóng
 });
 
 // Function to execute a query (for SELECT)
