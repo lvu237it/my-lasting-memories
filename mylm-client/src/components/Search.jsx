@@ -10,12 +10,13 @@ import {
   BiX,
   BiXCircle,
 } from 'react-icons/bi';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
 import { BiPen, BiPencil } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useCommon } from '../contexts/CommonContext';
+import debounce from 'lodash.debounce';
 
 function Search() {
   const {
@@ -251,24 +252,36 @@ function Search() {
     searchContentRef.current.value = '';
   };
 
-  useEffect(() => {
-    const handleSearchPostsByContent = async () => {
-      if (searchContent.trim().length > 0) {
-        try {
-          const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
-            content: searchContent,
-          });
-          setPostsResult(response.data);
-        } catch (error) {
-          console.error('Error finding post', error);
-          setPostsResult([]);
-        }
-      } else {
+  const handleSearchPostsByContent = async () => {
+    if (searchContent.trim().length > 0) {
+      try {
+        const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
+          content: searchContent,
+        });
+        setPostsResult(response.data);
+      } catch (error) {
+        console.error('Error finding post', error);
         setPostsResult([]);
       }
+    } else {
+      setPostsResult([]);
+    }
+  };
+
+  // Sử dụng debounce cho hàm handleSearchPostsByContent
+  const debouncedSearchResults = useCallback(
+    debounce(handleSearchPostsByContent, 300),
+    [searchContent] // Thêm searchContent vào dependency array để debounce cập nhật khi searchContent thay đổi
+  );
+
+  useEffect(() => {
+    debouncedSearchResults();
+
+    // Hủy bỏ debounce khi component unmount
+    return () => {
+      debouncedSearchResults.cancel();
     };
-    handleSearchPostsByContent();
-  }, [searchContent]);
+  }, [searchContent, debouncedSearchResults]);
 
   useEffect(() => {
     const searchInput = document.getElementById('search-input');
