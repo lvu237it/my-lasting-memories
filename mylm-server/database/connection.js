@@ -84,14 +84,12 @@ const dotenv = require('dotenv');
 dotenv.config({
   //việc đọc các biến môi trường từ file .env xảy ra duy nhất
   //1 lần, sau đó nó nằm trong process và có thể truy cập ở tất cả mọi nơi
-  path: `${__dirname}/../.env`,
+  path: '../.env',
 });
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
-  connectionString:
-    'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
-
+  connectionString: process.env.DATABASE_URL,
   // ssl: {
   //   rejectUnauthorized: false,
   // },
