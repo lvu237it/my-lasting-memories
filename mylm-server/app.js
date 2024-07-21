@@ -16,10 +16,6 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const { Pool } = require('pg'); // Import pg Pool
 // Database connection setup
-const pool = new Pool({
-  connectionString:
-    'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
-});
 
 // Import routers
 //using this below like a middleware
@@ -122,28 +118,6 @@ app.use('/quak', (req, res, next) => {
   });
 });
 
-// Get admin route
-app.get('/getadmin', async (req, res, next) => {
-  try {
-    const result = await pool.query('SELECT * FROM users WHERE role = $1', [
-      'admin',
-    ]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No admin found',
-      });
-    }
-    res.status(200).json({
-      status: 'success',
-      data: {
-        user: result.rows[0],
-      },
-    });
-  } catch (err) {
-    next(new AppError('Error fetching admin user', 500));
-  }
-});
 // -----------------------------------------------------
 
 // Handle other routers that do NOT match with any declared routers before
