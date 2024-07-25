@@ -271,7 +271,7 @@ function Search() {
 
   // Sử dụng debounce cho hàm handleSearchPostsByContent
   const debouncedSearchResults = useCallback(
-    debounce(handleSearchPostsByContent, 300),
+    debounce(handleSearchPostsByContent, 0), //thay đổi milliseconds nếu muốn giới hạn thêm thời gian tìm kiếm
     [searchContent] // Thêm searchContent vào dependency array để debounce cập nhật khi searchContent thay đổi
   );
 
