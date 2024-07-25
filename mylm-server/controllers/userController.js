@@ -88,6 +88,8 @@ exports.findUserByEmail = async (email) => {
 
   if (!rows || rows.length === 0) {
     throw new AppError('KHÔNG tìm thấy thông tin người dùng', 404);
+  } else {
+    console.log('user found', rows[0]);
   }
 
   return rows[0];

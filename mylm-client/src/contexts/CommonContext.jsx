@@ -41,7 +41,7 @@ export const Common = ({ children }) => {
   const [imageUrlsList, setImageUrlsList] = useState([]);
   const isLoggedByAdmin = JSON.parse(localStorage.getItem('admin'));
   const [adminInfor, setAdminInfor] = useState(null);
-  const [isUser, setIsUser] = useState(false);
+  const [isUser, setIsUser] = useState(true);
 
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
