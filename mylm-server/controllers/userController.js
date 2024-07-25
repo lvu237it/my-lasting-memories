@@ -81,19 +81,17 @@ exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.findUserByEmail = async (email) => {
+exports.findUserByEmail = catchAsync(async (email) => {
   const rows = await poolQuery('SELECT * FROM users WHERE email like $1', [
     email,
   ]);
 
-  if (!rows || rows.length === 0) {
-    throw new AppError('KHÔNG tìm thấy thông tin người dùng', 404);
-  } else {
-    console.log('user found', rows[0]);
+  if (!rows) {
+    return next(new AppError('KHÔNG tìm thấy thông tin người dùng', 404));
   }
-
+  console.log('user found', rows[0]);
   return rows[0];
-};
+});
 
 exports.findUserById = async (user_id) => {
   const rows = await poolQuery('SELECT * FROM users where users.user_id = $1', [

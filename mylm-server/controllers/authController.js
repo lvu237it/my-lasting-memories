@@ -99,7 +99,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 2. Check if user exists && password is correct
-  const user = await userController.findUserByEmail(email);
+  const user = userController.findUserByEmail(email);
   if (!user) {
     return next(new AppError('Người dùng không xác định', 404));
   } else {

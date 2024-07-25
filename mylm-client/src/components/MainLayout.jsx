@@ -267,17 +267,7 @@ const MainLayout = () => {
           ></img>
         </div>
       )}
-      {isUser === false ? (
-        <div
-          id='log-out-icon'
-          ref={logoutIconRef}
-          className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
-        >
-          <div onClick={handleLogOut} className='text-2xl p-3'>
-            <BiLogOut />
-          </div>
-        </div>
-      ) : (
+      {isUser === true ? (
         <Link to={'/login'}>
           <div
             id='log-in-icon'
@@ -288,6 +278,16 @@ const MainLayout = () => {
             </div>
           </div>
         </Link>
+      ) : (
+        <div
+          id='log-out-icon'
+          ref={logoutIconRef}
+          className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
+        >
+          <div onClick={handleLogOut} className='text-2xl p-3'>
+            <BiLogOut />
+          </div>
+        </div>
       )}
 
       {isUser === false ? (
