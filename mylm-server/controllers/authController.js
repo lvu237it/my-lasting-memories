@@ -9,6 +9,11 @@ const { promisify } = require('util');
 const userController = require('./userController');
 const sendEmail = require('../utils/email');
 
+const dotenv = require('dotenv');
+dotenv.config({
+  path: path.join(__dirname, '../.env'), // Sử dụng path.join để nối đường dẫn
+});
+
 const singToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -18,22 +23,23 @@ const singToken = (id) => {
 //Gửi lại token cho user
 const createSendToken = (user, statusCode, res) => {
   const token = singToken(user.user_id);
-  const cookieOptions = {
-    expires: new Date(
-      //Chuyển thành mili giây
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true, //làm cho trình duyệt ko thể truy cập hoặc sửa đổi cookie theo bất kì cách nào
-  };
+  // ------------------Có Cookies nếu có Chức năng Remember Me------------------
+  // const cookieOptions = {
+  //   expires: new Date(
+  //     //Chuyển thành mili giây
+  //     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  //   ),
+  //   httpOnly: true, //làm cho trình duyệt ko thể truy cập hoặc sửa đổi cookie theo bất kì cách nào
+  // };
 
-  if (process.env.NODE_ENV === 'production') {
-    cookieOptions.secure = true;
-  }
-  //Tạo và gửi cookie
-  res.cookie('jwt', token, cookieOptions);
+  // if (process.env.NODE_ENV === 'production') {
+  //   cookieOptions.secure = true;
+  // }
+  // //Tạo và gửi cookie
+  // res.cookie('jwt', token, cookieOptions);
 
-  //Remove password from output
-  user.password = undefined;
+  // //Remove password from output
+  // user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
