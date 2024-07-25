@@ -49,7 +49,6 @@ app.use(
 );
 
 app.use(cookieParser());
-app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.set('view engine', 'ejs');
 app.use(express.json());

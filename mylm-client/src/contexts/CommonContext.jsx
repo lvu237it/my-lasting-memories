@@ -67,6 +67,7 @@ export const Common = ({ children }) => {
 
     getAdminInformation();
     console.log('apiBaseUrl', apiBaseUrl);
+    console.log('isUser', isUser);
   }, []);
 
   const decodeEntities = (encodedString) => {

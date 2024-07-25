@@ -99,13 +99,13 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 2. Check if user exists && password is correct
-  const user = userController.findUserByEmail(email);
+  const user = await userController.findUserByEmail(email);
   if (!user) {
     return next(new AppError('Người dùng không xác định', 404));
   } else {
     const passwordComparing = await correctPassword(password, user.password);
     console.log('passwordComparing', passwordComparing);
-    if (!passwordComparing) {
+    if (passwordComparing === false) {
       console.log('passwordComparing', passwordComparing);
       return next(new AppError('Email hoặc mật khẩu không đúng', 401));
     } else {
