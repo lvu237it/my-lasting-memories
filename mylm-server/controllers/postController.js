@@ -76,7 +76,7 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
   }
 
   const rows = await poolQuery(
-    'SELECT * FROM posts WHERE content LIKE $1 AND is_deleted = 0',
+    'SELECT * FROM posts WHERE content LIKE $1 AND is_deleted = 0 ORDER BY created_at DESC',
     [searchContent.toLowerCase()]
   );
 

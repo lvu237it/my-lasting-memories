@@ -34,6 +34,8 @@ export const Common = ({ children }) => {
   const scrollContainerRef = useRef(null);
   const imageChoseToViewRef = useRef(null);
   const cancelViewPostImageRef = useRef(null);
+  const viewPrevImageRef = useRef(null);
+  const viewNextImageRef = useRef(null);
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
@@ -46,8 +48,10 @@ export const Common = ({ children }) => {
 
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
+  const [localUrlImages, setLocalUrlImages] = useState([]);
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentViewImageIndex, setCurrentViewImageIndex] = useState(0);
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
@@ -169,16 +173,94 @@ export const Common = ({ children }) => {
     }));
   };
 
+  const getImageUrlsByPostId = async (post) => {
+    try {
+      const urlImageListLocal = await axios.get(
+        `${apiBaseUrl}/posts/${post.post_id}/images`
+      );
+      setLocalUrlImages(urlImageListLocal.data);
+    } catch (error) {
+      console.error('Error finding images url by post id', error);
+    }
+  };
+
   //View image modal
   const handleOpenViewImageModal = (e) => {
     if (!isDragging) {
       e.preventDefault();
       setOpenViewImageModal(true);
       const imageSrc = e.target.src;
+      //Xử lý khi ảnh được chọn để xem bằng cách click trực tiếp
       if (imageSrc) {
         setImageChoseToView(imageSrc);
+        console.log('imgSrc', imageSrc);
+        //Tách imagePath ra từ imageSrc
+        const imagePath =
+          '/assets/images/' + imageSrc.split('/assets/images/')[1];
+        //Sau đó dựa vào imageSrc để tìm ra vị trí hiện tại của ảnh đang được view
+        const currentImage = localUrlImages.find(
+          (img) => img.attacheditem_path === imagePath
+        );
+
+        let countImageIndex = 0;
+        localUrlImages.forEach((img) => {
+          if (img === currentImage) {
+            console.log('index of current image', countImageIndex);
+            setCurrentViewImageIndex(countImageIndex);
+          }
+          countImageIndex++;
+        });
+        console.log('currentImage', currentImage);
       }
     }
+  };
+
+  useEffect(() => {
+    if (openViewImageModal) {
+      //--------------Trường hợp post chỉ có 1 ảnh-----------
+      if (viewPrevImageRef.current && viewNextImageRef.current) {
+        if (lengthOfViewPostImage === 1) {
+          viewPrevImageRef.current.style.display = 'none';
+          viewNextImageRef.current.style.display = 'none';
+        }
+      }
+
+      //------------Trường hợp post có nhiều hơn 1 ảnh------------
+      //Ẩn dấu < nếu xem ảnh đầu tiên
+      if (viewPrevImageRef.current) {
+        if (currentViewImageIndex > 0) {
+          viewPrevImageRef.current.style.display = 'block';
+        } else {
+          viewPrevImageRef.current.style.display = 'none';
+        }
+      }
+      //Ẩn dấu > nếu xem ảnh cuối cùng
+      if (viewNextImageRef.current) {
+        if (currentViewImageIndex === localUrlImages.length - 1) {
+          viewNextImageRef.current.style.display = 'none';
+        } else {
+          viewNextImageRef.current.style.display = 'block';
+        }
+      }
+    }
+  }, [openViewImageModal, imageChoseToView]);
+
+  const handleViewPrevImage = () => {
+    setCurrentViewImageIndex(currentViewImageIndex - 1);
+    setImageChoseToView(
+      `${apiBaseUrl}` +
+        localUrlImages[currentViewImageIndex - 1]?.attacheditem_path
+    );
+    // console.log(imageChoseToView);
+  };
+
+  const handleViewNextImage = () => {
+    setCurrentViewImageIndex(currentViewImageIndex + 1);
+    setImageChoseToView(
+      `${apiBaseUrl}` +
+        localUrlImages[currentViewImageIndex + 1]?.attacheditem_path
+    );
+    // console.log(imageChoseToView);
   };
 
   //Post Modal
@@ -221,6 +303,7 @@ export const Common = ({ children }) => {
 
   const handleClickOutsideImageViewModal = (event) => {
     if (
+      cancelViewPostImageRef.current &&
       // imageChoseToViewRef.current &&
       // !imageChoseToViewRef.current.contains(event.target)
       cancelViewPostImageRef.current.contains(event.target)
@@ -368,8 +451,17 @@ export const Common = ({ children }) => {
         apiBaseUrl,
         handleSortImagesPath,
         cancelViewPostImageRef,
+        localUrlImages,
+        setLocalUrlImages,
+        getImageUrlsByPostId,
         lengthOfViewPostImage,
         setLengthOfViewPostImage,
+        viewPrevImageRef,
+        viewNextImageRef,
+        currentViewImageIndex,
+        setCurrentViewImageIndex,
+        handleViewPrevImage,
+        handleViewNextImage,
         // notify,
       }}
     >

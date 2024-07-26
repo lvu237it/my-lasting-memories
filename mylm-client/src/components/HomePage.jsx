@@ -45,8 +45,11 @@ function HomePage() {
     decodeEntities,
     apiBaseUrl,
     handleSortImagesPath,
+    getImageUrlsByPostId,
     lengthOfViewPostImage,
     setLengthOfViewPostImage,
+    localUrlImages,
+    setLocalUrlImages,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -62,7 +65,6 @@ function HomePage() {
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
-  const [localUrlImages, setLocalUrlImages] = useState([]);
 
   const [
     redundantEditingCharactersNumber,
@@ -204,21 +206,6 @@ function HomePage() {
     setLocalUrlImages([]);
     setLengthOfViewPostImage(0);
   };
-
-  const getImageUrlsByPostId = async (post) => {
-    try {
-      const urlImageListLocal = await axios.get(
-        `${apiBaseUrl}/posts/${post.post_id}/images`
-      );
-      setLocalUrlImages(urlImageListLocal.data);
-    } catch (error) {
-      console.error('Error finding images url by post id', error);
-    }
-  };
-
-  useEffect(() => {
-    setLengthOfViewPostImage(localUrlImages.length);
-  }, [localUrlImages, location]);
 
   //Counting redundant editing characters number
   useEffect(() => {

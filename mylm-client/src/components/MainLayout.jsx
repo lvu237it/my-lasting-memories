@@ -77,17 +77,33 @@ const MainLayout = () => {
     imageChoseToView,
     setImageChoseToView,
     cancelViewPostImageRef,
+    localUrlImages,
+    setLocalUrlImages,
     lengthOfViewPostImage,
     setLengthOfViewPostImage,
+    viewPrevImageRef,
+    viewNextImageRef,
+    handleViewPrevImage,
+    handleViewNextImage,
   } = useCommon();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('localUrlImages', localUrlImages);
+    console.log('imageChoseToView', imageChoseToView);
+  }, []);
 
   const handleLogOut = () => {
     localStorage.removeItem('admin');
     setIsUser(true);
     navigate('/login');
   };
+
+  useEffect(() => {
+    setLengthOfViewPostImage(localUrlImages.length);
+  }, [localUrlImages, location.pathname]);
 
   useEffect(() => {
     const iconClicked = document.getElementById(headerIconsClicked);
@@ -209,9 +225,9 @@ const MainLayout = () => {
     }
   }, [postModal]);
 
-  useEffect(() => {
-    const addPostIcon = addPostIconRef.current;
-  }, []);
+  // useEffect(() => {
+  //   const addPostIcon = addPostIconRef.current;
+  // }, []);
 
   // Handle modals and z-index
   useEffect(() => {
@@ -248,6 +264,22 @@ const MainLayout = () => {
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
 
+  // useEffect(() => {
+  //   const wrapperPrevNextIcon = document.getElementById(
+  //     'wrapper-prev-next-icon'
+  //   );
+  //   console.log('lengthOfViewPostImage:', lengthOfViewPostImage); // Để kiểm tra giá trị
+  //   if (viewPrevImageRef.current && viewNextImageRef.current) {
+  //     if (lengthOfViewPostImage !== 1) {
+  //       viewPrevImageRef.current.style.display = 'block';
+  //       viewNextImageRef.current.style.display = 'block';
+  //     } else {
+  //       viewPrevImageRef.current.style.display = 'none';
+  //       viewNextImageRef.current.style.display = 'none';
+  //     }
+  //   }
+  // }, [lengthOfViewPostImage, viewPrevImageRef, viewNextImageRef]);
+
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
       {/* View image of a post */}
@@ -262,16 +294,23 @@ const MainLayout = () => {
           >
             <BiX />
           </div>
-          {lengthOfViewPostImage > 1 && (
-            <>
-              <div className='fixed left-0 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'>
-                <FaAngleLeft />
-              </div>
-              <div className='fixed right-0 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'>
-                <FaAngleRight />
-              </div>
-            </>
-          )}
+
+          <div id='wrapper-prev-next-icon' className=''>
+            <div
+              ref={viewPrevImageRef}
+              onClick={handleViewPrevImage}
+              className='fixed p-3 left-0 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleLeft />
+            </div>
+            <div
+              ref={viewNextImageRef}
+              onClick={handleViewNextImage}
+              className='fixed p-3 right-0 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleRight />
+            </div>
+          </div>
 
           <img
             ref={imageChoseToViewRef}
