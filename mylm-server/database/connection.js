@@ -99,6 +99,7 @@ const poolConnection = new Pool({
 // Function to execute a query (for SELECT)
 const poolQuery = async (text, params) => {
   try {
+    console.log('process.env.DATABASE_URL', process.env.DATABASE_URL);
     const res = await poolConnection.query(text, params);
     return res.rows; // Return rows for SELECT queries
   } catch (error) {
@@ -110,6 +111,7 @@ const poolQuery = async (text, params) => {
 // Function to execute an update or insert (for INSERT, UPDATE, DELETE)
 const poolExecute = async (text, params) => {
   try {
+    console.log('process.env.DATABASE_URL', process.env.DATABASE_URL);
     const res = await poolConnection.query(text, params);
     return res.rowCount; // Return the number of affected rows
   } catch (error) {

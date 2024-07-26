@@ -17,6 +17,7 @@ dotenv.config({
 });
 
 const singToken = (id) => {
+  console.log('process.env.JWT_SECRET', process.env.JWT_SECRET);
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   }); //sign(payload, secretkey, expire)
