@@ -12,14 +12,12 @@ const sendEmail = require('../utils/email');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({
-  path: path.join(__dirname, '../.env'), // Sử dụng path.join để nối đường dẫn
+  path: path.join(__dirname, '.env'), // Sử dụng path.join để nối đường dẫn
 });
 
 const singToken = (id) => {
-  // return jwt.sign({ id }, process.env.JWT_SECRET, {
-  return jwt.sign({ id }, 'bjkOdsfbDHclaZ1840326riuksnjFviqF', {
-    // expiresIn: process.env.JWT_EXPIRES_IN,
-    expiresIn: '90d',
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
   }); //sign(payload, secretkey, expire)
 };
 

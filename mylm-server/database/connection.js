@@ -83,14 +83,12 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config({
-  path: path.join(__dirname, '../.env'), // Sử dụng path.join để nối đường dẫn
+  path: path.join(__dirname, '.env'), // Sử dụng path.join để nối đường dẫn
 });
 
 // Create a new pool instance using the DATABASE_URL from .env
 const poolConnection = new Pool({
-  // connectionString: process.env.DATABASE_URL,
-  connectionString:
-    'postgresql://luuvanvua7k16vt:BHoLvuqEltny3GcdauMqIQ@lasting-memories-9704.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/lasting-memories?sslmode=verify-full',
+  connectionString: process.env.DATABASE_URL,
   // ssl: {
   //   rejectUnauthorized: false,
   // },
