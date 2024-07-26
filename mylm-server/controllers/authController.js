@@ -9,13 +9,6 @@ const { promisify } = require('util');
 const userController = require('./userController');
 const sendEmail = require('../utils/email');
 
-const path = require('path');
-const dotenv = require('dotenv');
-dotenv.config({
-  // path: path.join(__dirname, '.env'), // Sử dụng path.join để nối đường dẫn
-  path: `${__dirname}/../.env`, // Sử dụng path.join để nối đường dẫn
-});
-
 const singToken = (id) => {
   console.log('process.env.JWT_SECRET', process.env.JWT_SECRET);
   return jwt.sign({ id }, process.env.JWT_SECRET, {
