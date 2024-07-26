@@ -1,29 +1,22 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   BiHome,
-  BiSolidSearch,
   BiSearch,
   BiBell,
-  BiSolidBellRing,
   BiSolidPlaylist,
   BiBookmark,
-  BiSolidBookmark,
   BiMessage,
   BiMenu,
   BiPencil,
   BiImageAdd,
-  BiVideoPlus,
-  BiUserVoice,
-  BiFileBlank,
-  BiUserCheck,
   BiUser,
   BiLogOut,
   BiLogIn,
-  BiLogInCircle,
-  BiSolidLogIn,
+  BiX,
 } from 'react-icons/bi';
 import { AiFillBell, AiFillHome, AiOutlineLogin } from 'react-icons/ai';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import NavBar from './NavBar';
 
 import { useCommon } from '../contexts/CommonContext';
@@ -83,6 +76,9 @@ const MainLayout = () => {
     handleClickOutsideImageViewModal,
     imageChoseToView,
     setImageChoseToView,
+    cancelViewPostImageRef,
+    lengthOfViewPostImage,
+    setLengthOfViewPostImage,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -254,17 +250,35 @@ const MainLayout = () => {
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
+      {/* View image of a post */}
       {openViewImageModal && (
         <div
           style={{ display: 'flex' }}
           className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
         >
+          <div
+            ref={cancelViewPostImageRef}
+            className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
+          >
+            <BiX />
+          </div>
+          {lengthOfViewPostImage > 1 && (
+            <>
+              <div className='fixed left-0 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'>
+                <FaAngleLeft />
+              </div>
+              <div className='fixed right-0 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'>
+                <FaAngleRight />
+              </div>
+            </>
+          )}
+
           <img
             ref={imageChoseToViewRef}
             src={imageChoseToView}
             alt='image-modal'
             className='max-w-full max-h-full shadow shadow-slate-300'
-          ></img>
+          />
         </div>
       )}
       {isUser === true ? (
@@ -376,7 +390,7 @@ const MainLayout = () => {
                         {/* Display images before uploading to database */}
                         <div
                           ref={scrollContainerRef}
-                          className='vulv-uploaded-images w-full sm:w-[95%] flex flex-row gap-2 overflow-x-auto vulv-scrollbar-hide'
+                          className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
                           onMouseDown={handleSwipe}
                           onDragStart={(e) => e.preventDefault()}
                         >

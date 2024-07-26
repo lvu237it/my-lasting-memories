@@ -45,6 +45,8 @@ function HomePage() {
     decodeEntities,
     apiBaseUrl,
     handleSortImagesPath,
+    lengthOfViewPostImage,
+    setLengthOfViewPostImage,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -68,6 +70,7 @@ function HomePage() {
   ] = useState(0);
 
   const navigate = useNavigate();
+  const location = useLocation();
   // useEffect(() => {
   //   const checkRememberMeSession = async () => {
   //     try {
@@ -199,6 +202,7 @@ function HomePage() {
     setViewPostDetails(false);
     getAllPosts();
     setLocalUrlImages([]);
+    setLengthOfViewPostImage(0);
   };
 
   const getImageUrlsByPostId = async (post) => {
@@ -211,6 +215,10 @@ function HomePage() {
       console.error('Error finding images url by post id', error);
     }
   };
+
+  useEffect(() => {
+    setLengthOfViewPostImage(localUrlImages.length);
+  }, [localUrlImages, location]);
 
   //Counting redundant editing characters number
   useEffect(() => {
@@ -545,28 +553,30 @@ function HomePage() {
                       </div>
                     ) : (
                       <div
-                        className='vulv-scrollbar-hide flex flex-col justify-center items-center gap-3 overflow-x-auto mt-4'
                         ref={scrollContainerRef}
-                        onMouseDown={handleSwipe}
+                        onMouseDown={(e) => handleSwipe(e)}
                         onDragStart={(e) => e.preventDefault()}
+                        className='vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto'
                       >
-                        {/* Post có nhiều ảnh đính kèm */}
-                        {localUrlImages.length > 1 &&
-                          handleSortImagesPath(localUrlImages).map(
-                            (imgurl, index) => (
-                              <div
-                                key={index}
-                                className='content-attachments w-[95%] cursor-pointer'
-                              >
-                                <img
-                                  onClick={(e) => handleOpenViewImageModal(e)}
-                                  src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
-                                  alt='attached items'
-                                  className='rounded-lg mx-auto'
-                                />
-                              </div>
-                            )
-                          )}
+                        <div className='flex gap-2 w-max'>
+                          {/* Post có nhiều ảnh đính kèm */}
+                          {localUrlImages.length > 1 &&
+                            handleSortImagesPath(localUrlImages).map(
+                              (imgurl, index) => (
+                                <div
+                                  key={index}
+                                  className='content-attachments cursor-pointer'
+                                >
+                                  <img
+                                    onClick={(e) => handleOpenViewImageModal(e)}
+                                    src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
+                                    alt='attached items'
+                                    className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                  />
+                                </div>
+                              )
+                            )}
+                        </div>
                       </div>
                     )}
                   </div>

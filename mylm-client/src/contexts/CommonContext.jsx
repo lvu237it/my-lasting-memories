@@ -33,6 +33,7 @@ export const Common = ({ children }) => {
   const postItemsUploadRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const imageChoseToViewRef = useRef(null);
+  const cancelViewPostImageRef = useRef(null);
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
@@ -45,9 +46,11 @@ export const Common = ({ children }) => {
 
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
+  const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
   useEffect(() => {
     //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
     if (isLoggedByAdmin) {
@@ -90,21 +93,23 @@ export const Common = ({ children }) => {
 
   //Increase UX when scrolling
   const handleSwipe = (e) => {
-    e.preventDefault(); // Ngăn chặn hành động mặc định của trình duyệt
+    e.preventDefault();
     const container = scrollContainerRef.current;
     if (container) {
+      setIsDragging(true);
       let startX = e.pageX - container.offsetLeft;
       let scrollLeft = container.scrollLeft;
 
-      container.classList.add('grabbing'); //Đổi thành biểu tượng bàn tay nắm -> kéo
+      container.classList.add('grabbing');
 
       const onMouseMove = (e) => {
         const x = e.pageX - container.offsetLeft;
-        const walk = (x - startX) * 2; // Tăng tốc độ cuộn
+        const walk = (x - startX) * 2;
         container.scrollLeft = scrollLeft - walk;
       };
 
       const onMouseUp = () => {
+        setIsDragging(false);
         container.classList.remove('grabbing');
         container.removeEventListener('mousemove', onMouseMove);
         container.removeEventListener('mouseup', onMouseUp);
@@ -113,7 +118,7 @@ export const Common = ({ children }) => {
 
       container.addEventListener('mousemove', onMouseMove);
       container.addEventListener('mouseup', onMouseUp);
-      container.addEventListener('mouseleave', onMouseUp); // Xử lý trường hợp chuột rời khỏi vùng cuộn
+      container.addEventListener('mouseleave', onMouseUp);
     }
   };
 
@@ -166,10 +171,13 @@ export const Common = ({ children }) => {
 
   //View image modal
   const handleOpenViewImageModal = (e) => {
-    setOpenViewImageModal(true);
-    const imageSrc = e.target.src;
-    if (imageSrc) {
-      setImageChoseToView(imageSrc);
+    if (!isDragging) {
+      e.preventDefault();
+      setOpenViewImageModal(true);
+      const imageSrc = e.target.src;
+      if (imageSrc) {
+        setImageChoseToView(imageSrc);
+      }
     }
   };
 
@@ -212,12 +220,13 @@ export const Common = ({ children }) => {
   };
 
   const handleClickOutsideImageViewModal = (event) => {
-    // if (
-    //   imageChoseToViewRef.current &&
-    //   !imageChoseToViewRef.current.contains(event.target)
-    // ) {
-    setOpenViewImageModal(false);
-    // }
+    if (
+      // imageChoseToViewRef.current &&
+      // !imageChoseToViewRef.current.contains(event.target)
+      cancelViewPostImageRef.current.contains(event.target)
+    ) {
+      setOpenViewImageModal(false);
+    }
   };
 
   const getAllPosts = async () => {
@@ -358,6 +367,9 @@ export const Common = ({ children }) => {
         decodeEntities,
         apiBaseUrl,
         handleSortImagesPath,
+        cancelViewPostImageRef,
+        lengthOfViewPostImage,
+        setLengthOfViewPostImage,
         // notify,
       }}
     >
