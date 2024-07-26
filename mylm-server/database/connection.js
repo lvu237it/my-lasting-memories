@@ -83,7 +83,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config({
-  path: path.join(__dirname, '.env'), // Sử dụng path.join để nối đường dẫn
+  path: `${__dirname}/../.env`, // Sử dụng path.join để nối đường dẫn
 });
 
 // Create a new pool instance using the DATABASE_URL from .env
