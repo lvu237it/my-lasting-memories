@@ -5,6 +5,10 @@ import { toast } from 'react-toastify';
 import {
   BiBookmark,
   BiBookmarkMinus,
+  BiComment,
+  BiCommentAdd,
+  BiCommentDetail,
+  BiCommentDots,
   BiDotsHorizontalRounded,
   BiEdit,
   BiPencil,
@@ -13,7 +17,15 @@ import {
 } from 'react-icons/bi';
 import { useCommon } from '../contexts/CommonContext';
 import { BiArrowBack } from 'react-icons/bi';
-import { FaChevronRight } from 'react-icons/fa';
+import {
+  FaChevronRight,
+  FaComment,
+  FaCommentAlt,
+  FaCommentDollar,
+  FaCommentDots,
+  FaComments,
+} from 'react-icons/fa';
+import { AiOutlineComment } from 'react-icons/ai';
 
 function HomePage() {
   const {
@@ -50,6 +62,12 @@ function HomePage() {
     setLengthOfViewPostImage,
     localUrlImages,
     setLocalUrlImages,
+    commentsByPostId,
+    setCommentsByPostId,
+    getCommentsByPostId,
+    getOnwnerInformationByCommentId,
+    chosenPost,
+    setChosenPost,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -57,7 +75,6 @@ function HomePage() {
   const optionsModalRef = useRef(null);
   const contentEditableRef = useRef(null);
 
-  const [chosenPost, setChosenPost] = useState(null);
   const [isSavedPost, setIsSavedPost] = useState(true); //not yet
   const [openOptionsModal, setOpenOptionsModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -197,6 +214,7 @@ function HomePage() {
     //Để phục vụ cho việc update content
     setContentForUpdate(post.content); // Cập nhật contentForUpdate khi chọn post
     setViewPostDetails(true);
+    getCommentsByPostId(post);
   };
 
   //Back home from view post details
@@ -539,31 +557,75 @@ function HomePage() {
                         />
                       </div>
                     ) : (
-                      <div
-                        ref={scrollContainerRef}
-                        onMouseDown={(e) => handleSwipe(e)}
-                        onDragStart={(e) => e.preventDefault()}
-                        className='vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto'
-                      >
-                        <div className='flex gap-2 w-max'>
-                          {/* Post có nhiều ảnh đính kèm */}
-                          {localUrlImages.length > 1 &&
-                            handleSortImagesPath(localUrlImages).map(
-                              (imgurl, index) => (
-                                <div
-                                  key={index}
-                                  className='content-attachments cursor-pointer'
-                                >
-                                  <img
-                                    onClick={(e) => handleOpenViewImageModal(e)}
-                                    src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
-                                    alt='attached items'
-                                    className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
-                                  />
-                                </div>
-                              )
-                            )}
+                      <div className='wrapper-of-post-details'>
+                        <div
+                          ref={scrollContainerRef}
+                          onMouseDown={(e) => handleSwipe(e)}
+                          onDragStart={(e) => e.preventDefault()}
+                          className='wrapper-images-of-post-details vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-4'
+                        >
+                          <div className='flex gap-2 w-max'>
+                            {/* Post có nhiều ảnh đính kèm */}
+                            {localUrlImages.length > 1 &&
+                              handleSortImagesPath(localUrlImages).map(
+                                (imgurl, index) => (
+                                  <div
+                                    key={index}
+                                    className='content-attachments cursor-pointer'
+                                  >
+                                    <img
+                                      onClick={(e) =>
+                                        handleOpenViewImageModal(e)
+                                      }
+                                      src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
+                                      alt='attached items'
+                                      className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                    />
+                                  </div>
+                                )
+                              )}
+                          </div>
                         </div>
+                        <div className='comments-of-post-details flex gap-2 items-end mt-4'>
+                          <AiOutlineComment className='text-3xl cursor-pointer' />
+                          <div className='number-of-comments text-lg cursor-pointer'>
+                            0
+                          </div>
+                        </div>
+                        <hr className='mt-2' />
+                        {commentsByPostId &&
+                          commentsByPostId.map((comment, index) => (
+                            <div
+                              key={index}
+                              className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'
+                            >
+                              <div className='flex-shrink-0'>
+                                <img
+                                  className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                  src={
+                                    usersList.find(
+                                      (user) => user.user_id === comment.user_id
+                                    )?.avatar_path
+                                  }
+                                  // Find avatar of each comment - comment owner - by that comment => user_id => avatar
+                                  alt='infor-user-comment'
+                                />
+                              </div>
+                              <div className='flex-1'>
+                                <div className='leading-loose break-words whitespace-pre-wrap'>
+                                  {
+                                    usersList.find(
+                                      (user) => user.user_id === comment.user_id
+                                    )?.username
+                                  }
+                                  {/* // Find username of each comment - comment owner - by that comment => user_id => username */}
+                                </div>
+                                <div className='leading-loose break-words whitespace-pre-wrap'>
+                                  {comment?.comment_content}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     )}
                   </div>

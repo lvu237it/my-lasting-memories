@@ -46,12 +46,17 @@ export const Common = ({ children }) => {
   const [adminInfor, setAdminInfor] = useState(null);
   const [isUser, setIsUser] = useState(true);
 
+  const [chosenPost, setChosenPost] = useState(null);
+
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [imageChoseToView, setImageChoseToView] = useState(null);
   const [localUrlImages, setLocalUrlImages] = useState([]);
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [currentViewImageIndex, setCurrentViewImageIndex] = useState(0);
+  const [currentViewImage, setCurrentViewImage] = useState(null);
+
+  const [commentsByPostId, setCommentsByPostId] = useState([]);
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
@@ -76,6 +81,23 @@ export const Common = ({ children }) => {
     console.log('apiBaseUrl', apiBaseUrl);
     console.log('isUser', isUser);
   }, []);
+
+  // useEffect(() => {
+  //   console.log('chosenPost', chosenPost);
+  //   getCommentsByPostId(chosenPost);
+  //   console.log('commentBypostid', commentsByPostId);
+  // }, [chosenPost]);
+
+  const getCommentsByPostId = async (post) => {
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/comments/post/${post.post_id}`
+      );
+      setCommentsByPostId(response.data);
+    } catch (err) {
+      console.log('Error when getting comments by post id', err);
+    }
+  };
 
   const decodeEntities = (encodedString) => {
     const textArea = document.createElement('textarea');
@@ -190,77 +212,60 @@ export const Common = ({ children }) => {
       e.preventDefault();
       setOpenViewImageModal(true);
       const imageSrc = e.target.src;
-      //Xử lý khi ảnh được chọn để xem bằng cách click trực tiếp
       if (imageSrc) {
         setImageChoseToView(imageSrc);
-        console.log('imgSrc', imageSrc);
-        //Tách imagePath ra từ imageSrc
         const imagePath =
           '/assets/images/' + imageSrc.split('/assets/images/')[1];
-        //Sau đó dựa vào imageSrc để tìm ra vị trí hiện tại của ảnh đang được view
         const currentImage = localUrlImages.find(
           (img) => img.attacheditem_path === imagePath
         );
-
-        let countImageIndex = 0;
-        localUrlImages.forEach((img) => {
-          if (img === currentImage) {
-            console.log('index of current image', countImageIndex);
-            setCurrentViewImageIndex(countImageIndex);
-          }
-          countImageIndex++;
-        });
-        console.log('currentImage', currentImage);
+        setCurrentViewImage(currentImage);
+        setCurrentViewImageIndex(localUrlImages.indexOf(currentImage));
       }
     }
   };
 
   useEffect(() => {
-    if (openViewImageModal) {
-      //--------------Trường hợp post chỉ có 1 ảnh-----------
-      if (viewPrevImageRef.current && viewNextImageRef.current) {
-        if (lengthOfViewPostImage === 1) {
-          viewPrevImageRef.current.style.display = 'none';
-          viewNextImageRef.current.style.display = 'none';
-        }
-      }
+    setLocalUrlImages(handleSortImagesPath(localUrlImages));
+  }, []);
 
-      //------------Trường hợp post có nhiều hơn 1 ảnh------------
-      //Ẩn dấu < nếu xem ảnh đầu tiên
-      if (viewPrevImageRef.current) {
-        if (currentViewImageIndex > 0) {
-          viewPrevImageRef.current.style.display = 'block';
-        } else {
+  // useEffect(() => {
+  //   if (currentViewImage) {
+  //     const currentIndex = localUrlImages.indexOf(currentViewImage);
+  //     setCurrentViewImageIndex(currentIndex);
+  //   }
+  // }, [currentViewImage, localUrlImages]);
+
+  useEffect(() => {
+    if (openViewImageModal) {
+      if (viewPrevImageRef.current && viewNextImageRef.current) {
+        if (localUrlImages.length === 1) {
           viewPrevImageRef.current.style.display = 'none';
-        }
-      }
-      //Ẩn dấu > nếu xem ảnh cuối cùng
-      if (viewNextImageRef.current) {
-        if (currentViewImageIndex === localUrlImages.length - 1) {
           viewNextImageRef.current.style.display = 'none';
         } else {
+          viewPrevImageRef.current.style.display = 'block';
           viewNextImageRef.current.style.display = 'block';
         }
       }
     }
-  }, [openViewImageModal, imageChoseToView]);
+  }, [openViewImageModal, localUrlImages]);
 
   const handleViewPrevImage = () => {
-    setCurrentViewImageIndex(currentViewImageIndex - 1);
+    const prevIndex =
+      (currentViewImageIndex - 1 + localUrlImages.length) %
+      localUrlImages.length;
+    setCurrentViewImageIndex(prevIndex);
     setImageChoseToView(
-      `${apiBaseUrl}` +
-        localUrlImages[currentViewImageIndex - 1]?.attacheditem_path
+      `${apiBaseUrl}${localUrlImages[prevIndex]?.attacheditem_path}`
     );
-    // console.log(imageChoseToView);
   };
 
   const handleViewNextImage = () => {
-    setCurrentViewImageIndex(currentViewImageIndex + 1);
+    const nextIndex = (currentViewImageIndex + 1) % localUrlImages.length;
+    setCurrentViewImageIndex(nextIndex);
     setImageChoseToView(
-      `${apiBaseUrl}` +
-        localUrlImages[currentViewImageIndex + 1]?.attacheditem_path
+      `${apiBaseUrl}${localUrlImages[nextIndex]?.attacheditem_path}`
     );
-    // console.log(imageChoseToView);
   };
 
   //Post Modal
@@ -462,6 +467,11 @@ export const Common = ({ children }) => {
         setCurrentViewImageIndex,
         handleViewPrevImage,
         handleViewNextImage,
+        commentsByPostId,
+        setCommentsByPostId,
+        getCommentsByPostId,
+        chosenPost,
+        setChosenPost,
         // notify,
       }}
     >

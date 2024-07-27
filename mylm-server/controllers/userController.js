@@ -21,6 +21,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     username: user.username,
     email: user.email,
     role: user.role,
+    avatar_path: user.avatar_path,
   }));
 
   // Response to client

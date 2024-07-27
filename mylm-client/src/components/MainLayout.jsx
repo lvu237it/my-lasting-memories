@@ -225,10 +225,6 @@ const MainLayout = () => {
     }
   }, [postModal]);
 
-  // useEffect(() => {
-  //   const addPostIcon = addPostIconRef.current;
-  // }, []);
-
   // Handle modals and z-index
   useEffect(() => {
     const updateZIndex = () => {
@@ -263,22 +259,6 @@ const MainLayout = () => {
       numberCharactersAllowed - postContent.length; //Số lượng kí tự dư thừa
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
-
-  // useEffect(() => {
-  //   const wrapperPrevNextIcon = document.getElementById(
-  //     'wrapper-prev-next-icon'
-  //   );
-  //   console.log('lengthOfViewPostImage:', lengthOfViewPostImage); // Để kiểm tra giá trị
-  //   if (viewPrevImageRef.current && viewNextImageRef.current) {
-  //     if (lengthOfViewPostImage !== 1) {
-  //       viewPrevImageRef.current.style.display = 'block';
-  //       viewNextImageRef.current.style.display = 'block';
-  //     } else {
-  //       viewPrevImageRef.current.style.display = 'none';
-  //       viewNextImageRef.current.style.display = 'none';
-  //     }
-  //   }
-  // }, [lengthOfViewPostImage, viewPrevImageRef, viewNextImageRef]);
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>

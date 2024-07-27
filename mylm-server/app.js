@@ -22,6 +22,7 @@ const { Pool } = require('pg'); // Import pg Pool
 const adminRouter = require('./routes/adminRoutes');
 const userRouter = require('./routes/userRoutes');
 const postRouter = require('./routes/postRoutes');
+const commentRouter = require('./routes/commentRoutes');
 
 // 1) GLOBAL MIDDLEWARE
 //Setting Security Http Headers
@@ -53,13 +54,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.set('view engine', 'ejs');
 app.use(express.json());
 
-// Serve static files từ thư mục assets
+// Serve static files từ thư mục images
 app.use(
   '/assets/images',
   express.static(path.join(__dirname, 'assets/images'), { fallthrough: false })
 );
 //Điều này sẽ cho phép các tệp tĩnh trong thư mục assets của bạn có thể được truy cập từ frontend thông qua đường dẫn /assets.
 //Ví dụ, nếu bạn có một hình ảnh logo.png trong assets/images, bạn có thể truy cập nó qua đường dẫn http://localhost:5173/assets/images/logo.png
+
+// Serve static files từ thư mục comments-images
+app.use(
+  '/assets/comments-images',
+  express.static(path.join(__dirname, 'assets/comments-images'), {
+    fallthrough: false,
+  })
+);
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -108,6 +117,8 @@ app.use('/admin', adminRouter);
 app.use('/users', userRouter);
 //Posts
 app.use('/posts', postRouter);
+//Comments
+app.use('/comments', commentRouter);
 
 //-----------------Test deploying---------------------
 app.use('/quak', (req, res, next) => {

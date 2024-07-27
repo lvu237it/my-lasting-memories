@@ -85,8 +85,8 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const user_id = uuidv4();
   const newUser = await poolExecute(
-    'INSERT INTO users(user_id, username, email, password) VALUES ($1,$2,$3,$4)',
-    [user_id, username, email, hashedPassword]
+    'INSERT INTO users(user_id, username, email, password, role) VALUES ($1,$2,$3,$4,$5)',
+    [user_id, username, email, hashedPassword, 'user']
   );
 
   createSendToken({ user_id, username, email }, 201, res);
