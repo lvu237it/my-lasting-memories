@@ -53,7 +53,7 @@ export const Common = ({ children }) => {
   const [localUrlImages, setLocalUrlImages] = useState([]);
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentViewImageIndex, setCurrentViewImageIndex] = useState(0);
+  const [currentViewImageIndex, setCurrentViewImageIndex] = useState(null);
   const [currentViewImage, setCurrentViewImage] = useState(null);
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
@@ -195,6 +195,40 @@ export const Common = ({ children }) => {
     }));
   };
 
+  const handleSortImages = (localUrlImages) => {
+    // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+    let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+      // Tách phần đầu của tên ảnh (timestamp)
+      const timestamp = urlImageObject.attacheditem_path
+        .split('-')[0]
+        .split('/')[3];
+      return { ...urlImageObject, timestamp };
+    });
+
+    // Sắp xếp theo timestamp
+    imagePathsWithTimestamps.sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp)
+    );
+
+    // Trả về localUrlImages đã được sắp xếp
+    return imagePathsWithTimestamps.map((item) => ({
+      attached_items_id: item.attached_items_id,
+      attacheditem_path: item.attacheditem_path,
+      attacheditem_type: item.attacheditem_type,
+      content: item.content,
+      created_at: item.created_at,
+      deleteat: item.deleteat,
+      is_deleted: item.is_deleted,
+      post_id: item.post_id,
+      updated_at: item.updated_at,
+      user_id: item.user_id,
+      access_range: item.access_range,
+      // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+      // Ví dụ: attached_items_id: item.attached_items_id, ...
+    }));
+    // return imagePathsWithTimestamps.map((item) => item.urlImageObject);
+  };
+
   const getImageUrlsByPostId = async (post) => {
     try {
       const urlImageListLocal = await axios.get(
@@ -206,6 +240,8 @@ export const Common = ({ children }) => {
     }
   };
 
+  const sortedUrlImages = handleSortImages(localUrlImages);
+
   //View image modal
   const handleOpenViewImageModal = (e) => {
     if (!isDragging) {
@@ -214,32 +250,24 @@ export const Common = ({ children }) => {
       const imageSrc = e.target.src;
       if (imageSrc) {
         setImageChoseToView(imageSrc);
+
         const imagePath =
-          '/assets/images/' + imageSrc.split('/assets/images/')[1];
-        const currentImage = localUrlImages.find(
+          '/assets/images/' + imageChoseToView.split('/assets/images/')[1];
+        const currentImage = sortedUrlImages.find(
           (img) => img.attacheditem_path === imagePath
         );
-        setCurrentViewImage(currentImage);
-        setCurrentViewImageIndex(localUrlImages.indexOf(currentImage));
+
+        if (currentImage) {
+          setCurrentViewImage(currentImage);
+        }
       }
     }
   };
 
   useEffect(() => {
-    setLocalUrlImages(handleSortImagesPath(localUrlImages));
-  }, []);
-
-  // useEffect(() => {
-  //   if (currentViewImage) {
-  //     const currentIndex = localUrlImages.indexOf(currentViewImage);
-  //     setCurrentViewImageIndex(currentIndex);
-  //   }
-  // }, [currentViewImage, localUrlImages]);
-
-  useEffect(() => {
-    if (openViewImageModal) {
+    if (currentViewImage) {
       if (viewPrevImageRef.current && viewNextImageRef.current) {
-        if (localUrlImages.length === 1) {
+        if (sortedUrlImages.length === 1) {
           viewPrevImageRef.current.style.display = 'none';
           viewNextImageRef.current.style.display = 'none';
         } else {
@@ -248,23 +276,31 @@ export const Common = ({ children }) => {
         }
       }
     }
-  }, [openViewImageModal, localUrlImages]);
+  }, [currentViewImage, openViewImageModal, sortedUrlImages]);
+
+  useEffect(() => {
+    //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
+    const currentImageChoseToView = sortedUrlImages.find(
+      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
+    );
+    setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
+  }, [imageChoseToView]);
 
   const handleViewPrevImage = () => {
     const prevIndex =
-      (currentViewImageIndex - 1 + localUrlImages.length) %
-      localUrlImages.length;
+      (currentViewImageIndex - 1 + sortedUrlImages.length) %
+      sortedUrlImages.length;
     setCurrentViewImageIndex(prevIndex);
     setImageChoseToView(
-      `${apiBaseUrl}${localUrlImages[prevIndex]?.attacheditem_path}`
+      `${apiBaseUrl}${sortedUrlImages[prevIndex]?.attacheditem_path}`
     );
   };
 
   const handleViewNextImage = () => {
-    const nextIndex = (currentViewImageIndex + 1) % localUrlImages.length;
+    const nextIndex = (currentViewImageIndex + 1) % sortedUrlImages.length;
     setCurrentViewImageIndex(nextIndex);
     setImageChoseToView(
-      `${apiBaseUrl}${localUrlImages[nextIndex]?.attacheditem_path}`
+      `${apiBaseUrl}${sortedUrlImages[nextIndex]?.attacheditem_path}`
     );
   };
 
