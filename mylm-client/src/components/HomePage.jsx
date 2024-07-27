@@ -702,8 +702,10 @@ function HomePage() {
                           </div>
                         </div>
                       </div>
-                      {index !== postsList.length - 1 && (
+                      {index !== postsList.length - 1 ? (
                         <hr className='mb-5 border-slate-300' />
+                      ) : (
+                        <hr className='mb-5 visible border-white' />
                       )}
                     </div>
                   ))}
