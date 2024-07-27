@@ -637,7 +637,7 @@ function HomePage() {
             <>
               <div>
                 {isUser === false && (
-                  <div>
+                  <div className='mb-5'>
                     <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
                       <img
                         src={adminInfor && adminInfor.avatar_path}
@@ -668,14 +668,14 @@ function HomePage() {
                   </div>
                 )}
               </div>
-              <div className='mt-5'>
+              <div className=''>
                 {/* List of posts */}
                 {postsList &&
                   postsList.map((post, index) => (
                     <div
                       onClick={() => handleViewPostDetails(post)}
                       key={post.post_id}
-                      className='cursor-pointer text-sm sm2:text-base'
+                      className='cursor-pointer text-sm sm2:text-base mb-5'
                     >
                       <div className='feeds-content-posts grid relative mb-[80px]'>
                         <div className='feeds-content-top-about absolute top-0 left-0'>
@@ -703,9 +703,9 @@ function HomePage() {
                         </div>
                       </div>
                       {index !== postsList.length - 1 ? (
-                        <hr className='mb-5 border-slate-300' />
+                        <hr className=' border-slate-300' />
                       ) : (
-                        <hr className='mb-5 visible border-white' />
+                        <hr className=' visible border-white' />
                       )}
                     </div>
                   ))}
