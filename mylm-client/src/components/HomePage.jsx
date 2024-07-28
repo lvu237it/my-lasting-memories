@@ -668,6 +668,7 @@ function HomePage() {
                   </div>
                 )}
               </div>
+              {/* List of posts */}
               <div className='list-of-posts'>
                 {postsList &&
                   postsList.map((post, index) =>
@@ -702,9 +703,9 @@ function HomePage() {
                             </div>
                           </div>
                           {index !== postsList.length - 1 ? (
-                            <div className='absolute top-[70px] sm2:top-[80px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                            <div className='absolute top-[75px] sm2:top-[85px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
                           ) : (
-                            <div className='bg-white w-full h-[0.2px]'></div>
+                            <div className='absolute top-[75px] sm2:top-[85px] bg-white w-full h-[0.2px]'></div>
                           )}
                         </div>
                       </div>
@@ -712,7 +713,7 @@ function HomePage() {
                       <div
                         onClick={() => handleViewPostDetails(post)}
                         key={post.post_id}
-                        className='cursor-pointer text-sm sm2:text-base py-10 sm2:py-12'
+                        className='cursor-pointer text-sm sm2:text-base py-12'
                       >
                         <div className='feeds-content-posts grid relative'>
                           <div className='feeds-content-top-about absolute top-0 left-0'>
@@ -739,9 +740,9 @@ function HomePage() {
                             </div>
                           </div>
                           {index !== postsList.length - 1 ? (
-                            <div className='absolute top-[70px] sm2:top-[80px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                            <div className='absolute top-[75px] sm2:top-[85px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
                           ) : (
-                            <div className='bg-white w-full h-[0.2px]'></div>
+                            <div className='absolute top-[75px] sm2:top-[85px] bg-white w-full h-[0.2px]'></div>
                           )}
                         </div>
                       </div>
