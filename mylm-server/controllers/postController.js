@@ -34,15 +34,31 @@ exports.getAllPosts = catchAsync(async (req, res, next) => {
 
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
-  const rows = await poolQuery('select * from posts where post_id LIKE $1', [
-    postid,
-  ]);
+  const { post_id } = req.body;
 
-  if (!rows) {
+  if (postid) {
+    const rows = await poolQuery('select * from posts where post_id LIKE $1', [
+      postid,
+    ]);
+
+    if (!rows) {
+      return next(new AppError('No post found', 404));
+    }
+    req.post_id = postid;
+    next();
+  } else if (post_id) {
+    const rows = await poolQuery('select * from posts where post_id LIKE $1', [
+      post_id,
+    ]);
+
+    if (!rows) {
+      return next(new AppError('No post found', 404));
+    }
+    req.post_id = post_id;
+    next();
+  } else {
     return next(new AppError('No post found', 404));
   }
-  req.post_id = postid;
-  next();
 });
 
 exports.getPostById = catchAsync(async (req, res, next) => {
@@ -69,15 +85,15 @@ exports.getPostById = catchAsync(async (req, res, next) => {
 });
 
 exports.getPostsByContent = catchAsync(async (req, res, next) => {
-  const { content } = req.body;
+  let { content } = req.body;
   let searchContent;
   if (content) {
     searchContent = `%${content}%`;
   }
 
   const rows = await poolQuery(
-    'SELECT * FROM posts WHERE content LIKE $1 AND is_deleted = 0 ORDER BY created_at DESC',
-    [searchContent.toLowerCase()]
+    'SELECT * FROM posts WHERE content ILIKE $1 AND is_deleted = 0 ORDER BY created_at DESC',
+    [searchContent]
   );
 
   if (!rows || rows.length === 0) {

@@ -38,9 +38,13 @@ const MainLayout = () => {
     handleClickPostNew,
     handleClickOutsideNavBar,
     handleClickAddImageIcon,
+    handleClickAddCommentImageIcon,
     handleFileChange,
+    handleFileOfCommentChange,
     images,
     setImages,
+    imagesComment,
+    setImagesComment,
     imageUrlsList,
     setImageUrlsList,
     handleSwipe,
@@ -48,6 +52,8 @@ const MainLayout = () => {
     setPostModal,
     postContent,
     setPostContent,
+    commentContent,
+    setCommentContent,
     hasPostContent,
     setHasPostContent,
     showdiscardModal,
@@ -65,6 +71,8 @@ const MainLayout = () => {
     logoutIconRef,
     redundantCharactersNumber,
     setRedundantCharactersNumber,
+    redundantCommentCharactersNumber,
+    setRedundantCommentCharactersNumber,
     numberCharactersAllowed,
     isUser,
     setIsUser,
@@ -85,6 +93,42 @@ const MainLayout = () => {
     viewNextImageRef,
     handleViewPrevImage,
     handleViewNextImage,
+    openAddCommentModal,
+    setOpenAddCommentModal,
+    isLoggedByAdmin,
+    handleClosePostCommentModal,
+    showdiscardCommentModal,
+    setShowDiscardCommentModal,
+    clickCancelCommentDiscard,
+    setClickCancelCommentDiscard,
+    hasPostCommentContent,
+    setHasPostCommentContent,
+    discardComment,
+    setDiscardComment,
+    textareaCommentRef,
+    handleClickPostNewComment,
+    handleCreateComment,
+    chosenPost,
+    setChosenPost,
+    openOptionsModal,
+    setOpenOptionsModal,
+    openCommentOptionsModal,
+    setOpenCommentOptionsModal,
+    openDeleteModal,
+    setOpenDeleteModal,
+    openCancelEditingModal,
+    setOpenCancelEditingModal,
+    handleRemovePostWarning,
+    handleFinallyRemoveComment,
+    isEditing,
+    setIsEditing,
+    openDeleteCommentModal,
+    setOpenDeleteCommentModal,
+    isEditingComment,
+    setIsEditingComment,
+    selectedCommentRemoveEdit,
+    setSelectedCommentRemoveEdit,
+    handleOpenEditingPost,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -188,6 +232,7 @@ const MainLayout = () => {
     };
   }, []);
 
+  //Discard post modal
   useEffect(() => {
     if (discard) {
       textareaRef.current.value = '';
@@ -210,11 +255,34 @@ const MainLayout = () => {
     }
   }, [clickCancelDiscard]);
 
+  //Discard post comment modal
+  useEffect(() => {
+    if (discardComment) {
+      textareaCommentRef.current.value = '';
+      setImageUrlsList([]);
+      setImagesComment([]);
+      setDiscardComment(false);
+      setOpenAddCommentModal(false);
+      setShowDiscardCommentModal(false);
+      setHasPostCommentContent(false);
+      setCommentContent('');
+    }
+  }, [discardComment]);
+
+  useEffect(() => {
+    if (clickCancelCommentDiscard) {
+      setClickCancelCommentDiscard(false);
+      setOpenAddCommentModal(true);
+      setShowDiscardCommentModal(false);
+      setHasPostCommentContent(true);
+    }
+  }, [clickCancelCommentDiscard]);
+
   useEffect(() => {
     const htmlPage = document.getElementsByTagName('html')[0];
     const body = document.getElementsByTagName('body')[0];
     const stickyHeader = document.getElementById('sticky-header');
-    if (postModal) {
+    if (postModal || openAddCommentModal || openDeleteCommentModal) {
       stickyHeader.classList.remove('z-10');
       htmlPage.classList.add('no-scroll');
       body.classList.add('no-scroll');
@@ -223,7 +291,36 @@ const MainLayout = () => {
       htmlPage.classList.remove('no-scroll');
       body.classList.remove('no-scroll');
     }
-  }, [postModal]);
+  }, [postModal, openAddCommentModal, openDeleteCommentModal]);
+
+  // Handle modals and z-index
+  // useEffect(() => {
+  //   const updateZIndex = () => {
+  //     const addPostIcon = addPostIconRef.current;
+  //     const logoutIcon = logoutIconRef.current;
+
+  //     if (addPostIcon) {
+  //       if (postModal) {
+  //         addPostIcon.classList.remove('z-[1000]');
+  //         addPostIcon.classList.add('hidden');
+  //       } else {
+  //         addPostIcon.classList.remove('hidden');
+  //         addPostIcon.classList.add('z-[1000]');
+  //       }
+  //     }
+
+  //     if (logoutIcon) {
+  //       if (postModal) {
+  //         logoutIcon.classList.add('hidden');
+  //       } else {
+  //         logoutIcon.classList.remove('hidden');
+  //         logoutIcon.style.zIndex = '1000';
+  //       }
+  //     }
+  //   };
+
+  //   updateZIndex();
+  // }, [postModal]);
 
   // Handle modals and z-index
   useEffect(() => {
@@ -232,17 +329,30 @@ const MainLayout = () => {
       const logoutIcon = logoutIconRef.current;
 
       if (addPostIcon) {
-        if (postModal) {
-          addPostIcon.classList.remove('z-[1000]');
+        if (
+          postModal ||
+          openOptionsModal ||
+          openCommentOptionsModal ||
+          openDeleteModal ||
+          openCancelEditingModal ||
+          openDeleteCommentModal
+        ) {
           addPostIcon.classList.add('hidden');
         } else {
           addPostIcon.classList.remove('hidden');
-          addPostIcon.classList.add('z-[1000]');
+          addPostIcon.style.zIndex = '1000';
         }
       }
 
       if (logoutIcon) {
-        if (postModal) {
+        if (
+          postModal ||
+          openOptionsModal ||
+          openCommentOptionsModal ||
+          openDeleteModal ||
+          openCancelEditingModal ||
+          openDeleteCommentModal
+        ) {
           logoutIcon.classList.add('hidden');
         } else {
           logoutIcon.classList.remove('hidden');
@@ -252,13 +362,54 @@ const MainLayout = () => {
     };
 
     updateZIndex();
-  }, [postModal]);
+  }, [
+    postModal,
+    openOptionsModal,
+    openCommentOptionsModal,
+    openDeleteModal,
+    openCancelEditingModal,
+    openDeleteCommentModal,
+  ]);
+
+  // useEffect(() => {
+  //   const updateZIndex = () => {
+  //     const addPostIcon = addPostIconRef.current;
+  //     const logoutIcon = logoutIconRef.current;
+
+  //     if (addPostIcon) {
+  //       if (openAddCommentModal) {
+  //         addPostIcon.classList.remove('z-[1000]');
+  //         addPostIcon.classList.add('hidden');
+  //       } else {
+  //         addPostIcon.classList.remove('hidden');
+  //         addPostIcon.classList.add('z-[1000]');
+  //       }
+  //     }
+
+  //     if (logoutIcon) {
+  //       if (openAddCommentModal) {
+  //         logoutIcon.classList.add('hidden');
+  //       } else {
+  //         logoutIcon.classList.remove('hidden');
+  //         logoutIcon.style.zIndex = '1000';
+  //       }
+  //     }
+  //   };
+
+  //   updateZIndex();
+  // }, [openAddCommentModal]);
 
   useEffect(() => {
     const countRedundantCharacter =
       numberCharactersAllowed - postContent.length; //Số lượng kí tự dư thừa
     setRedundantCharactersNumber(countRedundantCharacter);
   }, [postContent]);
+
+  useEffect(() => {
+    const countRedundantCommentCharacter =
+      numberCharactersAllowed - commentContent.length; //Số lượng kí tự dư thừa
+    setRedundantCommentCharactersNumber(countRedundantCommentCharacter);
+  }, [commentContent]);
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
@@ -279,14 +430,14 @@ const MainLayout = () => {
             <div
               ref={viewPrevImageRef}
               onClick={handleViewPrevImage}
-              className='fixed p-3 left-0 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+              className='fixed p-3 left-0 top-1/2 -translate-y-1/2 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
             >
               <FaAngleLeft />
             </div>
             <div
               ref={viewNextImageRef}
               onClick={handleViewNextImage}
-              className='fixed p-3 right-0 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+              className='fixed p-3 right-0 top-1/2 -translate-y-1/2 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
             >
               <FaAngleRight />
             </div>
@@ -300,6 +451,128 @@ const MainLayout = () => {
           />
         </div>
       )}
+
+      {/* Modal for adding comment of a post */}
+      {openAddCommentModal && (
+        <div
+          style={{ display: 'flex' }}
+          className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
+        >
+          <div className='w-full h-full flex sm2:justify-center sm2:items-center'>
+            <div className='comment-content relative sm2:rounded-3xl bg-white sm2:w-[65%] md:w-[60%] lg:w-[50%]'>
+              <div className='px-8 py-6 w-[100vw] sm2:w-full h-full'>
+                <div className='number-of-redundant-characters absolute right-[1.5rem] top-[4.75rem] sm2:top-[3rem] sm2:right-[1.5rem] text-red-600'>
+                  {redundantCommentCharactersNumber < 0
+                    ? redundantCommentCharactersNumber
+                    : ''}
+                </div>
+                <div className='absolute sm2:top-[1.2rem] sm2:right-[1.5rem]'>
+                  <div
+                    onClick={(e) => {
+                      handleClosePostCommentModal(e);
+                    }}
+                    className='post-cancel font-semibold text-red-500 opacity-55 hover:opacity-75 text-base cursor-pointer left-[2.0rem] top-[1.8rem] '
+                  >
+                    Huỷ
+                  </div>
+                </div>
+                <div className='post-content-description mt-10 sm2:my-0'>
+                  <div className='w-[90%] sm:w-[95%]'>
+                    <div className='fixed'>
+                      <img
+                        className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
+                        src={isLoggedByAdmin && isLoggedByAdmin.avatar_path}
+                        alt=''
+                      />
+                    </div>
+                    <div className='ml-0 sm:ml-16'>
+                      <div className='pt-14 sm:pt-0'>
+                        <div className='font-semibold tracking-wide'>
+                          {isLoggedByAdmin && isLoggedByAdmin.username}
+                        </div>
+                        <div className='w-full sm2:w-[95%]'>
+                          {/* Display images before uploading to database */}
+                          <div
+                            ref={scrollContainerRef}
+                            className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
+                            onMouseDown={handleSwipe}
+                            onDragStart={(e) => e.preventDefault()}
+                          >
+                            {imageUrlsList.map((url, index) => (
+                              <img
+                                key={index}
+                                // ref={postItemsUploadRef}
+                                src={url}
+                                className='w-[25%] h-auto rounded-lg'
+                                alt={`Preview ${index}`}
+                              />
+                            ))}
+                          </div>
+                          <textarea
+                            ref={textareaCommentRef}
+                            onChange={(e) => handleClickPostNewComment(e)}
+                            className='w-full tracking-wide sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                            name=''
+                            id='post-comment-content-details'
+                            placeholder='Viết ý kiến của bạn...'
+                          ></textarea>
+                        </div>
+                        <hr className='my-1 w-[95%] sm:w-[87%] sm2:w-[84%]' />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='list-icon-attachment sm:ml-14'>
+                  <ul className='flex gap-5 text-2xl mt-3 sm2:mt-2 cursor-pointer '>
+                    <li
+                      id='upload-attachment-icon'
+                      onClick={handleClickAddCommentImageIcon}
+                    >
+                      <BiImageAdd />
+                    </li>
+                    {/* <li>
+                    <BiVideoPlus />
+                  </li>
+                  <li>
+                    <BiUserVoice />
+                  </li>
+                  <li>
+                    <BiFileBlank />
+                  </li> */}
+                  </ul>
+                </div>
+                <input
+                  id='bi-attachment-comment-add'
+                  hidden
+                  accept='image/jpeg,image/png,video/mp4,video/quicktime'
+                  type='file'
+                  multiple
+                  onChange={(e) => handleFileOfCommentChange(e)}
+                />
+                <div className='post-myself-button'>
+                  {hasPostCommentContent || imageUrlsList.length !== 0 ? (
+                    <button
+                      onClick={() => handleCreateComment(chosenPost)}
+                      className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 rounded-xl shadow shadow-slate-300'
+                    >
+                      Đăng
+                    </button>
+                  ) : (
+                    <button
+                      disabled={true}
+                      className='post-button absolute right-[1.25rem] bottom-[1.25rem] font-semibold px-4 py-2 my-auto border-slate-400 opacity-50 rounded-xl shadow shadow-slate-300'
+                    >
+                      Đăng
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isUser === true ? (
         <Link to={'/login'}>
           <div
@@ -368,6 +641,77 @@ const MainLayout = () => {
           </div>
         </div>
       </div>
+
+      {/* Discard new comment modal */}
+      {showdiscardCommentModal && (
+        <div className='discard-comment-modal z-[1002] fixed top-0 left-0 w-full h-full bg-black bg-opacity-90'>
+          <div className='bg-white h-[120px] rounded-2xl fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2'>
+            <div className='grid divide-y-2 w-[280px] h-full'>
+              <div className='mx-auto my-auto font-bold tracking-wide'>
+                Loại bỏ bình luận này?
+              </div>
+              <div className='flex relative'>
+                <div className='absolute border border-slate-200 h-full font-medium text-xl left-1/2'></div>
+                <button
+                  onClick={() => setClickCancelCommentDiscard(true)}
+                  className='basis-1/2 relative before:absolute before:inset-0 before:-my-4 before:content-[""] mx-auto my-auto cursor-pointer'
+                >
+                  Tiếp tục
+                </button>
+                <button
+                  onClick={() => setDiscardComment(true)}
+                  className='basis-1/2 relative before:absolute before:inset-0 before:-my-4 before:content-[""] mx-auto my-auto font-bold tracking-wide text-red-500 cursor-pointer'
+                >
+                  Loại bỏ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal delete comment */}
+      {openDeleteCommentModal && (
+        <>
+          <div
+            id='background-delete-comment-modal'
+            className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+          >
+            <div className='w-full h-full flex justify-center items-center'>
+              <div id='delete-comment-modal' className='relative z-20'>
+                <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                  <div className='mb-4'>
+                    <div className='font-semibold text-center mb-4'>
+                      Xoá bình luận?
+                    </div>
+                    <div className='text-center mb-3'>
+                      Sau khi xoá, bạn sẽ không thể khôi phục.
+                    </div>
+                  </div>
+                  <hr className='' />
+                  <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                    <div
+                      id='cancel-final-delete-comment'
+                      onClick={() => setOpenDeleteCommentModal(false)}
+                      className='col-span-1 cursor-pointer p-2'
+                    >
+                      Huỷ
+                    </div>
+                    <div
+                      onClick={handleFinallyRemoveComment}
+                      id='finally-delete-comment'
+                      className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                    >
+                      Xoá
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Post new content modal */}
       <div
         style={{

@@ -23,11 +23,20 @@ export const Common = ({ children }) => {
   ]);
 
   const [postModal, setPostModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingComment, setIsEditingComment] = useState(false);
   const [hasPostContent, setHasPostContent] = useState(false);
+  const [hasPostCommentContent, setHasPostCommentContent] = useState(false);
   const [showdiscardModal, setShowDiscardModal] = useState(false);
+  const [showdiscardCommentModal, setShowDiscardCommentModal] = useState(false);
+
   const [clickCancelDiscard, setClickCancelDiscard] = useState(false);
+  const [clickCancelCommentDiscard, setClickCancelCommentDiscard] =
+    useState(false);
   const [discard, setDiscard] = useState(false);
+  const [discardComment, setDiscardComment] = useState(false);
   const textareaRef = useRef(null);
+  const textareaCommentRef = useRef(null);
   const addPostIconRef = useRef(null);
   const logoutIconRef = useRef(null);
   const postItemsUploadRef = useRef(null);
@@ -36,11 +45,20 @@ export const Common = ({ children }) => {
   const cancelViewPostImageRef = useRef(null);
   const viewPrevImageRef = useRef(null);
   const viewNextImageRef = useRef(null);
+  const contentEditableRef = useRef(null);
+  const commentEditableRef = useRef(null);
+
+  const [contentForUpdate, setContentForUpdate] = useState('');
+  const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
+  const [commentForUpdate, setCommentForUpdate] = useState('');
+  const [commentBeforeUpdate, setCommentBeforeUpdate] = useState('');
 
   const [postsList, setPostsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
+  const [commentContent, setCommentContent] = useState('');
   const [images, setImages] = useState([]);
+  const [imagesComment, setImagesComment] = useState([]);
   const [imageUrlsList, setImageUrlsList] = useState([]);
   const isLoggedByAdmin = JSON.parse(localStorage.getItem('admin'));
   const [adminInfor, setAdminInfor] = useState(null);
@@ -57,6 +75,37 @@ export const Common = ({ children }) => {
   const [currentViewImage, setCurrentViewImage] = useState(null);
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
+  const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
+
+  const [openOptionsModal, setOpenOptionsModal] = useState(false);
+  const [openCommentOptionsModal, setOpenCommentOptionsModal] = useState(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openDeleteCommentModal, setOpenDeleteCommentModal] = useState(false);
+  const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
+  const [openCancelEditingCommentModal, setOpenCancelEditingCommentModal] =
+    useState(false);
+
+  const [isSuccessFullyRemoved, setIsSuccessFullyRemoved] = useState(false);
+
+  const [selectedCommentRemoveEdit, setSelectedCommentRemoveEdit] =
+    useState(null);
+
+  const numberCharactersAllowed = 1000;
+  const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
+  const [
+    redundantCommentCharactersNumber,
+    setRedundantCommentCharactersNumber,
+  ] = useState(0);
+
+  const [
+    redundantEditingCharactersNumber,
+    setRedundantEditingCharactersNumber,
+  ] = useState(0);
+
+  const [
+    redundantEditingCommentCharactersNumber,
+    setRedundantEditingCommentCharactersNumber,
+  ] = useState(0);
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
@@ -82,20 +131,16 @@ export const Common = ({ children }) => {
     console.log('isUser', isUser);
   }, []);
 
-  // useEffect(() => {
-  //   console.log('chosenPost', chosenPost);
-  //   getCommentsByPostId(chosenPost);
-  //   console.log('commentBypostid', commentsByPostId);
-  // }, [chosenPost]);
-
   const getCommentsByPostId = async (post) => {
-    try {
-      const response = await axios.get(
-        `${apiBaseUrl}/comments/post/${post.post_id}`
-      );
-      setCommentsByPostId(response.data);
-    } catch (err) {
-      console.log('Error when getting comments by post id', err);
+    if (post) {
+      try {
+        const response = await axios.get(
+          `${apiBaseUrl}/comments/post/${post.post_id}`
+        );
+        setCommentsByPostId(response.data);
+      } catch (err) {
+        console.log('Error when getting comments by post id', err);
+      }
     }
   };
 
@@ -104,9 +149,6 @@ export const Common = ({ children }) => {
     textArea.innerHTML = encodedString;
     return textArea.value;
   };
-
-  const numberCharactersAllowed = 1000;
-  const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
 
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
@@ -154,9 +196,33 @@ export const Common = ({ children }) => {
     fileInput.click();
   };
 
+  //Add attachments of comment
+  const handleClickAddCommentImageIcon = () => {
+    const fileInput = document.getElementById('bi-attachment-comment-add');
+    fileInput.click();
+  };
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setImages((preImages) => [...preImages, ...files]);
+    // Tạo URL blob cho ảnh để xem trước
+    //Với định dạng "blob:http://localhost:5173/..."
+    const newImageUrls = files.map((file) => URL.createObjectURL(file));
+    setImageUrlsList((prevUrls) => [...prevUrls, ...newImageUrls]);
+    //Đọc 1 file duy nhất đầu tiên
+    // const file = e.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = (e) => {
+    //     postItemsUploadRef.current.src = e.target.result;
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
+  };
+
+  const handleFileOfCommentChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImagesComment((preImages) => [...preImages, ...files]);
     // Tạo URL blob cho ảnh để xem trước
     //Với định dạng "blob:http://localhost:5173/..."
     const newImageUrls = files.map((file) => URL.createObjectURL(file));
@@ -250,15 +316,16 @@ export const Common = ({ children }) => {
       const imageSrc = e.target.src;
       if (imageSrc) {
         setImageChoseToView(imageSrc);
+        if (imageChoseToView) {
+          const imagePath =
+            '/assets/images/' + imageChoseToView.split('/assets/images/')[1];
+          const currentImage = sortedUrlImages.find(
+            (img) => img.attacheditem_path === imagePath
+          );
 
-        const imagePath =
-          '/assets/images/' + imageChoseToView.split('/assets/images/')[1];
-        const currentImage = sortedUrlImages.find(
-          (img) => img.attacheditem_path === imagePath
-        );
-
-        if (currentImage) {
-          setCurrentViewImage(currentImage);
+          if (currentImage) {
+            setCurrentViewImage(currentImage);
+          }
         }
       }
     }
@@ -316,6 +383,139 @@ export const Common = ({ children }) => {
       setShowDiscardModal(true);
     } else {
       setPostModal(false);
+      setImageUrlsList([]);
+    }
+  };
+
+  //Editing
+  const handleOpenEditingPost = () => {
+    setIsEditing(true);
+    setOpenOptionsModal(false);
+    setOpenCommentOptionsModal(false);
+  };
+
+  //Editing post
+  const handleEditingPost = async () => {
+    if (contentForUpdate.length > 1000) {
+      toast.error(
+        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
+      );
+    } else {
+      try {
+        await axios.patch(`${apiBaseUrl}/posts/update/${chosenPost.post_id}`, {
+          content: contentForUpdate,
+        });
+        setIsEditing(false);
+        // Cập nhật contentBeforeUpdate khi cập nhật thành công
+        //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
+        setContentBeforeUpdate(contentForUpdate);
+        toast.success('Chỉnh sửa bài thành công!');
+      } catch (error) {
+        console.error('Error editing post', error);
+        setIsEditing(false);
+        toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
+      }
+    }
+  };
+
+  //Editing comment
+  const handleEditingComment = async () => {
+    if (commentForUpdate.length > 1000) {
+      toast.error(
+        'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 1000 kí tự.'
+      );
+    } else {
+      try {
+        await axios.patch(
+          `${apiBaseUrl}/comments/update/${selectedCommentRemoveEdit.comment_id}`,
+          {
+            comment_content: commentForUpdate,
+          }
+        );
+        setIsEditingComment(false);
+        // // Cập nhật commentBeforeUpdate khi cập nhật thành công
+        // //CommentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của comment khi chưa thay đổi
+        // setCommentBeforeUpdate(commentForUpdate);
+        toast.success('Chỉnh sửa bình luận thành công!');
+      } catch (error) {
+        console.error('Error editing comment', error);
+        setIsEditingComment(false);
+        toast.error('Chỉnh sửa bình luận không thành công. Vui lòng thử lại.');
+      }
+    }
+  };
+
+  //Click ra ngoài phạm vi của phần tử editing
+  const handleInputBlur = () => {
+    // setIsEditing(false);
+    setContentForUpdate(contentEditableRef.current.innerText);
+  };
+
+  const handleInputBlurComment = () => {
+    setCommentForUpdate(commentEditableRef.current.innerText);
+  };
+
+  const handleOpenEditingComment = () => {
+    setIsEditingComment(true);
+    setOpenOptionsModal(false);
+    setOpenCommentOptionsModal(false);
+  };
+
+  const handleRemovePostWarning = () => {
+    setOpenOptionsModal(false);
+    setOpenCommentOptionsModal(false);
+    setOpenDeleteModal(true);
+    //disable editing if it opened
+    setIsEditing(false);
+  };
+
+  const handleRemoveCommentWarning = () => {
+    setOpenOptionsModal(false);
+    setOpenCommentOptionsModal(false);
+    setOpenDeleteCommentModal(true);
+    //disable editing if it opened
+    setIsEditingComment(false);
+  };
+
+  //Cancel editing post
+  //Click "Không" when Modal opened
+  const handleConfirmCancelEditingPost = () => {
+    setOpenCancelEditingModal(true);
+  };
+
+  const handleConfirmCancelEditingComment = () => {
+    setOpenCancelEditingCommentModal(true);
+  };
+
+  //Click "Huỷ" when Modal opened
+  const handleDefinitelyCancelEditingPost = () => {
+    if (contentForUpdate !== contentBeforeUpdate) {
+      //Có sự thay đổi content so với ban đầu nhưng Huỷ - không tiếp tục chỉnh sửa
+      //=> Giữ content ban đầu
+      setContentForUpdate(contentBeforeUpdate);
+    }
+    setOpenCancelEditingModal(false);
+    setIsEditing(false);
+  };
+
+  const handleDefinitelyCancelEditingComment = () => {
+    if (commentForUpdate !== commentBeforeUpdate) {
+      //Có sự thay đổi comment so với ban đầu nhưng Huỷ - không tiếp tục chỉnh sửa
+      //=> Giữ comment ban đầu
+      setCommentForUpdate(commentBeforeUpdate);
+    }
+    setOpenCancelEditingCommentModal(false);
+    setIsEditingComment(false);
+  };
+
+  //Post Comment Modal
+  const handleClosePostCommentModal = (e) => {
+    e.preventDefault();
+    if (hasPostCommentContent || imageUrlsList.length !== 0) {
+      setShowDiscardCommentModal(true);
+    } else {
+      setOpenAddCommentModal(false);
+      setImageUrlsList([]);
     }
   };
 
@@ -328,6 +528,18 @@ export const Common = ({ children }) => {
       setHasPostContent(false);
       console.log('not change');
       setPostContent('');
+    }
+  };
+
+  const handleClickPostNewComment = (e) => {
+    if (e.target.value.trim()) {
+      setHasPostCommentContent(true);
+      console.log('change');
+      setCommentContent(e.target.value.trim());
+    } else {
+      setHasPostCommentContent(false);
+      console.log('not change');
+      setCommentContent('');
     }
   };
 
@@ -386,6 +598,7 @@ export const Common = ({ children }) => {
     return createdAt.split('T')[0];
   };
 
+  //Create post
   const handleCreatePost = async () => {
     console.log('images.length', images.length);
     if (postContent.length > 1000) {
@@ -397,7 +610,7 @@ export const Common = ({ children }) => {
     } else {
       const formData = new FormData();
       formData.append('content', postContent);
-      formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin
+      formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
       images.forEach((file) => {
         formData.append('images', file);
         console.log('Added image to formData:', file);
@@ -424,6 +637,137 @@ export const Common = ({ children }) => {
     }
   };
 
+  //Deleting post
+  const handleFinallyRemovePost = async () => {
+    try {
+      await axios.patch(`${apiBaseUrl}/posts/delete/${chosenPost.post_id}`);
+      // setPostModal(false);
+      // textareaRef.current.value = '';
+      // setHasPostContent(false);
+      setOpenDeleteModal(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000); // Tự động reload sau 2 giây
+      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
+    } catch (error) {
+      console.error('Error deleting post', error);
+      setOpenDeleteModal(false);
+      toast.error('Xoá bài không thành công. Vui lòng thử lại.');
+    }
+  };
+
+  //Deleting comment
+  const handleFinallyRemoveComment = async () => {
+    try {
+      await axios.patch(
+        `${apiBaseUrl}/comments/delete/${selectedCommentRemoveEdit.comment_id}`
+      );
+      // setPostModal(false);
+      // textareaRef.current.value = '';
+      // setHasPostContent(false);
+      setOpenDeleteCommentModal(false);
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 2000); // Tự động reload sau 2 giây
+      setIsSuccessFullyRemoved(true);
+      toast.success('Xoá bình luận thành công!');
+    } catch (error) {
+      console.error('Error deleting comment', error);
+      setOpenDeleteCommentModal(false);
+      setIsSuccessFullyRemoved(false);
+      toast.error('Xoá bình luận không thành công. Vui lòng thử lại.');
+    }
+  };
+
+  //Create comment
+  const handleCreateComment = async (post) => {
+    console.log('imagesComment.length', imagesComment.length);
+    if (commentContent.length > 1000) {
+      toast.error(
+        'Bình luận không thành công. Nội dung bình luận không được vượt quá 1000 kí tự.'
+      );
+    } else if (imagesComment.length > 10) {
+      toast.error('Bình luận không thành công. Tối đa không quá 10 ảnh.');
+    } else {
+      const formData = new FormData();
+      formData.append('post_id', post.post_id);
+      formData.append('comment_content', commentContent);
+      formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      imagesComment.forEach((file) => {
+        formData.append('imagesComment', file);
+        console.log('Added image to formData:', file);
+      });
+
+      try {
+        await axios.post(`${apiBaseUrl}/comments/create`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        setOpenAddCommentModal(false);
+        textareaCommentRef.current.value = '';
+        setHasPostCommentContent(false);
+        toast.success('Bình luận thành công!');
+        getCommentsByPostId(post);
+        setImageUrlsList([]);
+        setImagesComment([]);
+      } catch (error) {
+        console.error('Error creating comment', error);
+        setOpenAddCommentModal(false);
+        toast.error('Bình luận không thành công. Vui lòng thử lại.');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing && contentEditableRef.current) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(contentEditableRef.current);
+      range.collapse(false); // Đặt con trỏ ở cuối nội dung
+      selection.removeAllRanges();
+      selection.addRange(range);
+      contentEditableRef.current.focus();
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditingComment && commentEditableRef.current) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(commentEditableRef.current);
+      range.collapse(false); // Đặt con trỏ ở cuối nội dung
+      selection.removeAllRanges();
+      selection.addRange(range);
+      commentEditableRef.current.focus();
+    }
+  }, [isEditingComment]);
+
+  //Counting redundant editing characters number
+  useEffect(() => {
+    const countRedundantCharacter =
+      numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
+    setRedundantEditingCharactersNumber(countRedundantCharacter);
+  }, [contentForUpdate, redundantEditingCharactersNumber]);
+
+  //Counting redundant editing comment characters number
+  useEffect(() => {
+    const countRedundantCommentCharacter =
+      numberCharactersAllowed - commentForUpdate.length; //Số lượng kí tự dư thừa
+    setRedundantEditingCommentCharactersNumber(countRedundantCommentCharacter);
+  }, [commentForUpdate, redundantEditingCommentCharactersNumber]);
+
+  useEffect(() => {
+    if (selectedCommentRemoveEdit) {
+      console.log('selected remove', selectedCommentRemoveEdit);
+      setCommentForUpdate(selectedCommentRemoveEdit.comment_content);
+    }
+  }, [selectedCommentRemoveEdit]);
+
+  useEffect(() => {
+    getCommentsByPostId(chosenPost);
+  }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId]);
+
   return (
     <CommonContext.Provider
       value={{
@@ -443,10 +787,13 @@ export const Common = ({ children }) => {
         handleClickOutsideNavBar,
         handleClickAddImageIcon,
         handleFileChange,
+        handleFileOfCommentChange,
         postModal,
         setPostModal,
         postContent,
         setPostContent,
+        commentContent,
+        setCommentContent,
         hasPostContent,
         setHasPostContent,
         showdiscardModal,
@@ -476,6 +823,8 @@ export const Common = ({ children }) => {
         logoutIconRef,
         redundantCharactersNumber,
         setRedundantCharactersNumber,
+        redundantCommentCharactersNumber,
+        setRedundantCommentCharactersNumber,
         numberCharactersAllowed,
         isUser,
         setIsUser,
@@ -508,6 +857,71 @@ export const Common = ({ children }) => {
         getCommentsByPostId,
         chosenPost,
         setChosenPost,
+        openAddCommentModal,
+        setOpenAddCommentModal,
+        hasPostCommentContent,
+        setHasPostCommentContent,
+        showdiscardCommentModal,
+        setShowDiscardCommentModal,
+        clickCancelCommentDiscard,
+        setClickCancelCommentDiscard,
+        discardComment,
+        setDiscardComment,
+        textareaCommentRef,
+        imagesComment,
+        setImagesComment,
+        handleClosePostCommentModal,
+        handleClickPostNewComment,
+        handleCreateComment,
+        handleClickAddCommentImageIcon,
+        openOptionsModal,
+        setOpenOptionsModal,
+        openCommentOptionsModal,
+        setOpenCommentOptionsModal,
+        openDeleteModal,
+        setOpenDeleteModal,
+        openDeleteCommentModal,
+        setOpenDeleteCommentModal,
+        openCancelEditingModal,
+        setOpenCancelEditingModal,
+        handleRemovePostWarning,
+        handleRemoveCommentWarning,
+        handleFinallyRemovePost,
+        handleFinallyRemoveComment,
+        isEditing,
+        setIsEditing,
+        isEditingComment,
+        setIsEditingComment,
+        selectedCommentRemoveEdit,
+        setSelectedCommentRemoveEdit,
+        handleOpenEditingPost,
+        handleOpenEditingComment,
+        contentEditableRef,
+        commentEditableRef,
+        contentForUpdate,
+        setContentForUpdate,
+        contentBeforeUpdate,
+        setContentBeforeUpdate,
+        commentForUpdate,
+        setCommentForUpdate,
+        commentBeforeUpdate,
+        setCommentBeforeUpdate,
+        handleInputBlur,
+        handleInputBlurComment,
+        handleEditingPost,
+        handleEditingComment,
+        handleConfirmCancelEditingPost,
+        handleConfirmCancelEditingComment,
+        openCancelEditingCommentModal,
+        setOpenCancelEditingCommentModal,
+        handleDefinitelyCancelEditingPost,
+        handleDefinitelyCancelEditingComment,
+        redundantEditingCharactersNumber,
+        setRedundantEditingCharactersNumber,
+        redundantEditingCommentCharactersNumber,
+        setRedundantEditingCommentCharactersNumber,
+        isSuccessFullyRemoved,
+        setIsSuccessFullyRemoved,
         // notify,
       }}
     >

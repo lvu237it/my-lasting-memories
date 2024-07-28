@@ -14,6 +14,7 @@ router.get(
 router.post(
   '/create',
   commentController.upload.array('images', 10),
+  postController.checkPostIsExist,
   commentController.createComment,
   commentController.uploadCommentImages
 );

@@ -67,8 +67,8 @@ exports.getAllCommentsByPostId = catchAsync(async (req, res, next) => {
 });
 
 exports.createComment = catchAsync(async (req, res, next) => {
-  // const postid = req.post_id;
-  const { postid, comment_content, user_id } = req.body;
+  const postid = req.post_id;
+  const { comment_content, user_id } = req.body;
   const comment_id = uuidv4();
   const files = req.files || [];
 

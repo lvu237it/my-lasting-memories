@@ -2,6 +2,7 @@ import {
   BiArrowBack,
   BiBookmark,
   BiBookmarkMinus,
+  BiChat,
   BiDotsHorizontalRounded,
   BiEdit,
   BiExit,
@@ -51,6 +52,53 @@ function Search() {
     getOnwnerInformationByCommentId,
     chosenPost,
     setChosenPost,
+    openAddCommentModal,
+    setOpenAddCommentModal,
+    openOptionsModal,
+    setOpenOptionsModal,
+    openCommentOptionsModal,
+    setOpenCommentOptionsModal,
+    openDeleteModal,
+    setOpenDeleteModal,
+    openDeleteCommentModal,
+    setOpenDeleteCommentModal,
+    openCancelEditingModal,
+    setOpenCancelEditingModal,
+    handleRemovePostWarning,
+    handleRemoveCommentWarning,
+    handleFinallyRemovePost,
+    isEditing,
+    setIsEditing,
+    isEditingComment,
+    setIsEditingComment,
+    selectedCommentRemoveEdit,
+    setSelectedCommentRemoveEdit,
+    handleOpenEditingPost,
+    handleOpenEditingComment,
+    contentEditableRef,
+    commentEditableRef,
+    contentForUpdate,
+    setContentForUpdate,
+    contentBeforeUpdate,
+    setContentBeforeUpdate,
+    commentForUpdate,
+    setCommentForUpdate,
+    commentBeforeUpdate,
+    setCommentBeforeUpdate,
+    handleInputBlur,
+    handleInputBlurComment,
+    handleEditingPost,
+    handleEditingComment,
+    handleConfirmCancelEditingPost,
+    handleConfirmCancelEditingComment,
+    openCancelEditingCommentModal,
+    setOpenCancelEditingCommentModal,
+    handleDefinitelyCancelEditingPost,
+    handleDefinitelyCancelEditingComment,
+    redundantEditingCharactersNumber,
+    setRedundantEditingCharactersNumber,
+    redundantEditingCommentCharactersNumber,
+    setRedundantEditingCommentCharactersNumber,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -61,92 +109,16 @@ function Search() {
   const [viewPostDetails, setViewPostDetails] = useState(false);
   const postDetailsRef = useRef(null);
   const optionsModalRef = useRef(null);
-  const contentEditableRef = useRef(null);
+  const commentOptionsModalRef = useRef(null);
+  // const contentEditableRef = useRef(null);
 
   const [isSavedPost, setIsSavedPost] = useState(true);
-  const [openOptionsModal, setOpenOptionsModal] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
-  const [contentForUpdate, setContentForUpdate] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
-
-  const [
-    redundantEditingCharactersNumber,
-    setRedundantEditingCharactersNumber,
-  ] = useState(0);
-
-  //Cancel editing post
-  //Click "Không" when Modal opened
-  const handleConfirmCancelEditingPost = () => {
-    setOpenCancelEditingModal(true);
-  };
-
-  //Click "Huỷ" when Modal opened
-  const handleDefinitelyCancelEditingPost = () => {
-    console.log('contentBeforeUpdate', contentBeforeUpdate);
-    if (contentForUpdate !== contentBeforeUpdate) {
-      //Có sự thay đổi content so với ban đầu nhưng Huỷ - không tiếp tục chỉnh sửa
-      //=> Giữ content ban đầu
-      setContentForUpdate(contentBeforeUpdate);
-    }
-    setOpenCancelEditingModal(false);
-    setIsEditing(false);
-  };
-
-  //Editing post
-  const handleEditingPost = async () => {
-    if (contentForUpdate.length > 1000) {
-      toast.error(
-        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
-      );
-    } else {
-      try {
-        await axios.patch(`${apiBaseUrl}/posts/update/${chosenPost.post_id}`, {
-          content: contentForUpdate,
-        });
-        setIsEditing(false);
-        // Cập nhật contentBeforeUpdate khi cập nhật thành công
-        //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
-        setContentBeforeUpdate(contentForUpdate);
-        toast.success('Chỉnh sửa bài thành công!');
-      } catch (error) {
-        console.error('Error editing post', error);
-        setIsEditing(false);
-        toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
-      }
-    }
-  };
-
-  const handleOpenEditingPost = () => {
-    setIsEditing(true);
-    setOpenOptionsModal(false);
-  };
-
-  //Click ra ngoài phạm vi của phần tử editing
-  const handleInputBlur = () => {
-    // setIsEditing(false);
-    setContentForUpdate(contentEditableRef.current.innerText);
-  };
-
-  //Deleting post
-  const handleFinallyRemovePost = async () => {
-    try {
-      await axios.patch(`${apiBaseUrl}/posts/delete/${chosenPost.post_id}`);
-      // setPostModal(false);
-      // textareaRef.current.value = '';
-      // setHasPostContent(false);
-      setOpenDeleteModal(false);
-      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000); // Tự động reload sau 3 giây
-    } catch (error) {
-      console.error('Error deleting post', error);
-      setOpenDeleteModal(false);
-      toast.error('Xoá bài không thành công. Vui lòng thử lại.');
-    }
-  };
+  // const [openOptionsModal, setOpenOptionsModal] = useState(false);
+  // const [openCommentOptionsModal, setOpenCommentOptionsModal] = useState(null);
+  // const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  // const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
+  // const [contentForUpdate, setContentForUpdate] = useState('');
+  // const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
 
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
@@ -183,11 +155,24 @@ function Search() {
     }
   };
 
-  const handleRemovePostWarning = () => {
-    setOpenOptionsModal(false);
-    setOpenDeleteModal(true);
-    //disable editing if it opened
-    setIsEditing(false);
+  //Open comment options modal
+  const handleSetCommentOptionsModal = (index, comment) => {
+    setOpenCommentOptionsModal(index);
+    setSelectedCommentRemoveEdit(comment);
+  };
+
+  // useEffect(() => {
+  //   console.log('selected remove', selectedCommentRemoveEdit);
+  // }, [selectedCommentRemoveEdit]);
+
+  //Click outside of comment options modal
+  const handleClickOutsideCommentOptionsModal = (event) => {
+    if (
+      commentOptionsModalRef.current &&
+      !commentOptionsModalRef.current.contains(event.target)
+    ) {
+      setOpenCommentOptionsModal(false);
+    }
   };
 
   // Handle modals and z-index
@@ -197,7 +182,12 @@ function Search() {
       const logoutIcon = logoutIconRef.current;
 
       if (addPostIcon) {
-        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+        if (
+          openOptionsModal ||
+          openCommentOptionsModal ||
+          openDeleteModal ||
+          openCancelEditingModal
+        ) {
           addPostIcon.classList.add('hidden');
         } else {
           addPostIcon.classList.remove('hidden');
@@ -206,7 +196,12 @@ function Search() {
       }
 
       if (logoutIcon) {
-        if (openOptionsModal || openDeleteModal || openCancelEditingModal) {
+        if (
+          openOptionsModal ||
+          openCommentOptionsModal ||
+          openDeleteModal ||
+          openCancelEditingModal
+        ) {
           logoutIcon.classList.add('hidden');
         } else {
           logoutIcon.classList.remove('hidden');
@@ -216,26 +211,19 @@ function Search() {
     };
 
     updateZIndex();
-  }, [openOptionsModal, openDeleteModal, openCancelEditingModal]);
+  }, [
+    openOptionsModal,
+    openCommentOptionsModal,
+    openDeleteModal,
+    openCancelEditingModal,
+  ]);
 
-  useEffect(() => {
-    if (isEditing && contentEditableRef.current) {
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(contentEditableRef.current);
-      range.collapse(false); // Đặt con trỏ ở cuối nội dung
-      selection.removeAllRanges();
-      selection.addRange(range);
-      contentEditableRef.current.focus();
-    }
-  }, [isEditing]);
-
-  //Counting redundant editing characters number
-  useEffect(() => {
-    const countRedundantCharacter =
-      numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
-    setRedundantEditingCharactersNumber(countRedundantCharacter);
-  }, [contentForUpdate, redundantEditingCharactersNumber]);
+  // //Counting redundant editing characters number
+  // useEffect(() => {
+  //   const countRedundantCharacter =
+  //     numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
+  //   setRedundantEditingCharactersNumber(countRedundantCharacter);
+  // }, [contentForUpdate, redundantEditingCharactersNumber]);
 
   //Back home from view post details
   const handleBackSearch = () => {
@@ -243,6 +231,8 @@ function Search() {
     setViewPostDetails(false);
     setLocalUrlImages([]);
     setLengthOfViewPostImage(0);
+    setCommentsByPostId([]);
+    setIsEditingComment(false);
   };
 
   const handleClearSearchContent = () => {
@@ -268,7 +258,7 @@ function Search() {
 
   // Sử dụng debounce cho hàm handleSearchPostsByContent
   const debouncedSearchResults = useCallback(
-    debounce(handleSearchPostsByContent, 0), //thay đổi milliseconds nếu muốn giới hạn thêm thời gian tìm kiếm
+    debounce(handleSearchPostsByContent, 500), //thay đổi milliseconds nếu muốn giới hạn thêm thời gian tìm kiếm
     [searchContent] // Thêm searchContent vào dependency array để debounce cập nhật khi searchContent thay đổi
   );
 
@@ -318,6 +308,20 @@ function Search() {
       document.removeEventListener('mousedown', handleClickOutsideOptionsModal);
     };
   }, []);
+
+  useEffect(() => {
+    document.addEventListener(
+      'mousedown',
+      handleClickOutsideCommentOptionsModal
+    );
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideCommentOptionsModal
+      );
+    };
+  }, []);
+
   return (
     <>
       <div className='wrapper my-3 relative'>
@@ -547,14 +551,230 @@ function Search() {
                       <div className='content-description break-words whitespace-pre-wrap leading-7'>
                         {decodeEntities(contentForUpdate)}
                       </div>
+                      {/* Post chỉ có 1 ảnh duy nhất */}
                       {localUrlImages.length === 1 ? (
-                        <div className='content-attachments w-[95%] mt-4 cursor-pointer'>
-                          <img
-                            onClick={(e) => handleOpenViewImageModal(e)}
-                            src={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
-                            alt='attached items'
-                            className='rounded-lg mx-auto'
-                          />
+                        <div className=''>
+                          <div className='content-attachments w-[95%] mt-4 cursor-pointer mx-auto'>
+                            <img
+                              onClick={(e) => handleOpenViewImageModal(e)}
+                              src={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
+                              alt='attached items'
+                              className='rounded-lg mx-auto'
+                            />
+                          </div>
+                          {/* Commments of post with 1 image */}
+                          <div className='comments-of-post-details flex items-center justify-between mt-4'>
+                            <div className='flex gap-2'>
+                              <AiOutlineComment className='text-3xl ' />
+                              <div className='number-of-comments text-lg '>
+                                {commentsByPostId && commentsByPostId.length}
+                              </div>
+                            </div>
+                            <div
+                              onClick={() => setOpenAddCommentModal(true)}
+                              className='flex items-center gap-2 text-2xl p-2 ease-in-out duration-300 hover:bg-slate-100 hover:rounded-xl cursor-pointer'
+                            >
+                              <BiChat />
+                              <div className='text-lg'>Bình luận</div>
+                            </div>
+                          </div>
+                          <hr className='mt-2' />
+                          {/* Wrapper of post comments */}
+                          {isEditingComment ? (
+                            //------------------------- Editing Comment Mode-----------------------
+                            <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
+                              <div className='flex-shrink-0'>
+                                <img
+                                  className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                  src={
+                                    usersList.find(
+                                      (user) =>
+                                        user.user_id ===
+                                        selectedCommentRemoveEdit.user_id
+                                    )?.avatar_path
+                                  }
+                                  alt='infor-user-comment'
+                                />
+                              </div>
+                              <div className='flex-1 w-full'>
+                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                  <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
+                                    {redundantEditingCommentCharactersNumber < 0
+                                      ? redundantEditingCommentCharactersNumber
+                                      : ''}
+                                  </div>
+                                  <div className='author-name'>
+                                    {
+                                      usersList.find(
+                                        (user) =>
+                                          user.user_id ===
+                                          selectedCommentRemoveEdit.user_id
+                                      )?.username
+                                    }
+                                  </div>
+                                </div>
+                                <div
+                                  contentEditable={true}
+                                  ref={commentEditableRef}
+                                  onBlur={handleInputBlurComment}
+                                  suppressContentEditableWarning={true}
+                                  className='outline-none leading-loose break-words whitespace-pre-wrap w-[90%] sm:w-full '
+                                >
+                                  {decodeEntities(commentForUpdate)}
+                                </div>
+                                <div className='relative h-14'>
+                                  <div
+                                    onClick={handleConfirmCancelEditingComment}
+                                    id='button-cancel-edit-comment'
+                                    className='absolute right-28 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto text-red-500 duration-300 ease-in-out'
+                                  >
+                                    Huỷ
+                                  </div>
+                                  <div
+                                    onClick={handleEditingComment}
+                                    id='button-edit-comment'
+                                    className='absolute right-0 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                                  >
+                                    Cập nhật
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Cancel Editing Comment Modal */}
+                              {openCancelEditingCommentModal && (
+                                <div
+                                  id='background-cancel-editing-comment-modal'
+                                  className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                                >
+                                  <div className='w-full h-full flex justify-center items-center'>
+                                    <div
+                                      id='cancel-editing-comment-modal'
+                                      className='relative z-20'
+                                    >
+                                      <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                                        <div className='font-semibold text-center mb-4'>
+                                          Huỷ bỏ thay đổi?
+                                        </div>
+                                        <hr className='' />
+                                        <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                                          <div
+                                            id='continue-edit-comment'
+                                            onClick={() =>
+                                              setOpenCancelEditingCommentModal(
+                                                false
+                                              )
+                                            }
+                                            className='col-span-1 cursor-pointer p-2'
+                                          >
+                                            Không
+                                          </div>
+                                          <div
+                                            onClick={
+                                              handleDefinitelyCancelEditingComment
+                                            }
+                                            id='finally-edit-comment'
+                                            className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                                          >
+                                            Huỷ
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            //--------------------------Editing Comment Mode-------------------------
+
+                            <div className='wrapper-of-post-comments'>
+                              {commentsByPostId &&
+                                commentsByPostId.map((comment, index) => (
+                                  <div key={index}>
+                                    <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
+                                      <div className='flex-shrink-0'>
+                                        <img
+                                          className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                          src={
+                                            usersList.find(
+                                              (user) =>
+                                                user.user_id === comment.user_id
+                                            )?.avatar_path
+                                          }
+                                          alt='infor-user-comment'
+                                        />
+                                      </div>
+                                      <div className='flex-1'>
+                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                          <div className='author-name'>
+                                            {
+                                              usersList.find(
+                                                (user) =>
+                                                  user.user_id ===
+                                                  comment.user_id
+                                              )?.username
+                                            }
+                                          </div>
+                                          <div
+                                            onClick={() =>
+                                              handleSetCommentOptionsModal(
+                                                index,
+                                                comment
+                                              )
+                                            }
+                                            className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                                          >
+                                            <BiDotsHorizontalRounded />
+                                          </div>
+
+                                          {/* Comment options modal */}
+                                          {openCommentOptionsModal ===
+                                            index && (
+                                            <div
+                                              ref={commentOptionsModalRef}
+                                              className='comment-options-modal z-20 absolute translate-y-0 top-8 right-0 w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
+                                            >
+                                              <div>
+                                                <div
+                                                  onClick={
+                                                    handleOpenEditingComment
+                                                  }
+                                                  id='edit-post'
+                                                  className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                                >
+                                                  <div className='col-span-11'>
+                                                    Chỉnh sửa
+                                                  </div>
+                                                  <BiEdit className='col-span-1 my-auto' />
+                                                </div>
+                                                <div
+                                                  onClick={
+                                                    handleRemoveCommentWarning
+                                                  }
+                                                  id='delete-post'
+                                                  className='delete-post grid grid-cols-12 text-red-500 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                                >
+                                                  <div className='col-span-11'>
+                                                    Xoá bình luận
+                                                  </div>
+                                                  <BiTrashAlt className='col-span-1 my-auto' />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className='leading-loose break-words whitespace-pre-wrap'>
+                                          {comment?.comment_content}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {index !== commentsByPostId.length - 1 && (
+                                      <hr className='my-2' />
+                                    )}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className='wrapper-of-post-details'>
@@ -586,48 +806,219 @@ function Search() {
                                 )}
                             </div>
                           </div>
-                          <div className='comments-of-post-details flex gap-2 items-end mt-4'>
-                            <AiOutlineComment className='text-3xl cursor-pointer' />
-                            <div className='number-of-comments text-lg cursor-pointer'>
-                              0
+                          {/* Commments of post with more than 1 image */}
+                          <div className='comments-of-post-details flex items-center justify-between mt-4'>
+                            <div className='flex gap-2'>
+                              <AiOutlineComment className='text-3xl ' />
+                              <div className='number-of-comments text-lg '>
+                                {commentsByPostId && commentsByPostId.length}
+                              </div>
+                            </div>
+                            <div
+                              onClick={() => setOpenAddCommentModal(true)}
+                              className='flex items-center gap-2 text-2xl p-2 ease-in-out duration-300 hover:bg-slate-100 hover:rounded-xl cursor-pointer'
+                            >
+                              <BiChat />
+                              <div className='text-lg'>Bình luận</div>
                             </div>
                           </div>
                           <hr className='mt-2' />
-                          {commentsByPostId &&
-                            commentsByPostId.map((comment, index) => (
-                              <div
-                                key={index}
-                                className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'
-                              >
-                                <div className='flex-shrink-0'>
-                                  <img
-                                    className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                                    src={
-                                      usersList.find(
-                                        (user) =>
-                                          user.user_id === comment.user_id
-                                      )?.avatar_path
-                                    }
-                                    // Find avatar of each comment - comment owner - by that comment => user_id => avatar
-                                    alt='infor-user-comment'
-                                  />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='leading-loose break-words whitespace-pre-wrap'>
+                          {/* Wrapper of post comments */}
+                          {isEditingComment ? (
+                            //------------------------- Editing Comment Mode-----------------------
+                            <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
+                              <div className='flex-shrink-0'>
+                                <img
+                                  className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                  src={
+                                    usersList.find(
+                                      (user) =>
+                                        user.user_id ===
+                                        selectedCommentRemoveEdit.user_id
+                                    )?.avatar_path
+                                  }
+                                  alt='infor-user-comment'
+                                />
+                              </div>
+                              <div className='flex-1 w-full'>
+                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                  <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
+                                    {redundantEditingCommentCharactersNumber < 0
+                                      ? redundantEditingCommentCharactersNumber
+                                      : ''}
+                                  </div>
+                                  <div className='author-name'>
                                     {
                                       usersList.find(
                                         (user) =>
-                                          user.user_id === comment.user_id
+                                          user.user_id ===
+                                          selectedCommentRemoveEdit.user_id
                                       )?.username
                                     }
-                                    {/* // Find username of each comment - comment owner - by that comment => user_id => username */}
                                   </div>
-                                  <div className='leading-loose break-words whitespace-pre-wrap'>
-                                    {comment.comment_content}
+                                </div>
+                                <div
+                                  contentEditable={true}
+                                  ref={commentEditableRef}
+                                  onBlur={handleInputBlurComment}
+                                  suppressContentEditableWarning={true}
+                                  className='outline-none leading-loose break-words whitespace-pre-wrap w-[90%] sm:w-full '
+                                >
+                                  {decodeEntities(commentForUpdate)}
+                                </div>
+                                <div className='relative h-14'>
+                                  <div
+                                    onClick={handleConfirmCancelEditingComment}
+                                    id='button-cancel-edit-comment'
+                                    className='absolute right-28 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto text-red-500 duration-300 ease-in-out'
+                                  >
+                                    Huỷ
+                                  </div>
+                                  <div
+                                    onClick={handleEditingComment}
+                                    id='button-edit-comment'
+                                    className='absolute right-0 bottom-0 cursor-pointer font-semibold px-4 py-2 my-auto border-slate-300 rounded-xl shadow shadow-slate-300'
+                                  >
+                                    Cập nhật
                                   </div>
                                 </div>
                               </div>
-                            ))}
+
+                              {/* Cancel Editing Comment Modal */}
+                              {openCancelEditingCommentModal && (
+                                <div
+                                  id='background-cancel-editing-comment-modal'
+                                  className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                                >
+                                  <div className='w-full h-full flex justify-center items-center'>
+                                    <div
+                                      id='cancel-editing-comment-modal'
+                                      className='relative z-20'
+                                    >
+                                      <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                                        <div className='font-semibold text-center mb-4'>
+                                          Huỷ bỏ thay đổi?
+                                        </div>
+                                        <hr className='' />
+                                        <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                                          <div
+                                            id='continue-edit-comment'
+                                            onClick={() =>
+                                              setOpenCancelEditingCommentModal(
+                                                false
+                                              )
+                                            }
+                                            className='col-span-1 cursor-pointer p-2'
+                                          >
+                                            Không
+                                          </div>
+                                          <div
+                                            onClick={
+                                              handleDefinitelyCancelEditingComment
+                                            }
+                                            id='finally-edit-comment'
+                                            className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                                          >
+                                            Huỷ
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            //--------------------------Editing Comment Mode-------------------------
+
+                            <div className='wrapper-of-post-comments'>
+                              {commentsByPostId &&
+                                commentsByPostId.map((comment, index) => (
+                                  <div key={index}>
+                                    <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
+                                      <div className='flex-shrink-0'>
+                                        <img
+                                          className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                          src={
+                                            usersList.find(
+                                              (user) =>
+                                                user.user_id === comment.user_id
+                                            )?.avatar_path
+                                          }
+                                          alt='infor-user-comment'
+                                        />
+                                      </div>
+                                      <div className='flex-1'>
+                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                          <div className='author-name'>
+                                            {
+                                              usersList.find(
+                                                (user) =>
+                                                  user.user_id ===
+                                                  comment.user_id
+                                              )?.username
+                                            }
+                                          </div>
+                                          <div
+                                            onClick={() =>
+                                              handleSetCommentOptionsModal(
+                                                index,
+                                                comment
+                                              )
+                                            }
+                                            className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                                          >
+                                            <BiDotsHorizontalRounded />
+                                          </div>
+
+                                          {/* Comment options modal */}
+                                          {openCommentOptionsModal ===
+                                            index && (
+                                            <div
+                                              ref={commentOptionsModalRef}
+                                              className='comment-options-modal z-20 absolute translate-y-0 top-8 right-0 w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
+                                            >
+                                              <div>
+                                                <div
+                                                  onClick={
+                                                    handleOpenEditingComment
+                                                  }
+                                                  id='edit-post'
+                                                  className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                                >
+                                                  <div className='col-span-11'>
+                                                    Chỉnh sửa
+                                                  </div>
+                                                  <BiEdit className='col-span-1 my-auto' />
+                                                </div>
+                                                <div
+                                                  onClick={
+                                                    handleRemoveCommentWarning
+                                                  }
+                                                  id='delete-post'
+                                                  className='delete-post grid grid-cols-12 text-red-500 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                                >
+                                                  <div className='col-span-11'>
+                                                    Xoá bình luận
+                                                  </div>
+                                                  <BiTrashAlt className='col-span-1 my-auto' />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className='leading-loose break-words whitespace-pre-wrap'>
+                                          {comment?.comment_content}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {index !== commentsByPostId.length - 1 && (
+                                      <hr className='my-2' />
+                                    )}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
