@@ -668,47 +668,85 @@ function HomePage() {
                   </div>
                 )}
               </div>
-              <div className=''>
-                {/* List of posts */}
+              <div className='list-of-posts'>
                 {postsList &&
-                  postsList.map((post, index) => (
-                    <div
-                      onClick={() => handleViewPostDetails(post)}
-                      key={post.post_id}
-                      className='cursor-pointer text-sm sm2:text-base mb-5'
-                    >
-                      <div className='feeds-content-posts grid relative mb-[80px]'>
-                        <div className='feeds-content-top-about absolute top-0 left-0'>
-                          <img
-                            src={adminInfor && adminInfor.avatar_path}
-                            alt=''
-                            className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
-                          />
-                        </div>
-                        <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
-                          <div className='information-and-posttime'>
-                            <div className='author-name font-semibold'>
-                              {getAuthorNameOfPostByUserId(post.user_id)}
-                            </div>
-                            <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
-                              <BiPencil />
-                              <div className=''>
-                                {getPostedTime(post.created_at)}
+                  postsList.map((post, index) =>
+                    index === 0 ? (
+                      <div
+                        onClick={() => handleViewPostDetails(post)}
+                        key={post.post_id}
+                        className='cursor-pointer text-sm sm2:text-base pb-10 sm2:pb-12'
+                      >
+                        <div className='feeds-content-posts grid relative'>
+                          <div className='feeds-content-top-about absolute top-0 left-0'>
+                            <img
+                              src={adminInfor && adminInfor.avatar_path}
+                              alt=''
+                              className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                            />
+                          </div>
+                          <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
+                            <div className='information-and-posttime'>
+                              <div className='author-name font-semibold'>
+                                {getAuthorNameOfPostByUserId(post.user_id)}
+                              </div>
+                              <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                <BiPencil />
+                                <div className=''>
+                                  {getPostedTime(post.created_at)}
+                                </div>
+                              </div>
+                              <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                                {post.content || '* Bài viết không có tiêu đề'}
                               </div>
                             </div>
-                            <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                              {post.content || '* Bài viết không có tiêu đề'}
-                            </div>
                           </div>
+                          {index !== postsList.length - 1 ? (
+                            <div className='absolute top-[70px] sm2:top-[80px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                          ) : (
+                            <div className='bg-white w-full h-[0.2px]'></div>
+                          )}
                         </div>
                       </div>
-                      {index !== postsList.length - 1 ? (
-                        <hr className=' border-slate-300' />
-                      ) : (
-                        <hr className=' visible border-white' />
-                      )}
-                    </div>
-                  ))}
+                    ) : (
+                      <div
+                        onClick={() => handleViewPostDetails(post)}
+                        key={post.post_id}
+                        className='cursor-pointer text-sm sm2:text-base py-10 sm2:py-12'
+                      >
+                        <div className='feeds-content-posts grid relative'>
+                          <div className='feeds-content-top-about absolute top-0 left-0'>
+                            <img
+                              src={adminInfor && adminInfor.avatar_path}
+                              alt=''
+                              className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                            />
+                          </div>
+                          <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
+                            <div className='information-and-posttime'>
+                              <div className='author-name font-semibold'>
+                                {getAuthorNameOfPostByUserId(post.user_id)}
+                              </div>
+                              <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                <BiPencil />
+                                <div className=''>
+                                  {getPostedTime(post.created_at)}
+                                </div>
+                              </div>
+                              <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                                {post.content || '* Bài viết không có tiêu đề'}
+                              </div>
+                            </div>
+                          </div>
+                          {index !== postsList.length - 1 ? (
+                            <div className='absolute top-[70px] sm2:top-[80px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                          ) : (
+                            <div className='bg-white w-full h-[0.2px]'></div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
               </div>
             </>
           )}
