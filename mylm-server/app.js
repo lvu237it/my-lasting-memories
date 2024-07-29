@@ -64,8 +64,8 @@ app.use(
 
 // Serve static files từ thư mục comments-images
 app.use(
-  '/assets/comments-images',
-  express.static(path.join(__dirname, 'assets/comments-images'), {
+  '/assets/commentsimages',
+  express.static(path.join(__dirname, 'assets/commentsimages'), {
     fallthrough: false,
   })
 );

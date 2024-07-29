@@ -42,11 +42,17 @@ export const Common = ({ children }) => {
   const postItemsUploadRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const imageChoseToViewRef = useRef(null);
+  const imageChoseToViewCommentRef = useRef(null);
   const cancelViewPostImageRef = useRef(null);
+  const cancelViewCommentImageRef = useRef(null);
   const viewPrevImageRef = useRef(null);
+  const viewPrevCommentImageRef = useRef(null);
   const viewNextImageRef = useRef(null);
+  const viewNextCommentImageRef = useRef(null);
   const contentEditableRef = useRef(null);
   const commentEditableRef = useRef(null);
+
+  // const [containerBeforeDragging, setContainerBeforeDragging] = useState(null);
 
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
@@ -67,12 +73,24 @@ export const Common = ({ children }) => {
   const [chosenPost, setChosenPost] = useState(null);
 
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
+  const [openViewImageCommentModal, setOpenViewImageCommentModal] =
+    useState(false);
+
   const [imageChoseToView, setImageChoseToView] = useState(null);
+  const [imageChoseToViewComment, setImageChoseToViewComment] = useState(null);
+
   const [localUrlImages, setLocalUrlImages] = useState([]);
+  const [localUrlImagesComment, setLocalUrlImagesComment] = useState([]);
+
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
+  const [lengthOfViewPostImageComment, setLengthOfViewPostImageComment] =
+    useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [currentViewImageIndex, setCurrentViewImageIndex] = useState(null);
   const [currentViewImage, setCurrentViewImage] = useState(null);
+  const [currentViewImageCommentIndex, setCurrentViewImageCommentIndex] =
+    useState(null);
+  const [currentViewImageComment, setCurrentViewImageComment] = useState(null);
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
   const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
@@ -132,15 +150,13 @@ export const Common = ({ children }) => {
   }, []);
 
   const getCommentsByPostId = async (post) => {
-    if (post) {
-      try {
-        const response = await axios.get(
-          `${apiBaseUrl}/comments/post/${post.post_id}`
-        );
-        setCommentsByPostId(response.data);
-      } catch (err) {
-        console.log('Error when getting comments by post id', err);
-      }
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/comments/post/${post.post_id}`
+      );
+      setCommentsByPostId(response.data);
+    } catch (err) {
+      console.log('Error when getting comments by post id', err);
     }
   };
 
@@ -163,6 +179,7 @@ export const Common = ({ children }) => {
   const handleSwipe = (e) => {
     e.preventDefault();
     const container = scrollContainerRef.current;
+
     if (container) {
       setIsDragging(true);
       let startX = e.pageX - container.offsetLeft;
@@ -189,6 +206,28 @@ export const Common = ({ children }) => {
       container.addEventListener('mouseleave', onMouseUp);
     }
   };
+
+  // useEffect(() => {
+  //   if (!isDragging) {
+  //     setContainerBeforeDragging(scrollContainerRef.current);
+  //   }
+  //   console.log('container before', containerBeforeDragging);
+  // }, [containerBeforeDragging, scrollContainerRef.current]);
+
+  // Ensure the event listener is added only once when component mounts
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('mousedown', handleSwipe);
+    }
+
+    // Clean up the event listener on unmount
+    return () => {
+      if (container) {
+        container.removeEventListener('mousedown', handleSwipe);
+      }
+    };
+  }, []);
 
   //Add attachments of post
   const handleClickAddImageIcon = () => {
@@ -238,6 +277,12 @@ export const Common = ({ children }) => {
     // }
   };
 
+  useEffect(() => {
+    if (!openAddCommentModal) {
+      setImageUrlsList([]);
+    }
+  }, [openAddCommentModal]);
+
   const handleSortImagesPath = (localUrlImages) => {
     // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
     let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
@@ -259,6 +304,39 @@ export const Common = ({ children }) => {
       // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
       // Ví dụ: attached_items_id: item.attached_items_id, ...
     }));
+  };
+
+  const handleSortImagesCommentPath = (comments) => {
+    //comment <=> localUrlImagesComment
+
+    // Lặp qua từng comment
+    return comments.map((comment) => {
+      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+      let imagePathsWithTimestamps = comment.attached_items.map(
+        (urlImageObject) => {
+          // Tách phần đầu của tên ảnh (timestamp)
+          const timestamp = urlImageObject.attacheditem_comment_path
+            .split('-')[0]
+            .split('/')[3];
+          return { ...urlImageObject, timestamp };
+        }
+      );
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort((a, b) =>
+        a.timestamp.localeCompare(b.timestamp)
+      );
+
+      // Cập nhật attached_items đã được sắp xếp trong comment
+      return {
+        ...comment,
+        attached_items: imagePathsWithTimestamps.map((item) => ({
+          attached_items_comment_id: item.attached_items_comment_id,
+          attacheditem_comment_path: item.attacheditem_comment_path,
+          // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+          // Ví dụ: attached_items_id: item.attached_items_id, ...
+        })),
+      };
+    });
   };
 
   const handleSortImages = (localUrlImages) => {
@@ -295,6 +373,40 @@ export const Common = ({ children }) => {
     // return imagePathsWithTimestamps.map((item) => item.urlImageObject);
   };
 
+  const handleSortImagesComment = (comments) => {
+    //comment <=> localUrlImagesComment
+
+    // Lặp qua từng comment
+    return comments.map((comment) => {
+      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+      let imagePathsWithTimestamps = comment.attached_items.map(
+        (urlImageObject) => {
+          // Tách phần đầu của tên ảnh (timestamp)
+          const timestamp = urlImageObject.attacheditem_comment_path
+            .split('-')[0]
+            .split('/')[3];
+          return { ...urlImageObject, timestamp };
+        }
+      );
+
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort((a, b) =>
+        a.timestamp.localeCompare(b.timestamp)
+      );
+
+      // Cập nhật attached_items đã được sắp xếp trong comment
+      return {
+        ...comment,
+        attached_items: imagePathsWithTimestamps.map((item) => ({
+          attached_items_comment_id: item.attached_items_comment_id,
+          attacheditem_comment_path: item.attacheditem_comment_path,
+          comment_id: comment.comment_id, // Thêm comment_id vào đối tượng returned
+        })),
+      };
+    });
+  };
+
+  //Get images of post by post id
   const getImageUrlsByPostId = async (post) => {
     try {
       const urlImageListLocal = await axios.get(
@@ -306,7 +418,20 @@ export const Common = ({ children }) => {
     }
   };
 
+  //truy vấn gộp, sau đó lấy ra và find => hiển thị
+  const getImageUrlsCommentByPostId = async (post) => {
+    try {
+      const urlImageCommentListLocal = await axios.get(
+        `${apiBaseUrl}/comments/post/${post?.post_id}/images`
+      );
+      setLocalUrlImagesComment(urlImageCommentListLocal.data);
+    } catch (error) {
+      console.error('Error finding images url comments by post id', error);
+    }
+  };
+
   const sortedUrlImages = handleSortImages(localUrlImages);
+  const sortedUrlImagesComment = handleSortImagesComment(localUrlImagesComment);
 
   //View image modal
   const handleOpenViewImageModal = (e) => {
@@ -331,27 +456,83 @@ export const Common = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (currentViewImage) {
-      if (viewPrevImageRef.current && viewNextImageRef.current) {
-        if (sortedUrlImages.length === 1) {
-          viewPrevImageRef.current.style.display = 'none';
-          viewNextImageRef.current.style.display = 'none';
-        } else {
-          viewPrevImageRef.current.style.display = 'block';
-          viewNextImageRef.current.style.display = 'block';
+  //View image comment modal
+  const handleOpenViewImageCommentModal = (e) => {
+    if (!isDragging) {
+      e.preventDefault();
+      setOpenViewImageCommentModal(true);
+      const imageSrc = e.target.src;
+      if (imageSrc) {
+        setImageChoseToViewComment(imageSrc);
+        if (imageChoseToViewComment) {
+          const imagePath =
+            '/assets/commentsimages/' +
+            imageChoseToViewComment.split('/assets/commentsimages/')[1];
+          const currentImage = sortedUrlImagesComment.find(
+            (img) => img.attacheditem_path === imagePath
+          );
+          if (currentImage) {
+            setCurrentViewImageComment(currentImage);
+          }
         }
       }
     }
+  };
+
+  // useEffect(() => {
+  //   //Lấy images url của comments của post
+  //   getImageUrlsCommentByPostId(chosenPost);
+  //   console.log('chosenpot', chosenPost);
+  // }, [chosenPost, openViewImageCommentModal]);
+
+  useEffect(() => {
+    if (viewPrevImageRef.current && viewNextImageRef.current) {
+      if (sortedUrlImages.length <= 1) {
+        viewPrevImageRef.current.style.display = 'none';
+        viewNextImageRef.current.style.display = 'none';
+      } else {
+        viewPrevImageRef.current.style.display = 'block';
+        viewNextImageRef.current.style.display = 'block';
+      }
+    }
   }, [currentViewImage, openViewImageModal, sortedUrlImages]);
+
+  useEffect(() => {
+    if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
+      if (sortedUrlImagesComment.length <= 1) {
+        viewPrevCommentImageRef.current.style.display = 'none';
+        viewNextCommentImageRef.current.style.display = 'none';
+      } else {
+        viewPrevCommentImageRef.current.style.display = 'block';
+        viewNextCommentImageRef.current.style.display = 'block';
+      }
+    }
+  }, [
+    currentViewImageComment,
+    openViewImageCommentModal,
+    sortedUrlImagesComment,
+  ]);
 
   useEffect(() => {
     //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
     const currentImageChoseToView = sortedUrlImages.find(
       (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
     );
+
     setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
   }, [imageChoseToView]);
+
+  useEffect(() => {
+    //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
+    const currentImageChoseToViewComment = sortedUrlImagesComment.find(
+      (image) =>
+        `${apiBaseUrl}` + image.attacheditem_comment_path ===
+        imageChoseToViewComment
+    );
+    setCurrentViewImageCommentIndex(
+      sortedUrlImagesComment.indexOf(currentImageChoseToViewComment)
+    );
+  }, [imageChoseToViewComment]);
 
   const handleViewPrevImage = () => {
     const prevIndex =
@@ -368,6 +549,25 @@ export const Common = ({ children }) => {
     setCurrentViewImageIndex(nextIndex);
     setImageChoseToView(
       `${apiBaseUrl}${sortedUrlImages[nextIndex]?.attacheditem_path}`
+    );
+  };
+
+  const handleViewPrevCommentImage = () => {
+    const prevIndex =
+      (currentViewImageCommentIndex - 1 + sortedUrlImagesComment.length) %
+      sortedUrlImagesComment.length;
+    setCurrentViewImageCommentIndex(prevIndex);
+    setImageChoseToViewComment(
+      `${apiBaseUrl}${sortedUrlImagesComment[prevIndex]?.attacheditem_comment_path}`
+    );
+  };
+
+  const handleViewNextCommentImage = () => {
+    const nextIndex =
+      (currentViewImageCommentIndex + 1) % sortedUrlImagesComment.length;
+    setCurrentViewImageCommentIndex(nextIndex);
+    setImageChoseToViewComment(
+      `${apiBaseUrl}${sortedUrlImagesComment[nextIndex]?.attacheditem_comment_path}`
     );
   };
 
@@ -425,6 +625,7 @@ export const Common = ({ children }) => {
         'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 1000 kí tự.'
       );
     } else {
+      setIsEditingComment(true);
       try {
         await axios.patch(
           `${apiBaseUrl}/comments/update/${selectedCommentRemoveEdit.comment_id}`,
@@ -557,11 +758,18 @@ export const Common = ({ children }) => {
   const handleClickOutsideImageViewModal = (event) => {
     if (
       cancelViewPostImageRef.current &&
-      // imageChoseToViewRef.current &&
-      // !imageChoseToViewRef.current.contains(event.target)
       cancelViewPostImageRef.current.contains(event.target)
     ) {
       setOpenViewImageModal(false);
+    }
+  };
+
+  const handleClickOutsideImageViewCommentModal = (event) => {
+    if (
+      cancelViewCommentImageRef.current &&
+      cancelViewCommentImageRef.current.contains(event.target)
+    ) {
+      setOpenViewImageCommentModal(false);
     }
   };
 
@@ -615,7 +823,7 @@ export const Common = ({ children }) => {
         formData.append('images', file);
         console.log('Added image to formData:', file);
       });
-
+      console.log('imagesurllist post', imageUrlsList);
       try {
         await axios.post(`${apiBaseUrl}/posts/createpost`, formData, {
           headers: {
@@ -670,6 +878,7 @@ export const Common = ({ children }) => {
       //   window.location.reload();
       // }, 2000); // Tự động reload sau 2 giây
       setIsSuccessFullyRemoved(true);
+      getCommentsByPostId(chosenPost);
       toast.success('Xoá bình luận thành công!');
     } catch (error) {
       console.error('Error deleting comment', error);
@@ -694,8 +903,13 @@ export const Common = ({ children }) => {
       formData.append('comment_content', commentContent);
       formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
       imagesComment.forEach((file) => {
+        // ------------------------------WARNING-----------------------------------------
+        //TÊN TRƯỜNG NÀY CẦN PHẢI TRÙNG KHỚP VỚI TÊN Ở commentRoutes
+        //Cụ thể là:
+        //       commentController.upload.array('imagesComment', 10),   (ĐÚNG)
+        //Chứ không phải:
+        //       commentController.upload.array('images', 10),   (SAI)
         formData.append('imagesComment', file);
-        console.log('Added image to formData:', file);
       });
 
       try {
@@ -709,6 +923,7 @@ export const Common = ({ children }) => {
         setHasPostCommentContent(false);
         toast.success('Bình luận thành công!');
         getCommentsByPostId(post);
+        getImageUrlsCommentByPostId(post);
         setImageUrlsList([]);
         setImagesComment([]);
       } catch (error) {
@@ -765,8 +980,18 @@ export const Common = ({ children }) => {
   }, [selectedCommentRemoveEdit]);
 
   useEffect(() => {
-    getCommentsByPostId(chosenPost);
-  }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId]);
+    if (
+      isEditingComment ||
+      isSuccessFullyRemoved ||
+      commentsByPostId.length > 0
+    ) {
+      getCommentsByPostId(chosenPost);
+    }
+  }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId.length]);
+
+  useEffect(() => {
+    console.log('isDragging', isDragging);
+  }, [isDragging]);
 
   return (
     <CommonContext.Provider
@@ -834,22 +1059,30 @@ export const Common = ({ children }) => {
         setOpenViewImageModal,
         handleOpenViewImageModal,
         imageChoseToViewRef,
+        imageChoseToViewCommentRef,
         handleClickOutsideImageViewModal,
+        handleClickOutsideImageViewCommentModal,
         imageChoseToView,
         setImageChoseToView,
+        imageChoseToViewComment,
+        setImageChoseToViewComment,
         decodeEntities,
         apiBaseUrl,
         handleSortImagesPath,
         cancelViewPostImageRef,
+        cancelViewCommentImageRef,
         localUrlImages,
         setLocalUrlImages,
         getImageUrlsByPostId,
+        getImageUrlsCommentByPostId,
         lengthOfViewPostImage,
         setLengthOfViewPostImage,
         viewPrevImageRef,
         viewNextImageRef,
         currentViewImageIndex,
         setCurrentViewImageIndex,
+        currentViewImageCommentIndex,
+        setCurrentViewImageCommentIndex,
         handleViewPrevImage,
         handleViewNextImage,
         commentsByPostId,
@@ -922,6 +1155,20 @@ export const Common = ({ children }) => {
         setRedundantEditingCommentCharactersNumber,
         isSuccessFullyRemoved,
         setIsSuccessFullyRemoved,
+        localUrlImagesComment,
+        setLocalUrlImagesComment,
+        lengthOfViewPostImageComment,
+        setLengthOfViewPostImageComment,
+        openViewImageCommentModal,
+        setOpenViewImageCommentModal,
+        handleOpenViewImageCommentModal,
+        viewPrevCommentImageRef,
+        viewNextCommentImageRef,
+        handleViewPrevCommentImage,
+        handleViewNextCommentImage,
+        handleSortImagesComment,
+        handleSortImagesCommentPath,
+
         // notify,
       }}
     >

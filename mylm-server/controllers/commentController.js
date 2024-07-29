@@ -13,24 +13,29 @@ const fs = require('fs');
 // Set the storage engine.
 // The destination is the folder you want the uploaded file to be saved.
 //  You will have to create the destination folder yourself in the project folder.
+// Define storage settings
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'assets/comments-images'));
+    cb(null, path.join(__dirname, '..', 'assets/commentsimages'));
   },
-  filename: async (req, file, cb) => {
-    const files = fs.readdirSync(
-      path.join(__dirname, '..', 'assets/comments-images')
-    );
+  filename: (req, file, cb) => {
+    const dirPath = path.join(__dirname, '..', 'assets/commentsimages');
     const originalname = file.originalname;
 
-    // Kiểm tra xem tên file đã tồn tại trong thư mục hay chưa
-    // Đọc danh sách các file trong thư mục assets/images.
-    if (files.includes(originalname)) {
-      console.log(`File ${originalname} đã tồn tại, bỏ qua upload.`);
-      cb(null, originalname); // Nếu file đã tồn tại, không thay đổi tên file
-    } else {
-      cb(null, Date.now() + '-' + originalname); // Nếu file chưa tồn tại, thực hiện upload bình thường
-    }
+    // Check if the file already exists
+    fs.readdir(dirPath, (err, files) => {
+      if (err) {
+        console.error('Error reading directory:', err);
+        cb(err);
+      } else {
+        if (files.includes(originalname)) {
+          console.log(`File ${originalname} already exists, skipping upload.`);
+          cb(null, originalname); // Keep the original name if file exists
+        } else {
+          cb(null, Date.now() + '-' + originalname); // Append timestamp if file does not exist
+        }
+      }
+    });
   },
 });
 
@@ -66,12 +71,53 @@ exports.getAllCommentsByPostId = catchAsync(async (req, res, next) => {
   res.status(200).json(rows);
 });
 
+exports.getImagesOfCommentsByPostId = catchAsync(async (req, res, next) => {
+  const postid = req.post_id;
+
+  //Truy vấn toàn bộ ảnh group by comment của post đó
+  //Filter theo comment cụ thể - comment.comment_id
+  //Sau đó dùng find để lấy được attached_items_comment_path
+
+  const rows = await poolQuery(
+    'select comments.comment_id, comments.comment_content, comments.post_id, comments.user_id, attached_items_comments.attached_items_comment_id, attached_items_comments.attacheditem_comment_path from comments join posts on comments.post_id = posts.post_id join attached_items_comments ON attached_items_comments.comment_id = comments.comment_id where comments.post_id LIKE $1 and comments.is_deleted = 0 ORDER BY attached_items_comments.attacheditem_comment_path DESC',
+    [postid]
+  );
+
+  if (!rows) {
+    return next(new AppError('No images found', 404));
+  }
+
+  // Nhóm dữ liệu theo comment_id
+  const groupedData = rows.reduce((acc, row) => {
+    const commentId = row.comment_id;
+    if (!acc[commentId]) {
+      acc[commentId] = {
+        comment_id: commentId,
+        comment_content: row.comment_content,
+        post_id: row.post_id,
+        user_id: row.user_id,
+        attached_items: [],
+      };
+    }
+    acc[commentId].attached_items.push({
+      attached_items_comment_id: row.attached_items_comment_id,
+      attacheditem_comment_path: row.attacheditem_comment_path,
+    });
+    return acc;
+  }, {});
+
+  // Chuyển đổi đối tượng thành mảng
+  const responseData = Object.values(groupedData);
+
+  res.status(200).json(responseData);
+});
+
 exports.createComment = catchAsync(async (req, res, next) => {
   const postid = req.post_id;
   const { comment_content, user_id } = req.body;
   const comment_id = uuidv4();
   const files = req.files || [];
-
+  console.log('file gi day', files);
   if (files && files.length > 10) {
     return next(new AppError('Not exceed 10 files per comment', 400));
   }
@@ -88,13 +134,12 @@ exports.createComment = catchAsync(async (req, res, next) => {
       status: 'success',
       message: 'create comment successfully!',
     });
-  }
-
-  req.comment_id = comment_id;
-  if (files) {
+  } else {
+    req.comment_id = comment_id;
     req.files = files;
+    console.log('file gi day', files);
+    next();
   }
-  next();
 });
 
 exports.uploadCommentImages = catchAsync(async (req, res, next) => {
@@ -103,12 +148,15 @@ exports.uploadCommentImages = catchAsync(async (req, res, next) => {
 
   const promises = files.map(async (file) => {
     const attached_items_comment_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
-    const attacheditem_comment_path = `/assets/images/${file.filename}`;
+    const attacheditem_comment_path = `/assets/commentsimages/${file.filename}`;
+
     const attachedValues = [
       attached_items_comment_id,
       attacheditem_comment_path,
       comment_id,
     ];
+
+    console.log('attachedValues', attachedValues);
 
     // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
     await poolExecute(
@@ -116,7 +164,7 @@ exports.uploadCommentImages = catchAsync(async (req, res, next) => {
       attachedValues
     );
   });
-
+  console.log('file gi day uploadcomment', files);
   // Chờ cho tất cả các promise được giải quyết
   await Promise.all(promises);
 

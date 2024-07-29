@@ -44,6 +44,7 @@ exports.checkPostIsExist = catchAsync(async (req, res, next) => {
     if (!rows) {
       return next(new AppError('No post found', 404));
     }
+    console.log('post exist');
     req.post_id = postid;
     next();
   } else if (post_id) {
@@ -54,6 +55,7 @@ exports.checkPostIsExist = catchAsync(async (req, res, next) => {
     if (!rows) {
       return next(new AppError('No post found', 404));
     }
+    console.log('post exist');
     req.post_id = post_id;
     next();
   } else {

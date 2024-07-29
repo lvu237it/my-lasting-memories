@@ -78,13 +78,17 @@ const MainLayout = () => {
     setIsUser,
     adminInfor,
     openViewImageModal,
+    openViewImageCommentModal,
+    setOpenViewImageCommentModal,
     setOpenViewImageModal,
     handleOpenViewImageModal,
     imageChoseToViewRef,
     handleClickOutsideImageViewModal,
+    handleClickOutsideImageViewCommentModal,
     imageChoseToView,
     setImageChoseToView,
     cancelViewPostImageRef,
+    cancelViewCommentImageRef,
     localUrlImages,
     setLocalUrlImages,
     lengthOfViewPostImage,
@@ -129,6 +133,17 @@ const MainLayout = () => {
     selectedCommentRemoveEdit,
     setSelectedCommentRemoveEdit,
     handleOpenEditingPost,
+    localUrlImagesComment,
+    setLocalUrlImagesComment,
+    lengthOfViewPostImageComment,
+    setLengthOfViewPostImageComment,
+    imageChoseToViewComment,
+    setImageChoseToViewComment,
+    imageChoseToViewCommentRef,
+    viewPrevCommentImageRef,
+    viewNextCommentImageRef,
+    handleViewPrevCommentImage,
+    handleViewNextCommentImage,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -224,10 +239,25 @@ const MainLayout = () => {
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideImageViewModal);
+
     return () => {
       document.removeEventListener(
         'mousedown',
         handleClickOutsideImageViewModal
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener(
+      'mousedown',
+      handleClickOutsideImageViewCommentModal
+    );
+
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideImageViewCommentModal
       );
     };
   }, []);
@@ -413,7 +443,7 @@ const MainLayout = () => {
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
-      {/* View image of a post */}
+      {/* View images of a post */}
       {openViewImageModal && (
         <div
           style={{ display: 'flex' }}
@@ -446,6 +476,45 @@ const MainLayout = () => {
           <img
             ref={imageChoseToViewRef}
             src={imageChoseToView}
+            alt='image-modal'
+            className='max-w-full max-h-full shadow shadow-slate-300'
+          />
+        </div>
+      )}
+
+      {/* View images of a comment */}
+      {openViewImageCommentModal && (
+        <div
+          style={{ display: 'flex' }}
+          className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
+        >
+          <div
+            ref={cancelViewCommentImageRef}
+            className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
+          >
+            <BiX />
+          </div>
+
+          <div id='wrapper-prev-next-icon-comment' className=''>
+            <div
+              ref={viewPrevCommentImageRef}
+              onClick={handleViewPrevCommentImage}
+              className='fixed p-3 left-0 top-1/2 -translate-y-1/2 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleLeft />
+            </div>
+            <div
+              ref={viewNextCommentImageRef}
+              onClick={handleViewNextCommentImage}
+              className='fixed p-3 right-0 top-1/2 -translate-y-1/2 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleRight />
+            </div>
+          </div>
+
+          <img
+            ref={imageChoseToViewCommentRef}
+            src={imageChoseToViewComment}
             alt='image-modal'
             className='max-w-full max-h-full shadow shadow-slate-300'
           />
@@ -495,7 +564,7 @@ const MainLayout = () => {
                           <div
                             ref={scrollContainerRef}
                             className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
-                            onMouseDown={handleSwipe}
+                            onMouseDown={(e) => handleSwipe(e)}
                             onDragStart={(e) => e.preventDefault()}
                           >
                             {imageUrlsList.map((url, index) => (
@@ -754,7 +823,7 @@ const MainLayout = () => {
                         <div
                           ref={scrollContainerRef}
                           className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
-                          onMouseDown={handleSwipe}
+                          onMouseDown={(e) => handleSwipe(e)}
                           onDragStart={(e) => e.preventDefault()}
                         >
                           {imageUrlsList.map((url, index) => (

@@ -3,35 +3,18 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import {
-  BiAddToQueue,
   BiBookmark,
   BiBookmarkMinus,
   BiChat,
-  BiComment,
-  BiCommentAdd,
-  BiCommentDetail,
-  BiCommentDots,
   BiDotsHorizontalRounded,
   BiEdit,
   BiPencil,
   BiPlusCircle,
-  BiSolidChat,
-  BiSolidCommentAdd,
   BiTrashAlt,
 } from 'react-icons/bi';
-// import { MdComment, MdCommentAdd } from 'react-icons/md';
-// import { BsChat, BsChatPlus } from 'react-icons/bs';
 import { useCommon } from '../contexts/CommonContext';
 import { BiArrowBack } from 'react-icons/bi';
-import {
-  FaChevronRight,
-  FaComment,
-  FaCommentAlt,
-  FaCommentDollar,
-  FaCommentDots,
-  FaComments,
-  FaRegComment,
-} from 'react-icons/fa';
+import { FaChevronRight } from 'react-icons/fa';
 import { AiOutlineComment } from 'react-icons/ai';
 
 function HomePage() {
@@ -58,13 +41,19 @@ function HomePage() {
     adminInfor,
     openViewImageModal,
     setOpenViewImageModal,
+    openViewImageCommentModal,
+    setOpenViewImageCommentModal,
     handleOpenViewImageModal,
+    handleOpenViewImageCommentModal,
     imageChoseToView,
     setImageChoseToView,
     decodeEntities,
     apiBaseUrl,
     handleSortImagesPath,
+    handleSortImagesComment,
+    handleSortImagesCommentPath,
     getImageUrlsByPostId,
+    getImageUrlsCommentByPostId,
     lengthOfViewPostImage,
     setLengthOfViewPostImage,
     localUrlImages,
@@ -72,7 +61,6 @@ function HomePage() {
     commentsByPostId,
     setCommentsByPostId,
     getCommentsByPostId,
-    getOnwnerInformationByCommentId,
     chosenPost,
     setChosenPost,
     openAddCommentModal,
@@ -124,6 +112,16 @@ function HomePage() {
     setRedundantEditingCharactersNumber,
     redundantEditingCommentCharactersNumber,
     setRedundantEditingCommentCharactersNumber,
+    isSuccessFullyRemoved,
+    setIsSuccessFullyRemoved,
+    localUrlImagesComment,
+    setLocalUrlImagesComment,
+    lengthOfViewPostImageComment,
+    setLengthOfViewPostImageComment,
+    imagesComment,
+    setImagesComment,
+    imageUrlsCommentList,
+    setImageUrlsCommentList,
   } = useCommon();
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
@@ -198,6 +196,7 @@ function HomePage() {
     setChosenPost(post);
     //Lấy images url
     getImageUrlsByPostId(post);
+    getImageUrlsCommentByPostId(post);
     //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
     setContentBeforeUpdate(post.content);
     //Hiển thị content của selected post (to view details) lần đầu tiên,
@@ -216,6 +215,10 @@ function HomePage() {
     setLengthOfViewPostImage(0);
     setCommentsByPostId([]);
     setIsEditingComment(false);
+    setIsSuccessFullyRemoved(false);
+    setImagesComment([]);
+    setLocalUrlImagesComment([]);
+    setChosenPost(null);
   };
 
   useEffect(() => {
@@ -532,7 +535,8 @@ function HomePage() {
                             <div className='text-lg'>Bình luận</div>
                           </div>
                         </div>
-                        <hr className='mt-2' />
+
+                        {commentsByPostId.length > 0 && <hr className='mt-2' />}
                         {/* Wrapper of post comments */}
                         {isEditingComment ? (
                           //------------------------- Editing Comment Mode-----------------------
@@ -550,7 +554,7 @@ function HomePage() {
                                 alt='infor-user-comment'
                               />
                             </div>
-                            <div className='flex-1 w-full'>
+                            <div className='flex-1 w-[80%]'>
                               <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                 <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
                                   {redundantEditingCommentCharactersNumber < 0
@@ -593,54 +597,8 @@ function HomePage() {
                                 </div>
                               </div>
                             </div>
-
-                            {/* Cancel Editing Comment Modal */}
-                            {openCancelEditingCommentModal && (
-                              <div
-                                id='background-cancel-editing-comment-modal'
-                                className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
-                              >
-                                <div className='w-full h-full flex justify-center items-center'>
-                                  <div
-                                    id='cancel-editing-comment-modal'
-                                    className='relative z-20'
-                                  >
-                                    <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
-                                      <div className='font-semibold text-center mb-4'>
-                                        Huỷ bỏ thay đổi?
-                                      </div>
-                                      <hr className='' />
-                                      <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
-                                        <div
-                                          id='continue-edit-comment'
-                                          onClick={() =>
-                                            setOpenCancelEditingCommentModal(
-                                              false
-                                            )
-                                          }
-                                          className='col-span-1 cursor-pointer p-2'
-                                        >
-                                          Không
-                                        </div>
-                                        <div
-                                          onClick={
-                                            handleDefinitelyCancelEditingComment
-                                          }
-                                          id='finally-edit-comment'
-                                          className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
-                                        >
-                                          Huỷ
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         ) : (
-                          //--------------------------Editing Comment Mode-------------------------
-
                           <div className='wrapper-of-post-comments'>
                             {commentsByPostId &&
                               commentsByPostId.map((comment, index) => (
@@ -658,7 +616,7 @@ function HomePage() {
                                         alt='infor-user-comment'
                                       />
                                     </div>
-                                    <div className='flex-1'>
+                                    <div className='flex-1 w-[80%]'>
                                       <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                         <div className='author-name'>
                                           {
@@ -715,8 +673,47 @@ function HomePage() {
                                           </div>
                                         )}
                                       </div>
-                                      <div className='leading-loose break-words whitespace-pre-wrap'>
+                                      <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
                                         {comment?.comment_content}
+                                      </div>
+                                      {/*-------------------- View Images of comments ------------------*/}
+                                      <div
+                                        ref={scrollContainerRef}
+                                        onMouseDown={(e) => handleSwipe(e)}
+                                        onDragStart={(e) => e.preventDefault()}
+                                        className='wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1'
+                                      >
+                                        <div className='flex gap-2 w-max'>
+                                          {/* Post có nhiều ảnh đính kèm */}
+                                          {localUrlImagesComment.length > 1 &&
+                                            handleSortImagesCommentPath(
+                                              localUrlImagesComment
+                                            )
+                                              .find(
+                                                (image) =>
+                                                  image.comment_id ===
+                                                  comment.comment_id
+                                              )
+                                              ?.attached_items.map(
+                                                (imgurlComment, index) => (
+                                                  <div
+                                                    key={index}
+                                                    className='w-full content-attachments cursor-pointer'
+                                                  >
+                                                    <img
+                                                      onClick={(e) =>
+                                                        handleOpenViewImageCommentModal(
+                                                          e
+                                                        )
+                                                      }
+                                                      src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                      alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                      className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                    />
+                                                  </div>
+                                                )
+                                              )}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
@@ -774,7 +771,7 @@ function HomePage() {
                             <div className='text-lg'>Bình luận</div>
                           </div>
                         </div>
-                        <hr className='mt-2' />
+                        {commentsByPostId.length > 0 && <hr className='mt-2' />}
                         {/* Wrapper of post comments */}
                         {isEditingComment ? (
                           //------------------------- Editing Comment Mode-----------------------
@@ -792,7 +789,7 @@ function HomePage() {
                                 alt='infor-user-comment'
                               />
                             </div>
-                            <div className='flex-1 w-full'>
+                            <div className='flex-1 w-[80%]'>
                               <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                 <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
                                   {redundantEditingCommentCharactersNumber < 0
@@ -840,7 +837,7 @@ function HomePage() {
                             {openCancelEditingCommentModal && (
                               <div
                                 id='background-cancel-editing-comment-modal'
-                                className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                                className='z-[1000] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
                               >
                                 <div className='w-full h-full flex justify-center items-center'>
                                   <div
@@ -881,8 +878,6 @@ function HomePage() {
                             )}
                           </div>
                         ) : (
-                          //--------------------------Editing Comment Mode-------------------------
-
                           <div className='wrapper-of-post-comments'>
                             {commentsByPostId &&
                               commentsByPostId.map((comment, index) => (
@@ -900,7 +895,7 @@ function HomePage() {
                                         alt='infor-user-comment'
                                       />
                                     </div>
-                                    <div className='flex-1'>
+                                    <div className='flex-1 w-[80%]'>
                                       <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                         <div className='author-name'>
                                           {
@@ -957,8 +952,47 @@ function HomePage() {
                                           </div>
                                         )}
                                       </div>
-                                      <div className='leading-loose break-words whitespace-pre-wrap'>
+                                      <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
                                         {comment?.comment_content}
+                                      </div>
+                                      {/* ---------------View Images of comments----------- */}
+                                      <div
+                                        ref={scrollContainerRef}
+                                        onMouseDown={(e) => handleSwipe(e)}
+                                        onDragStart={(e) => e.preventDefault()}
+                                        className='wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1'
+                                      >
+                                        <div className='flex gap-2 w-max'>
+                                          {/* Post có nhiều ảnh đính kèm */}
+                                          {localUrlImagesComment.length > 1 &&
+                                            handleSortImagesCommentPath(
+                                              localUrlImagesComment
+                                            )
+                                              .find(
+                                                (image) =>
+                                                  image.comment_id ===
+                                                  comment.comment_id
+                                              )
+                                              ?.attached_items.map(
+                                                (imgurlComment, index) => (
+                                                  <div
+                                                    key={index}
+                                                    className='w-full content-attachments cursor-pointer'
+                                                  >
+                                                    <img
+                                                      onClick={(e) =>
+                                                        handleOpenViewImageCommentModal(
+                                                          e
+                                                        )
+                                                      }
+                                                      src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                      alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                      className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                    />
+                                                  </div>
+                                                )
+                                              )}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
