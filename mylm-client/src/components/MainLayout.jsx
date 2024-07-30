@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  createRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   BiHome,
@@ -47,7 +53,9 @@ const MainLayout = () => {
     setImagesComment,
     imageUrlsList,
     setImageUrlsList,
-    handleSwipe,
+    handleSwipePostImage,
+    handleSwipePostCommonImage,
+    handleSwipeCommentImage,
     postModal,
     setPostModal,
     postContent,
@@ -64,7 +72,9 @@ const MainLayout = () => {
     setDiscard,
     textareaRef,
     postItemsUploadRef,
-    scrollContainerRef,
+    scrollContainerPostRef,
+    scrollContainerPostCommonRef,
+    scrollContainerCommentImageRef,
     handleCreatePost,
     ToastContainer,
     addPostIconRef,
@@ -144,6 +154,7 @@ const MainLayout = () => {
     viewNextCommentImageRef,
     handleViewPrevCommentImage,
     handleViewNextCommentImage,
+    commentsByPostId,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -324,35 +335,6 @@ const MainLayout = () => {
   }, [postModal, openAddCommentModal, openDeleteCommentModal]);
 
   // Handle modals and z-index
-  // useEffect(() => {
-  //   const updateZIndex = () => {
-  //     const addPostIcon = addPostIconRef.current;
-  //     const logoutIcon = logoutIconRef.current;
-
-  //     if (addPostIcon) {
-  //       if (postModal) {
-  //         addPostIcon.classList.remove('z-[1000]');
-  //         addPostIcon.classList.add('hidden');
-  //       } else {
-  //         addPostIcon.classList.remove('hidden');
-  //         addPostIcon.classList.add('z-[1000]');
-  //       }
-  //     }
-
-  //     if (logoutIcon) {
-  //       if (postModal) {
-  //         logoutIcon.classList.add('hidden');
-  //       } else {
-  //         logoutIcon.classList.remove('hidden');
-  //         logoutIcon.style.zIndex = '1000';
-  //       }
-  //     }
-  //   };
-
-  //   updateZIndex();
-  // }, [postModal]);
-
-  // Handle modals and z-index
   useEffect(() => {
     const updateZIndex = () => {
       const addPostIcon = addPostIconRef.current;
@@ -401,34 +383,6 @@ const MainLayout = () => {
     openDeleteCommentModal,
   ]);
 
-  // useEffect(() => {
-  //   const updateZIndex = () => {
-  //     const addPostIcon = addPostIconRef.current;
-  //     const logoutIcon = logoutIconRef.current;
-
-  //     if (addPostIcon) {
-  //       if (openAddCommentModal) {
-  //         addPostIcon.classList.remove('z-[1000]');
-  //         addPostIcon.classList.add('hidden');
-  //       } else {
-  //         addPostIcon.classList.remove('hidden');
-  //         addPostIcon.classList.add('z-[1000]');
-  //       }
-  //     }
-
-  //     if (logoutIcon) {
-  //       if (openAddCommentModal) {
-  //         logoutIcon.classList.add('hidden');
-  //       } else {
-  //         logoutIcon.classList.remove('hidden');
-  //         logoutIcon.style.zIndex = '1000';
-  //       }
-  //     }
-  //   };
-
-  //   updateZIndex();
-  // }, [openAddCommentModal]);
-
   useEffect(() => {
     const countRedundantCharacter =
       numberCharactersAllowed - postContent.length; //Số lượng kí tự dư thừa
@@ -440,6 +394,78 @@ const MainLayout = () => {
       numberCharactersAllowed - commentContent.length; //Số lượng kí tự dư thừa
     setRedundantCommentCharactersNumber(countRedundantCommentCharacter);
   }, [commentContent]);
+
+  // Ensure the event listener is added only once when component mounts
+  useEffect(() => {
+    const container = scrollContainerPostRef.current;
+    if (container) {
+      container.addEventListener('mousedown', handleSwipePostImage);
+    }
+
+    // Clean up the event listener on unmount
+    return () => {
+      if (container) {
+        container.removeEventListener('mousedown', handleSwipePostImage);
+      }
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   const container = scrollContainerCommentImageRef.current;
+  //   if (container) {
+  //     container.addEventListener('mousedown', handleSwipeCommentImage);
+  //   }
+
+  //   // Clean up the event listener on unmount
+  //   return () => {
+  //     if (container) {
+  //       container.removeEventListener('mousedown', handleSwipeCommentImage);
+  //     }
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const container = scrollContainerPostCommonRef.current;
+    if (container) {
+      container.addEventListener('mousedown', handleSwipePostCommonImage);
+    }
+
+    // Clean up the event listener on unmount
+    return () => {
+      if (container) {
+        container.removeEventListener('mousedown', handleSwipePostCommonImage);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Initialize refs array
+    if (!scrollContainerCommentImageRef.current) {
+      scrollContainerCommentImageRef.current = [];
+    }
+
+    scrollContainerCommentImageRef.current = new Array(commentsByPostId.length)
+      .fill(null)
+      .map(() => createRef());
+
+    scrollContainerCommentImageRef.current.forEach((ref, index) => {
+      if (ref.current) {
+        ref.current.addEventListener('mousedown', (e) =>
+          handleSwipeCommentImage(e, index)
+        );
+      }
+    });
+
+    return () => {
+      scrollContainerCommentImageRef.current.forEach((ref, index) => {
+        if (ref && ref.current) {
+          ref.current.removeEventListener('mousedown', (e) =>
+            handleSwipeCommentImage(e, index)
+          );
+        }
+      });
+    };
+  }, [commentsByPostId.length, scrollContainerCommentImageRef]);
 
   return (
     <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
@@ -562,9 +588,9 @@ const MainLayout = () => {
                         <div className='w-full sm2:w-[95%]'>
                           {/* Display images before uploading to database */}
                           <div
-                            ref={scrollContainerRef}
+                            ref={scrollContainerPostCommonRef}
                             className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
-                            onMouseDown={(e) => handleSwipe(e)}
+                            onMouseDown={(e) => handleSwipePostCommonImage(e)}
                             onDragStart={(e) => e.preventDefault()}
                           >
                             {imageUrlsList.map((url, index) => (
@@ -821,9 +847,9 @@ const MainLayout = () => {
                       <div className='w-full sm2:w-[95%]'>
                         {/* Display images before uploading to database */}
                         <div
-                          ref={scrollContainerRef}
+                          ref={scrollContainerPostCommonRef}
                           className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
-                          onMouseDown={(e) => handleSwipe(e)}
+                          onMouseDown={(e) => handleSwipePostCommonImage(e)}
                           onDragStart={(e) => e.preventDefault()}
                         >
                           {imageUrlsList.map((url, index) => (

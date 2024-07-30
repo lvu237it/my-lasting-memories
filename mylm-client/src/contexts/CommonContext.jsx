@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  createRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,7 +47,9 @@ export const Common = ({ children }) => {
   const addPostIconRef = useRef(null);
   const logoutIconRef = useRef(null);
   const postItemsUploadRef = useRef(null);
-  const scrollContainerRef = useRef(null);
+  const scrollContainerPostRef = useRef(null);
+  const scrollContainerPostCommonRef = useRef(null);
+  const scrollContainerCommentImageRef = useRef([]);
   const imageChoseToViewRef = useRef(null);
   const imageChoseToViewCommentRef = useRef(null);
   const cancelViewPostImageRef = useRef(null);
@@ -85,12 +94,23 @@ export const Common = ({ children }) => {
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
   const [lengthOfViewPostImageComment, setLengthOfViewPostImageComment] =
     useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingPostImage, setIsDraggingPostImage] = useState(false);
+  const [isDraggingPostCommonImage, setIsDraggingPostCommonImage] =
+    useState(false);
+  const [isDraggingCommentImage, setIsDraggingCommentImage] = useState(false);
+
   const [currentViewImageIndex, setCurrentViewImageIndex] = useState(null);
   const [currentViewImage, setCurrentViewImage] = useState(null);
   const [currentViewImageCommentIndex, setCurrentViewImageCommentIndex] =
     useState(null);
   const [currentViewImageComment, setCurrentViewImageComment] = useState(null);
+
+  const [imagesOfCurrentCommentDragging, setImagesOfCurrentCommentDragging] =
+    useState([]);
+  const [
+    mappedImagesOfCurrentCommentDragging,
+    setMappedImagesOfCurrentCommentDragging,
+  ] = useState([]);
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
   const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
@@ -175,13 +195,21 @@ export const Common = ({ children }) => {
     setShowNavbarSlider(!showNavbarSlider);
   };
 
+  const findAttachItemsByCommentIdAfterSorting = (comment) => {
+    return (
+      handleSortImagesCommentPath(localUrlImagesComment).find(
+        (imageComment) => imageComment.comment_id === comment.comment_id
+      )?.attached_items ?? []
+    ); // Trả về một mảng trống nếu không tìm thấy attached_items
+  };
+
   //Increase UX when scrolling
-  const handleSwipe = (e) => {
+  const handleSwipePostImage = (e) => {
     e.preventDefault();
-    const container = scrollContainerRef.current;
+    const container = scrollContainerPostRef.current;
 
     if (container) {
-      setIsDragging(true);
+      setIsDraggingPostImage(true);
       let startX = e.pageX - container.offsetLeft;
       let scrollLeft = container.scrollLeft;
 
@@ -194,7 +222,7 @@ export const Common = ({ children }) => {
       };
 
       const onMouseUp = () => {
-        setIsDragging(false);
+        setIsDraggingPostImage(false);
         container.classList.remove('grabbing');
         container.removeEventListener('mousemove', onMouseMove);
         container.removeEventListener('mouseup', onMouseUp);
@@ -207,27 +235,75 @@ export const Common = ({ children }) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!isDragging) {
-  //     setContainerBeforeDragging(scrollContainerRef.current);
-  //   }
-  //   console.log('container before', containerBeforeDragging);
-  // }, [containerBeforeDragging, scrollContainerRef.current]);
+  const handleSwipeCommentImage = (e, index, comment) => {
+    console.log('current comment', comment);
+    //thông tin 'comment' trên không chứa image path - chính xác hơn là attach_items
+    //Vì vậy cần lấy được attach_items và gán vào
+    //Mảng 'findAttachItemsByCommentIdAfterSorting(comment)' này chứa các image của 1 comment cụ thể
+    setImagesOfCurrentCommentDragging(
+      findAttachItemsByCommentIdAfterSorting(comment)
+    );
+    console.log('index', index);
+    e.preventDefault();
+    const container = scrollContainerCommentImageRef.current[index];
 
-  // Ensure the event listener is added only once when component mounts
-  useEffect(() => {
-    const container = scrollContainerRef.current;
     if (container) {
-      container.addEventListener('mousedown', handleSwipe);
-    }
+      setIsDraggingCommentImage(true);
+      let startX = e.pageX - container.offsetLeft;
+      let scrollLeft = container.scrollLeft;
 
-    // Clean up the event listener on unmount
-    return () => {
-      if (container) {
-        container.removeEventListener('mousedown', handleSwipe);
-      }
-    };
-  }, []);
+      container.classList.add('grabbing');
+
+      const onMouseMove = (e) => {
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+      };
+
+      const onMouseUp = () => {
+        setIsDraggingCommentImage(false);
+        container.classList.remove('grabbing');
+        container.removeEventListener('mousemove', onMouseMove);
+        container.removeEventListener('mouseup', onMouseUp);
+        container.removeEventListener('mouseleave', onMouseUp);
+      };
+
+      container.addEventListener('mousemove', onMouseMove);
+      container.addEventListener('mouseup', onMouseUp);
+      container.addEventListener('mouseleave', onMouseUp);
+    }
+  };
+
+  const handleSwipePostCommonImage = (e) => {
+    e.preventDefault();
+    const container = scrollContainerPostCommonRef.current;
+
+    if (container) {
+      setIsDraggingPostCommonImage(true);
+      let startX = e.pageX - container.offsetLeft;
+      let scrollLeft = container.scrollLeft;
+
+      container.classList.add('grabbing');
+
+      const onMouseMove = (e) => {
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+      };
+
+      const onMouseUp = () => {
+        setIsDraggingPostCommonImage(false);
+        container.classList.remove('grabbing');
+        container.removeEventListener('mousemove', onMouseMove);
+        container.removeEventListener('mouseup', onMouseUp);
+        container.removeEventListener('mouseleave', onMouseUp);
+      };
+
+      container.addEventListener('mousemove', onMouseMove);
+      container.addEventListener('mouseup', onMouseUp);
+      container.addEventListener('mouseleave', onMouseUp);
+    }
+  };
 
   //Add attachments of post
   const handleClickAddImageIcon = () => {
@@ -433,9 +509,9 @@ export const Common = ({ children }) => {
   const sortedUrlImages = handleSortImages(localUrlImages);
   const sortedUrlImagesComment = handleSortImagesComment(localUrlImagesComment);
 
-  //View image modal
+  //View post image modal
   const handleOpenViewImageModal = (e) => {
-    if (!isDragging) {
+    if (!isDraggingPostImage) {
       e.preventDefault();
       setOpenViewImageModal(true);
       const imageSrc = e.target.src;
@@ -458,32 +534,25 @@ export const Common = ({ children }) => {
 
   //View image comment modal
   const handleOpenViewImageCommentModal = (e) => {
-    if (!isDragging) {
+    if (!isDraggingCommentImage) {
       e.preventDefault();
       setOpenViewImageCommentModal(true);
       const imageSrc = e.target.src;
-      if (imageSrc) {
+      if (imagesOfCurrentCommentDragging) {
         setImageChoseToViewComment(imageSrc);
-        if (imageChoseToViewComment) {
-          const imagePath =
-            '/assets/commentsimages/' +
-            imageChoseToViewComment.split('/assets/commentsimages/')[1];
-          const currentImage = sortedUrlImagesComment.find(
-            (img) => img.attacheditem_path === imagePath
-          );
-          if (currentImage) {
-            setCurrentViewImageComment(currentImage);
-          }
+        const imagePath =
+          '/assets/commentsimages/' +
+          imageSrc.split('/assets/commentsimages/')[1];
+        const currentImage = imagesOfCurrentCommentDragging.find(
+          (attach_items_element) =>
+            attach_items_element.attacheditem_comment_path === imagePath
+        );
+        if (currentImage) {
+          setCurrentViewImageComment(currentImage);
         }
       }
     }
   };
-
-  // useEffect(() => {
-  //   //Lấy images url của comments của post
-  //   getImageUrlsCommentByPostId(chosenPost);
-  //   console.log('chosenpot', chosenPost);
-  // }, [chosenPost, openViewImageCommentModal]);
 
   useEffect(() => {
     if (viewPrevImageRef.current && viewNextImageRef.current) {
@@ -496,43 +565,6 @@ export const Common = ({ children }) => {
       }
     }
   }, [currentViewImage, openViewImageModal, sortedUrlImages]);
-
-  useEffect(() => {
-    if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
-      if (sortedUrlImagesComment.length <= 1) {
-        viewPrevCommentImageRef.current.style.display = 'none';
-        viewNextCommentImageRef.current.style.display = 'none';
-      } else {
-        viewPrevCommentImageRef.current.style.display = 'block';
-        viewNextCommentImageRef.current.style.display = 'block';
-      }
-    }
-  }, [
-    currentViewImageComment,
-    openViewImageCommentModal,
-    sortedUrlImagesComment,
-  ]);
-
-  useEffect(() => {
-    //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
-    const currentImageChoseToView = sortedUrlImages.find(
-      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
-    );
-
-    setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
-  }, [imageChoseToView]);
-
-  useEffect(() => {
-    //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
-    const currentImageChoseToViewComment = sortedUrlImagesComment.find(
-      (image) =>
-        `${apiBaseUrl}` + image.attacheditem_comment_path ===
-        imageChoseToViewComment
-    );
-    setCurrentViewImageCommentIndex(
-      sortedUrlImagesComment.indexOf(currentImageChoseToViewComment)
-    );
-  }, [imageChoseToViewComment]);
 
   const handleViewPrevImage = () => {
     const prevIndex =
@@ -552,24 +584,76 @@ export const Common = ({ children }) => {
     );
   };
 
+  useEffect(() => {
+    //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
+    const currentImageChoseToView = sortedUrlImages.find(
+      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
+    );
+
+    setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
+  }, [imageChoseToView]);
+
+  useEffect(() => {
+    if (openViewImageCommentModal) {
+      const mappedInfor = imagesOfCurrentCommentDragging.map((element) => {
+        return element.attacheditem_comment_path;
+      });
+      setMappedImagesOfCurrentCommentDragging(mappedInfor);
+    }
+  }, [openViewImageCommentModal]);
+
   const handleViewPrevCommentImage = () => {
     const prevIndex =
-      (currentViewImageCommentIndex - 1 + sortedUrlImagesComment.length) %
-      sortedUrlImagesComment.length;
+      (currentViewImageCommentIndex -
+        1 +
+        mappedImagesOfCurrentCommentDragging.length) %
+      mappedImagesOfCurrentCommentDragging.length;
+
     setCurrentViewImageCommentIndex(prevIndex);
     setImageChoseToViewComment(
-      `${apiBaseUrl}${sortedUrlImagesComment[prevIndex]?.attacheditem_comment_path}`
+      `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`
     );
   };
 
   const handleViewNextCommentImage = () => {
     const nextIndex =
-      (currentViewImageCommentIndex + 1) % sortedUrlImagesComment.length;
+      (currentViewImageCommentIndex + 1) %
+      mappedImagesOfCurrentCommentDragging.length;
     setCurrentViewImageCommentIndex(nextIndex);
     setImageChoseToViewComment(
-      `${apiBaseUrl}${sortedUrlImagesComment[nextIndex]?.attacheditem_comment_path}`
+      `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`
     );
   };
+
+  useEffect(() => {
+    if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
+      if (sortedUrlImagesComment.length <= 1) {
+        viewPrevCommentImageRef.current.style.display = 'none';
+        viewNextCommentImageRef.current.style.display = 'none';
+      } else {
+        viewPrevCommentImageRef.current.style.display = 'block';
+        viewNextCommentImageRef.current.style.display = 'block';
+      }
+    }
+  }, [
+    currentViewImageComment,
+    openViewImageCommentModal,
+    sortedUrlImagesComment,
+  ]);
+
+  useEffect(() => {
+    //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
+    const currentImageChoseToViewComment =
+      mappedImagesOfCurrentCommentDragging.find(
+        (path) => imageChoseToViewComment === `${apiBaseUrl}${path}`
+      );
+
+    setCurrentViewImageCommentIndex(
+      mappedImagesOfCurrentCommentDragging.indexOf(
+        currentImageChoseToViewComment
+      )
+    );
+  }, [imageChoseToViewComment, openViewImageCommentModal]);
 
   //Post Modal
   const handleOpenPostModal = () => {
@@ -770,6 +854,7 @@ export const Common = ({ children }) => {
       cancelViewCommentImageRef.current.contains(event.target)
     ) {
       setOpenViewImageCommentModal(false);
+      setCurrentViewImageCommentIndex(null);
     }
   };
 
@@ -990,9 +1075,22 @@ export const Common = ({ children }) => {
   }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId.length]);
 
   useEffect(() => {
-    console.log('isDragging', isDragging);
-  }, [isDragging]);
+    console.log('isDraggingPostImage', isDraggingPostImage);
+  }, [isDraggingPostImage]);
 
+  useEffect(() => {
+    console.log('isDraggingCommentImage', isDraggingCommentImage);
+  }, [isDraggingCommentImage]);
+
+  useEffect(() => {
+    console.log('isDraggingPostCommonImage', isDraggingPostCommonImage);
+  }, [isDraggingPostCommonImage]);
+  useEffect(() => {
+    console.log(
+      'imagesOfCurrentCommentDragging',
+      imagesOfCurrentCommentDragging
+    );
+  }, [imagesOfCurrentCommentDragging]);
   return (
     <CommonContext.Provider
       value={{
@@ -1029,12 +1127,16 @@ export const Common = ({ children }) => {
         setDiscard,
         textareaRef,
         postItemsUploadRef,
-        scrollContainerRef,
+        scrollContainerPostRef,
+        scrollContainerPostCommonRef,
+        scrollContainerCommentImageRef,
         images,
         setImages,
         imageUrlsList,
         setImageUrlsList,
-        handleSwipe,
+        handleSwipePostImage,
+        handleSwipeCommentImage,
+        handleSwipePostCommonImage,
         getAllUsers,
         getAllPosts,
         postsList,
@@ -1168,7 +1270,9 @@ export const Common = ({ children }) => {
         handleViewNextCommentImage,
         handleSortImagesComment,
         handleSortImagesCommentPath,
-
+        findAttachItemsByCommentIdAfterSorting,
+        imagesOfCurrentCommentDragging,
+        setImagesOfCurrentCommentDragging,
         // notify,
       }}
     >

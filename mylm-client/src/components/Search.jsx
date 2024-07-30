@@ -28,8 +28,10 @@ function Search() {
     addPostIconRef,
     logoutIconRef,
     numberCharactersAllowed,
-    scrollContainerRef,
-    handleSwipe,
+    scrollContainerPostRef,
+    scrollContainerCommentImageRef,
+    handleSwipePostImage,
+    handleSwipeCommentImage,
     isUser,
     setIsUser,
     adminInfor,
@@ -111,6 +113,8 @@ function Search() {
     setImagesComment,
     getImageUrlsCommentByPostId,
     handleOpenViewImageCommentModal,
+    findAttachItemsByCommentIdAfterSorting,
+    setCurrentViewImageCommentIndex,
   } = useCommon();
 
   const [searchContent, setSearchContent] = useState('');
@@ -252,6 +256,7 @@ function Search() {
     setImagesComment([]);
     setLocalUrlImagesComment([]);
     setChosenPost(null);
+    setCurrentViewImageCommentIndex(null);
   };
 
   const handleClearSearchContent = () => {
@@ -743,20 +748,33 @@ function Search() {
                                         </div>
                                         {/*-------------------- View Images of comments ------------------*/}
                                         <div
-                                          ref={scrollContainerRef}
-                                          onMouseDown={(e) => handleSwipe(e)}
+                                          ref={(element) =>
+                                            (scrollContainerCommentImageRef.current[
+                                              index
+                                            ] = element)
+                                          }
+                                          onMouseDown={(e) =>
+                                            handleSwipeCommentImage(
+                                              e,
+                                              index,
+                                              comment
+                                            )
+                                          }
                                           onDragStart={(e) =>
                                             e.preventDefault()
                                           }
                                           className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
                                             localUrlImagesComment &&
-                                            handleSortImagesCommentPath(
-                                              localUrlImagesComment
-                                            ).find(
-                                              (image) =>
-                                                image.comment_id ===
-                                                comment.comment_id
-                                            )?.attached_items.length > 1
+                                            // handleSortImagesCommentPath(
+                                            //   localUrlImagesComment
+                                            // ).find(
+                                            //   (image) =>
+                                            //     image.comment_id ===
+                                            //     comment.comment_id
+                                            // )?.attached_items
+                                            findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length > 1
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}
@@ -764,33 +782,34 @@ function Search() {
                                           <div className='flex gap-2 w-max'>
                                             {/* Post có nhiều ảnh đính kèm */}
                                             {localUrlImagesComment &&
-                                              handleSortImagesCommentPath(
-                                                localUrlImagesComment
-                                              )
-                                                .find(
-                                                  (image) =>
-                                                    image.comment_id ===
-                                                    comment.comment_id
-                                                )
-                                                ?.attached_items.map(
-                                                  (imgurlComment, index) => (
-                                                    <div
-                                                      key={index}
-                                                      className='w-full content-attachments cursor-pointer'
-                                                    >
-                                                      <img
-                                                        onClick={(e) =>
-                                                          handleOpenViewImageCommentModal(
-                                                            e
-                                                          )
-                                                        }
-                                                        src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
-                                                      />
-                                                    </div>
-                                                  )
-                                                )}
+                                              // handleSortImagesCommentPath(
+                                              //   localUrlImagesComment
+                                              // )
+                                              //   .find(
+                                              //     (image) =>
+                                              //       image.comment_id ===
+                                              //       comment.comment_id
+                                              //   )
+                                              //   ?.attached_items
+                                              findAttachItemsByCommentIdAfterSorting(
+                                                comment
+                                              ).map((imgurlComment, index) => (
+                                                <div
+                                                  key={index}
+                                                  className='w-full content-attachments cursor-pointer'
+                                                >
+                                                  <img
+                                                    onClick={(e) =>
+                                                      handleOpenViewImageCommentModal(
+                                                        e
+                                                      )
+                                                    }
+                                                    src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                    alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                    className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                  />
+                                                </div>
+                                              ))}
                                           </div>
                                         </div>
                                       </div>
@@ -806,8 +825,8 @@ function Search() {
                       ) : (
                         <div className='wrapper-of-post-details'>
                           <div
-                            ref={scrollContainerRef}
-                            onMouseDown={(e) => handleSwipe(e)}
+                            ref={scrollContainerPostRef}
+                            onMouseDown={(e) => handleSwipePostImage(e)}
                             onDragStart={(e) => e.preventDefault()}
                             className='rounded-lg border border-slate-300 wrapper-images-of-post-details vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-4'
                           >
@@ -1041,20 +1060,33 @@ function Search() {
                                         </div>
                                         {/*-------------------- View Images of comments ------------------*/}
                                         <div
-                                          ref={scrollContainerRef}
-                                          onMouseDown={(e) => handleSwipe(e)}
+                                          ref={(element) =>
+                                            (scrollContainerCommentImageRef.current[
+                                              index
+                                            ] = element)
+                                          }
+                                          onMouseDown={(e) =>
+                                            handleSwipeCommentImage(
+                                              e,
+                                              index,
+                                              comment
+                                            )
+                                          }
                                           onDragStart={(e) =>
                                             e.preventDefault()
                                           }
                                           className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
                                             localUrlImagesComment &&
-                                            handleSortImagesCommentPath(
-                                              localUrlImagesComment
-                                            ).find(
-                                              (image) =>
-                                                image.comment_id ===
-                                                comment.comment_id
-                                            )?.attached_items.length > 1
+                                            // handleSortImagesCommentPath(
+                                            //   localUrlImagesComment
+                                            // ).find(
+                                            //   (image) =>
+                                            //     image.comment_id ===
+                                            //     comment.comment_id
+                                            // )?.attached_items
+                                            findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length > 1
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}
@@ -1062,33 +1094,34 @@ function Search() {
                                           <div className='flex gap-2 w-max'>
                                             {/* Post có nhiều ảnh đính kèm */}
                                             {localUrlImagesComment &&
-                                              handleSortImagesCommentPath(
-                                                localUrlImagesComment
-                                              )
-                                                .find(
-                                                  (image) =>
-                                                    image.comment_id ===
-                                                    comment.comment_id
-                                                )
-                                                ?.attached_items.map(
-                                                  (imgurlComment, index) => (
-                                                    <div
-                                                      key={index}
-                                                      className='w-full content-attachments cursor-pointer'
-                                                    >
-                                                      <img
-                                                        onClick={(e) =>
-                                                          handleOpenViewImageCommentModal(
-                                                            e
-                                                          )
-                                                        }
-                                                        src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
-                                                      />
-                                                    </div>
-                                                  )
-                                                )}
+                                              // handleSortImagesCommentPath(
+                                              //   localUrlImagesComment
+                                              // )
+                                              //   .find(
+                                              //     (image) =>
+                                              //       image.comment_id ===
+                                              //       comment.comment_id
+                                              //   )
+                                              //   ?.attached_items
+                                              findAttachItemsByCommentIdAfterSorting(
+                                                comment
+                                              ).map((imgurlComment, index) => (
+                                                <div
+                                                  key={index}
+                                                  className='w-full content-attachments cursor-pointer'
+                                                >
+                                                  <img
+                                                    onClick={(e) =>
+                                                      handleOpenViewImageCommentModal(
+                                                        e
+                                                      )
+                                                    }
+                                                    src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                    alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                                    className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                  />
+                                                </div>
+                                              ))}
                                           </div>
                                         </div>
                                       </div>
