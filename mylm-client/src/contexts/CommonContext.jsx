@@ -422,7 +422,7 @@ export const Common = ({ children }) => {
   const getImageUrlsCommentByPostId = async (post) => {
     try {
       const urlImageCommentListLocal = await axios.get(
-        `${apiBaseUrl}/comments/post/${post?.post_id}/images`
+        `${apiBaseUrl}/comments/post/${post.post_id}/images`
       );
       setLocalUrlImagesComment(urlImageCommentListLocal.data);
     } catch (error) {

@@ -150,7 +150,18 @@ exports.login = catchAsync(async (req, res, next) => {
       }
 
       // 4. If everything ok, send token to client
-      createSendToken(user, 200, res);
+      //Filter user's information then response
+      const filteredUser = {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        created_at: user.created_at,
+        isdeleted: user.isdeleted,
+        avatar_path: user.avatar_path,
+      };
+
+      createSendToken(filteredUser, 200, res);
     }
   }
 });

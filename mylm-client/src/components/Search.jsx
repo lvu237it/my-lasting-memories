@@ -132,11 +132,11 @@ function Search() {
   // const [contentForUpdate, setContentForUpdate] = useState('');
   // const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
 
+  //View post details
   const handleViewPostDetails = (post) => {
     setChosenPost(post);
     //Lấy images url
     getImageUrlsByPostId(post);
-    getImageUrlsCommentByPostId(post);
     //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
     setContentBeforeUpdate(post.content);
     //Hiển thị content của selected post (to view details) lần đầu tiên,
@@ -150,8 +150,10 @@ function Search() {
   useEffect(() => {
     if (!viewPostDetails) {
       setChosenPost(null);
+    } else {
+      getImageUrlsCommentByPostId(chosenPost);
     }
-  }, [viewPostDetails]);
+  }, [viewPostDetails, chosenPost]);
 
   //Open options modal
   const handleSetOptionsModal = () => {
@@ -265,7 +267,7 @@ function Search() {
         });
         setPostsResult(response.data);
       } catch (error) {
-        console.error('Error finding post', error);
+        console.log('Error finding post', error);
         setPostsResult([]);
       }
     } else {
@@ -746,11 +748,22 @@ function Search() {
                                           onDragStart={(e) =>
                                             e.preventDefault()
                                           }
-                                          className='wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1'
+                                          className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
+                                            localUrlImagesComment &&
+                                            handleSortImagesCommentPath(
+                                              localUrlImagesComment
+                                            ).find(
+                                              (image) =>
+                                                image.comment_id ===
+                                                comment.comment_id
+                                            )?.attached_items.length > 1
+                                              ? 'border border-slate-300'
+                                              : ''
+                                          }`}
                                         >
                                           <div className='flex gap-2 w-max'>
                                             {/* Post có nhiều ảnh đính kèm */}
-                                            {localUrlImagesComment.length > 1 &&
+                                            {localUrlImagesComment &&
                                               handleSortImagesCommentPath(
                                                 localUrlImagesComment
                                               )
@@ -773,7 +786,7 @@ function Search() {
                                                         }
                                                         src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                                         alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
                                                       />
                                                     </div>
                                                   )
@@ -796,7 +809,7 @@ function Search() {
                             ref={scrollContainerRef}
                             onMouseDown={(e) => handleSwipe(e)}
                             onDragStart={(e) => e.preventDefault()}
-                            className='wrapper-images-of-post-details vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-4'
+                            className='rounded-lg border border-slate-300 wrapper-images-of-post-details vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-4'
                           >
                             <div className='flex gap-2 w-max'>
                               {/* Post có nhiều ảnh đính kèm */}
@@ -813,7 +826,7 @@ function Search() {
                                         }
                                         src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
                                         alt='attached items'
-                                        className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
                                       />
                                     </div>
                                   )
@@ -1033,11 +1046,22 @@ function Search() {
                                           onDragStart={(e) =>
                                             e.preventDefault()
                                           }
-                                          className='wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1'
+                                          className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
+                                            localUrlImagesComment &&
+                                            handleSortImagesCommentPath(
+                                              localUrlImagesComment
+                                            ).find(
+                                              (image) =>
+                                                image.comment_id ===
+                                                comment.comment_id
+                                            )?.attached_items.length > 1
+                                              ? 'border border-slate-300'
+                                              : ''
+                                          }`}
                                         >
                                           <div className='flex gap-2 w-max'>
                                             {/* Post có nhiều ảnh đính kèm */}
-                                            {localUrlImagesComment.length > 1 &&
+                                            {localUrlImagesComment &&
                                               handleSortImagesCommentPath(
                                                 localUrlImagesComment
                                               )
@@ -1060,7 +1084,7 @@ function Search() {
                                                         }
                                                         src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                                         alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                        className='h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
                                                       />
                                                     </div>
                                                   )
