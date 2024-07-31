@@ -44,6 +44,7 @@ function Search() {
     imageChoseToView,
     setImageChoseToView,
     decodeEntities,
+    TextWithLinks,
     apiBaseUrl,
     handleSortImagesPath,
     handleSortImagesCommentPath,
@@ -118,8 +119,7 @@ function Search() {
     setCurrentViewImageCommentIndex,
   } = useCommon();
 
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 640px)' });
-  const isScreenLessThan400Px = useMediaQuery({ query: '(max-width: 440px)' });
+  const isScreenLessThan730Px = useMediaQuery({ query: '(max-width: 730px)' });
 
   const [searchContent, setSearchContent] = useState('');
   const [postsResult, setPostsResult] = useState([]);
@@ -481,7 +481,7 @@ function Search() {
                         ) : (
                           <div
                             onClick={handleSetOptionsModal}
-                            className='absolute top-0 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
+                            className='absolute -top-2 right-0 duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
                           >
                             <BiDotsHorizontalRounded />
                           </div>
@@ -492,7 +492,7 @@ function Search() {
                   {isEditing ? (
                     //Edit mode
                     <div className='wrapper-editing mt-16 relative'>
-                      <div className='redundant-editing-characters-number absolute -top-11 right-2 text-red-600 tracking-wide'>
+                      <div className='redundant-editing-characters-number absolute -top-9 right-2 text-red-600 tracking-wide'>
                         {redundantEditingCharactersNumber < 0
                           ? redundantEditingCharactersNumber
                           : ''}
@@ -505,7 +505,7 @@ function Search() {
                         onBlur={handleInputBlur}
                         suppressContentEditableWarning={true} // Để tránh cảnh báo từ React
                       >
-                        {decodeEntities(contentForUpdate)}
+                        {TextWithLinks(contentForUpdate)}
                         {/* same with {chosenPost.content} */}
                       </div>
                       <div className='relative h-16'>
@@ -573,7 +573,7 @@ function Search() {
                       className='break-words mt-16'
                     >
                       <div className='content-description break-words whitespace-pre-wrap leading-7'>
-                        {decodeEntities(contentForUpdate)}
+                        {TextWithLinks(contentForUpdate)}
                       </div>
                       {/* Post chỉ có 1 ảnh duy nhất */}
                       {localUrlImages.length === 1 ? (
@@ -608,28 +608,23 @@ function Search() {
                           {/* Wrapper of post comments */}
                           {isEditingComment ? (
                             //------------------------- Editing Comment Mode-----------------------
-                            <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
-                              <div className='flex-shrink-0'>
-                                <img
-                                  className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                                  src={
-                                    usersList.find(
-                                      (user) =>
-                                        user.user_id ===
-                                        selectedCommentRemoveEdit.user_id
-                                    )?.avatar_path
-                                  }
-                                  alt='infor-user-comment'
-                                />
-                              </div>
-                              <div className='flex-1 w-full'>
-                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
-                                  <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
-                                    {redundantEditingCommentCharactersNumber < 0
-                                      ? redundantEditingCommentCharactersNumber
-                                      : ''}
-                                  </div>
-                                  <div className='author-name'>
+                            <div className='wrapper-of-post-comment-editing-mode'>
+                              <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
+                                <div className='flex-shrink-0'>
+                                  <img
+                                    className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    src={
+                                      usersList.find(
+                                        (user) =>
+                                          user.user_id ===
+                                          selectedCommentRemoveEdit.user_id
+                                      )?.avatar_path
+                                    }
+                                    alt='infor-user-comment'
+                                  />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='author-name font-semibold'>
                                     {
                                       usersList.find(
                                         (user) =>
@@ -638,15 +633,76 @@ function Search() {
                                       )?.username
                                     }
                                   </div>
+                                  <div className='created-at flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                    <BiPencil />
+                                    <div className=''>
+                                      {getPostedTime(
+                                        selectedCommentRemoveEdit.created_at
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Cancel Editing Comment Modal */}
+                                {openCancelEditingCommentModal && (
+                                  <div
+                                    id='background-cancel-editing-comment-modal'
+                                    className='z-[1000] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                                  >
+                                    <div className='w-full h-full flex justify-center items-center'>
+                                      <div
+                                        id='cancel-editing-comment-modal'
+                                        className='relative z-20'
+                                      >
+                                        <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                                          <div className='font-semibold text-center mb-4'>
+                                            Huỷ bỏ thay đổi?
+                                          </div>
+                                          <hr className='' />
+                                          <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                                            <div
+                                              id='continue-edit-comment'
+                                              onClick={() =>
+                                                setOpenCancelEditingCommentModal(
+                                                  false
+                                                )
+                                              }
+                                              className='col-span-1 cursor-pointer p-2'
+                                            >
+                                              Không
+                                            </div>
+                                            <div
+                                              onClick={
+                                                handleDefinitelyCancelEditingComment
+                                              }
+                                              id='finally-edit-comment'
+                                              className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                                            >
+                                              Huỷ
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className='flex-1'>
+                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                  <div className='redundant-editing-comment-characters-number absolute -top-7 right-3 text-red-600 tracking-wide'>
+                                    {redundantEditingCommentCharactersNumber < 0
+                                      ? redundantEditingCommentCharactersNumber
+                                      : ''}
+                                  </div>
                                 </div>
                                 <div
                                   contentEditable={true}
                                   ref={commentEditableRef}
                                   onBlur={handleInputBlurComment}
                                   suppressContentEditableWarning={true}
-                                  className='outline-none leading-loose break-words whitespace-pre-wrap w-[90%] sm:w-full '
+                                  className='outline-none leading-loose break-words whitespace-pre-wrap mt-3'
                                 >
-                                  {decodeEntities(commentForUpdate)}
+                                  {TextWithLinks(commentForUpdate)}
                                 </div>
                                 <div className='relative h-14'>
                                   <div
@@ -671,22 +727,23 @@ function Search() {
                               {commentsByPostId &&
                                 commentsByPostId.map((comment, index) => (
                                   <div key={index}>
-                                    <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
-                                      <div className='flex-shrink-0'>
-                                        <img
-                                          className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                                          src={
-                                            usersList.find(
-                                              (user) =>
-                                                user.user_id === comment.user_id
-                                            )?.avatar_path
-                                          }
-                                          alt='infor-user-comment'
-                                        />
-                                      </div>
-                                      <div className='flex-1 w-[80%]'>
-                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
-                                          <div className='author-name'>
+                                    <div className='wrapper-2-of-post-comments'>
+                                      <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
+                                        <div className='flex-shrink-0'>
+                                          <img
+                                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                            src={
+                                              usersList.find(
+                                                (user) =>
+                                                  user.user_id ===
+                                                  comment.user_id
+                                              )?.avatar_path
+                                            }
+                                            alt='infor-user-comment'
+                                          />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='author-name font-semibold'>
                                             {
                                               usersList.find(
                                                 (user) =>
@@ -695,18 +752,29 @@ function Search() {
                                               )?.username
                                             }
                                           </div>
-                                          <div
-                                            onClick={() =>
-                                              handleSetCommentOptionsModal(
-                                                index,
-                                                comment
-                                              )
-                                            }
-                                            className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
-                                          >
-                                            <BiDotsHorizontalRounded />
+                                          <div className='created-at flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                            <BiPencil />
+                                            <div className=''>
+                                              {getPostedTime(
+                                                comment.created_at
+                                              )}
+                                            </div>
                                           </div>
-
+                                        </div>
+                                        <div
+                                          onClick={() =>
+                                            handleSetCommentOptionsModal(
+                                              index,
+                                              comment
+                                            )
+                                          }
+                                          className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full h-full p-1 my-auto hover:bg-slate-100'
+                                        >
+                                          <BiDotsHorizontalRounded />
+                                        </div>
+                                      </div>
+                                      <div className='flex-1'>
+                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                           {/* Comment options modal */}
                                           {openCommentOptionsModal ===
                                             index && (
@@ -743,8 +811,8 @@ function Search() {
                                             </div>
                                           )}
                                         </div>
-                                        <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                          {decodeEntities(
+                                        <div className='leading-loose break-words whitespace-pre-wrap mt-3'>
+                                          {TextWithLinks(
                                             comment?.comment_content
                                           )}
                                         </div>
@@ -780,11 +848,7 @@ function Search() {
                                             (findAttachItemsByCommentIdAfterSorting(
                                               comment
                                             ).length === 2 &&
-                                              !isSmallScreen) ||
-                                            (findAttachItemsByCommentIdAfterSorting(
-                                              comment
-                                            ).length === 2 &&
-                                              isScreenLessThan400Px)
+                                              isScreenLessThan730Px)
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}
@@ -796,8 +860,8 @@ function Search() {
                                               //   localUrlImagesComment
                                               // )
                                               //   .find(
-                                              //     (image) =>
-                                              //       image.comment_id ===
+                                              //     (imageComment) =>
+                                              //       imageComment.comment_id ===
                                               //       comment.comment_id
                                               //   )
                                               //   ?.attached_items
@@ -816,7 +880,7 @@ function Search() {
                                                     }
                                                     src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                                     alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                    className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                    className='shadow shadow-slate-300 h-full w-[300px] object-cover rounded-lg mx-auto'
                                                   />
                                                 </div>
                                               ))}
@@ -855,7 +919,7 @@ function Search() {
                                         }
                                         src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
                                         alt='attached items'
-                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                        className='shadow shadow-slate-300 h-[40vh] sm:h-[50vh] w-[250px] sm:w-[450px] object-cover rounded-lg mx-auto'
                                       />
                                     </div>
                                   )
@@ -884,28 +948,23 @@ function Search() {
                           {/* Wrapper of post comments */}
                           {isEditingComment ? (
                             //------------------------- Editing Comment Mode-----------------------
-                            <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
-                              <div className='flex-shrink-0'>
-                                <img
-                                  className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                                  src={
-                                    usersList.find(
-                                      (user) =>
-                                        user.user_id ===
-                                        selectedCommentRemoveEdit.user_id
-                                    )?.avatar_path
-                                  }
-                                  alt='infor-user-comment'
-                                />
-                              </div>
-                              <div className='flex-1 w-full'>
-                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
-                                  <div className='redundant-editing-comment-characters-number absolute top-0 right-0 text-red-600 tracking-wide'>
-                                    {redundantEditingCommentCharactersNumber < 0
-                                      ? redundantEditingCommentCharactersNumber
-                                      : ''}
-                                  </div>
-                                  <div className='author-name'>
+                            <div className='wrapper-of-post-comment-editing-mode'>
+                              <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
+                                <div className='flex-shrink-0'>
+                                  <img
+                                    className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    src={
+                                      usersList.find(
+                                        (user) =>
+                                          user.user_id ===
+                                          selectedCommentRemoveEdit.user_id
+                                      )?.avatar_path
+                                    }
+                                    alt='infor-user-comment'
+                                  />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='author-name font-semibold'>
                                     {
                                       usersList.find(
                                         (user) =>
@@ -914,15 +973,76 @@ function Search() {
                                       )?.username
                                     }
                                   </div>
+                                  <div className='created-at flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                    <BiPencil />
+                                    <div className=''>
+                                      {getPostedTime(
+                                        selectedCommentRemoveEdit.created_at
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Cancel Editing Comment Modal */}
+                                {openCancelEditingCommentModal && (
+                                  <div
+                                    id='background-cancel-editing-comment-modal'
+                                    className='z-[1000] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+                                  >
+                                    <div className='w-full h-full flex justify-center items-center'>
+                                      <div
+                                        id='cancel-editing-comment-modal'
+                                        className='relative z-20'
+                                      >
+                                        <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                                          <div className='font-semibold text-center mb-4'>
+                                            Huỷ bỏ thay đổi?
+                                          </div>
+                                          <hr className='' />
+                                          <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                                            <div
+                                              id='continue-edit-comment'
+                                              onClick={() =>
+                                                setOpenCancelEditingCommentModal(
+                                                  false
+                                                )
+                                              }
+                                              className='col-span-1 cursor-pointer p-2'
+                                            >
+                                              Không
+                                            </div>
+                                            <div
+                                              onClick={
+                                                handleDefinitelyCancelEditingComment
+                                              }
+                                              id='finally-edit-comment'
+                                              className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                                            >
+                                              Huỷ
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className='flex-1'>
+                                <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
+                                  <div className='redundant-editing-comment-characters-number absolute -top-7 right-3 text-red-600 tracking-wide'>
+                                    {redundantEditingCommentCharactersNumber < 0
+                                      ? redundantEditingCommentCharactersNumber
+                                      : ''}
+                                  </div>
                                 </div>
                                 <div
                                   contentEditable={true}
                                   ref={commentEditableRef}
                                   onBlur={handleInputBlurComment}
                                   suppressContentEditableWarning={true}
-                                  className='outline-none leading-loose break-words whitespace-pre-wrap w-[90%] sm:w-full '
+                                  className='outline-none leading-loose break-words whitespace-pre-wrap mt-3'
                                 >
-                                  {decodeEntities(commentForUpdate)}
+                                  {TextWithLinks(commentForUpdate)}
                                 </div>
                                 <div className='relative h-14'>
                                   <div
@@ -941,74 +1061,31 @@ function Search() {
                                   </div>
                                 </div>
                               </div>
-
-                              {/* Cancel Editing Comment Modal */}
-                              {openCancelEditingCommentModal && (
-                                <div
-                                  id='background-cancel-editing-comment-modal'
-                                  className='z-[1000] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
-                                >
-                                  <div className='w-full h-full flex justify-center items-center'>
-                                    <div
-                                      id='cancel-editing-comment-modal'
-                                      className='relative z-20'
-                                    >
-                                      <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
-                                        <div className='font-semibold text-center mb-4'>
-                                          Huỷ bỏ thay đổi?
-                                        </div>
-                                        <hr className='' />
-                                        <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
-                                          <div
-                                            id='continue-edit-comment'
-                                            onClick={() =>
-                                              setOpenCancelEditingCommentModal(
-                                                false
-                                              )
-                                            }
-                                            className='col-span-1 cursor-pointer p-2'
-                                          >
-                                            Không
-                                          </div>
-                                          <div
-                                            onClick={
-                                              handleDefinitelyCancelEditingComment
-                                            }
-                                            id='finally-edit-comment'
-                                            className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
-                                          >
-                                            Huỷ
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           ) : (
-                            //--------------------------Editing Comment Mode-------------------------
+                            //----------------------------Editing Comment Mode-------------------------
 
                             <div className='wrapper-of-post-comments'>
                               {commentsByPostId &&
                                 commentsByPostId.map((comment, index) => (
                                   <div key={index}>
-                                    <div className='comments-by-post-id details-of-post-comments mt-3 flex gap-3'>
-                                      <div className='flex-shrink-0'>
-                                        <img
-                                          className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
-                                          src={
-                                            usersList.find(
-                                              (user) =>
-                                                user.user_id === comment.user_id
-                                            )?.avatar_path
-                                          }
-                                          alt='infor-user-comment'
-                                        />
-                                      </div>
-                                      <div className='flex-1 w-[80%]'>
-                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
-                                          <div className='author-name'>
+                                    <div className='wrapper-2-of-post-comments'>
+                                      <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
+                                        <div className='flex-shrink-0'>
+                                          <img
+                                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                            src={
+                                              usersList.find(
+                                                (user) =>
+                                                  user.user_id ===
+                                                  comment.user_id
+                                              )?.avatar_path
+                                            }
+                                            alt='infor-user-comment'
+                                          />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='author-name font-semibold'>
                                             {
                                               usersList.find(
                                                 (user) =>
@@ -1017,18 +1094,29 @@ function Search() {
                                               )?.username
                                             }
                                           </div>
-                                          <div
-                                            onClick={() =>
-                                              handleSetCommentOptionsModal(
-                                                index,
-                                                comment
-                                              )
-                                            }
-                                            className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full p-1 hover:bg-slate-100'
-                                          >
-                                            <BiDotsHorizontalRounded />
+                                          <div className='created-at flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                                            <BiPencil />
+                                            <div className=''>
+                                              {getPostedTime(
+                                                comment.created_at
+                                              )}
+                                            </div>
                                           </div>
-
+                                        </div>
+                                        <div
+                                          onClick={() =>
+                                            handleSetCommentOptionsModal(
+                                              index,
+                                              comment
+                                            )
+                                          }
+                                          className='options-icon duration-300 ease-in-out text-xl sm2:text-2xl cursor-pointer rounded-full h-full p-1 my-auto hover:bg-slate-100'
+                                        >
+                                          <BiDotsHorizontalRounded />
+                                        </div>
+                                      </div>
+                                      <div className='flex-1'>
+                                        <div className='relative leading-loose break-words whitespace-pre-wrap font-semibold flex justify-between'>
                                           {/* Comment options modal */}
                                           {openCommentOptionsModal ===
                                             index && (
@@ -1065,8 +1153,8 @@ function Search() {
                                             </div>
                                           )}
                                         </div>
-                                        <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                          {decodeEntities(
+                                        <div className='leading-loose break-words whitespace-pre-wrap mt-3'>
+                                          {TextWithLinks(
                                             comment?.comment_content
                                           )}
                                         </div>
@@ -1102,11 +1190,7 @@ function Search() {
                                             (findAttachItemsByCommentIdAfterSorting(
                                               comment
                                             ).length === 2 &&
-                                              !isSmallScreen) ||
-                                            (findAttachItemsByCommentIdAfterSorting(
-                                              comment
-                                            ).length === 2 &&
-                                              isScreenLessThan400Px)
+                                              isScreenLessThan730Px)
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}
@@ -1118,8 +1202,8 @@ function Search() {
                                               //   localUrlImagesComment
                                               // )
                                               //   .find(
-                                              //     (image) =>
-                                              //       image.comment_id ===
+                                              //     (imageComment) =>
+                                              //       imageComment.comment_id ===
                                               //       comment.comment_id
                                               //   )
                                               //   ?.attached_items
@@ -1138,7 +1222,7 @@ function Search() {
                                                     }
                                                     src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                                     alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
-                                                    className='shadow shadow-slate-300 h-[40vh] sm:h-[70vh] w-[150px] sm:w-[450px] object-cover rounded-lg mx-auto'
+                                                    className='shadow shadow-slate-300 h-full w-[300px] object-cover rounded-lg mx-auto'
                                                   />
                                                 </div>
                                               ))}

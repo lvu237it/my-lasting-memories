@@ -180,11 +180,57 @@ export const Common = ({ children }) => {
     }
   };
 
+  // Function to decode HTML entities
   const decodeEntities = (encodedString) => {
     const textArea = document.createElement('textarea');
     textArea.innerHTML = encodedString;
     return textArea.value;
   };
+
+  // const decodeEntitiesAndFormatLinks = (encodedString) => {
+  //   // Function to decode HTML entities
+  //   const decodeEntities = (encodedString) => {
+  //     const textArea = document.createElement('textarea');
+  //     textArea.innerHTML = encodedString;
+  //     return textArea.value;
+  //   };
+
+  //   // Decode the entities first
+  //   let decodedString = decodeEntities(encodedString);
+
+  //   // Regular expression to find URLs that are not already wrapped in <a> tags
+  //   const urlPattern =
+  //     /(?<!href="|">)(https?:\/\/[^\s/$.?#].[^\s]*)(?!<\/a>)/gi;
+
+  //   // Replace URLs with anchor tags if not already present
+  //   decodedString = decodedString.replace(urlPattern, (url) => {
+  //     return `<a href="${url}">${url}</a>`;
+  //   });
+
+  //   return decodedString;
+  // };
+
+  //Chuyển chuỗi thành link - xử lý URL trước khi đưa vào database
+  const convertTextToLinks = (text) => {
+    // Biểu thức chính quy với nhóm bắt đầu
+    const urlPattern = /(?:http[s]?:\/\/(?:www\.)?)\S+/gi;
+
+    // Thay thế các URL bằng thẻ <a>
+    return text.replace(
+      urlPattern,
+      (url) =>
+        `<a href="${url}" class="vulv-custom-link-css" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
+  };
+
+  const TextWithLinks = (text) => {
+    const decodedText = decodeEntities(text);
+    const formattedText = convertTextToLinks(decodedText);
+    return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
+  };
+
+  // const inputText = "Đây là một URL: https://example.com và đây là một URL khác: http://example.org";
+  // const formattedText = convertTextToLinks(inputText);
 
   const handleClickHeaderIcons = (e) => {
     const iconId = e.currentTarget.id;
@@ -695,6 +741,7 @@ export const Common = ({ children }) => {
     setIsEditing(true);
     setOpenOptionsModal(false);
     setOpenCommentOptionsModal(false);
+    setIsEditingComment(false);
   };
 
   //Editing post
@@ -760,6 +807,7 @@ export const Common = ({ children }) => {
   };
 
   const handleOpenEditingComment = () => {
+    setIsEditing(false);
     setIsEditingComment(true);
     setOpenOptionsModal(false);
     setOpenCommentOptionsModal(false);
@@ -788,7 +836,8 @@ export const Common = ({ children }) => {
   };
 
   const handleConfirmCancelEditingComment = () => {
-    setOpenCancelEditingCommentModal(true);
+    console.log('clicked', openCancelEditingCommentModal);
+    setOpenCancelEditingCommentModal(!openCancelEditingCommentModal);
   };
 
   //Click "Huỷ" when Modal opened
@@ -1166,6 +1215,7 @@ export const Common = ({ children }) => {
         imageChoseToViewComment,
         setImageChoseToViewComment,
         decodeEntities,
+        TextWithLinks,
         apiBaseUrl,
         handleSortImagesPath,
         cancelViewPostImageRef,

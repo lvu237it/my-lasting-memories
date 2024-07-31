@@ -160,7 +160,6 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const handleLogOut = () => {
     localStorage.removeItem('admin');
     setIsUser(true);
@@ -464,7 +463,7 @@ const MainLayout = () => {
   }, [commentsByPostId.length, scrollContainerCommentImageRef]);
 
   return (
-    <div className='container w-[95%] max-w-screen-xl mx-auto relative'>
+    <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
       {/* View images of a post */}
       {openViewImageModal && (
         <div
@@ -670,7 +669,7 @@ const MainLayout = () => {
             id='log-in-icon'
             className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
           >
-            <div className='text-2xl p-3'>
+            <div className='text-xl p-2 sm2:text-2xl sm2:p-3'>
               <BiLogIn />
             </div>
           </div>
@@ -681,7 +680,10 @@ const MainLayout = () => {
           ref={logoutIconRef}
           className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
         >
-          <div onClick={handleLogOut} className='text-2xl p-3'>
+          <div
+            onClick={handleLogOut}
+            className='text-xl p-2 sm2:text-2xl sm2:p-3'
+          >
             <BiLogOut />
           </div>
         </div>
@@ -693,7 +695,10 @@ const MainLayout = () => {
           ref={addPostIconRef}
           className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed right-3 bottom-4 xl:bottom-9 xl:right-14 cursor-pointer'
         >
-          <div onClick={handleOpenPostModal} className='text-2xl p-3'>
+          <div
+            onClick={handleOpenPostModal}
+            className='text-xl p-2 sm2:text-2xl sm2:p-3'
+          >
             <BiPencil />
           </div>
         </div>
