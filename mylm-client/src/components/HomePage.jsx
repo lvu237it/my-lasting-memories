@@ -13,6 +13,7 @@ import {
   BiTrashAlt,
 } from 'react-icons/bi';
 import { useCommon } from '../contexts/CommonContext';
+import { useMediaQuery } from 'react-responsive';
 import { BiArrowBack } from 'react-icons/bi';
 import { FaChevronRight } from 'react-icons/fa';
 import { AiOutlineComment } from 'react-icons/ai';
@@ -127,6 +128,9 @@ function HomePage() {
     findAttachItemsByCommentIdAfterSorting,
     setCurrentViewImageCommentIndex,
   } = useCommon();
+
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 640px)' });
+  const isScreenLessThan400Px = useMediaQuery({ query: '(max-width: 440px)' });
 
   const [viewPostDetails, setViewPostDetails] = useState(false);
   const postDetailsRef = useRef(null);
@@ -686,7 +690,9 @@ function HomePage() {
                                         )}
                                       </div>
                                       <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                        {comment?.comment_content}
+                                        {decodeEntities(
+                                          comment?.comment_content
+                                        )}
                                       </div>
                                       {/*-------------------- View Images of comments ------------------*/}
                                       <div
@@ -704,17 +710,25 @@ function HomePage() {
                                         }
                                         onDragStart={(e) => e.preventDefault()}
                                         className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
-                                          localUrlImagesComment &&
-                                          // handleSortImagesCommentPath(
-                                          //   localUrlImagesComment
-                                          // ).find(
-                                          //   (image) =>
-                                          //     image.comment_id ===
-                                          //     comment.comment_id
-                                          // )?.attached_items
-                                          findAttachItemsByCommentIdAfterSorting(
+                                          (localUrlImagesComment &&
+                                            // handleSortImagesCommentPath(
+                                            //   localUrlImagesComment
+                                            // ).find(
+                                            //   (image) =>
+                                            //     image.comment_id ===
+                                            //     comment.comment_id
+                                            // )?.attached_items
+                                            findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length > 2) ||
+                                          (findAttachItemsByCommentIdAfterSorting(
                                             comment
-                                          ).length > 1
+                                          ).length === 2 &&
+                                            !isSmallScreen) ||
+                                          (findAttachItemsByCommentIdAfterSorting(
+                                            comment
+                                          ).length === 2 &&
+                                            isScreenLessThan400Px)
                                             ? 'border border-slate-300'
                                             : ''
                                         }`}
@@ -990,7 +1004,9 @@ function HomePage() {
                                         )}
                                       </div>
                                       <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                        {comment?.comment_content}
+                                        {decodeEntities(
+                                          comment?.comment_content
+                                        )}
                                       </div>
                                       {/* ---------------View Images of comments----------- */}
                                       <div
@@ -1008,17 +1024,25 @@ function HomePage() {
                                         }
                                         onDragStart={(e) => e.preventDefault()}
                                         className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
-                                          localUrlImagesComment &&
-                                          // handleSortImagesCommentPath(
-                                          //   localUrlImagesComment
-                                          // ).find(
-                                          //   (imageComment) =>
-                                          //     imageComment.comment_id ===
-                                          //     comment.comment_id
-                                          // )?.attached_items
-                                          findAttachItemsByCommentIdAfterSorting(
+                                          (localUrlImagesComment &&
+                                            // handleSortImagesCommentPath(
+                                            //   localUrlImagesComment
+                                            // ).find(
+                                            //   (image) =>
+                                            //     image.comment_id ===
+                                            //     comment.comment_id
+                                            // )?.attached_items
+                                            findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length > 2) ||
+                                          (findAttachItemsByCommentIdAfterSorting(
                                             comment
-                                          ).length > 1
+                                          ).length === 2 &&
+                                            !isSmallScreen) ||
+                                          (findAttachItemsByCommentIdAfterSorting(
+                                            comment
+                                          ).length === 2 &&
+                                            isScreenLessThan400Px)
                                             ? 'border border-slate-300'
                                             : ''
                                         }`}

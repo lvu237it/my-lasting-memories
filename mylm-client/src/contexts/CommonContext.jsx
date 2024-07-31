@@ -243,7 +243,7 @@ export const Common = ({ children }) => {
     setImagesOfCurrentCommentDragging(
       findAttachItemsByCommentIdAfterSorting(comment)
     );
-    console.log('index', index);
+    console.log('index of comment in this post', index);
     e.preventDefault();
     const container = scrollContainerCommentImageRef.current[index];
 
@@ -594,45 +594,57 @@ export const Common = ({ children }) => {
   }, [imageChoseToView]);
 
   useEffect(() => {
-    if (openViewImageCommentModal) {
+    if (imagesOfCurrentCommentDragging) {
       const mappedInfor = imagesOfCurrentCommentDragging.map((element) => {
         return element.attacheditem_comment_path;
       });
       setMappedImagesOfCurrentCommentDragging(mappedInfor);
     }
-  }, [openViewImageCommentModal]);
+  }, [openViewImageCommentModal, imagesOfCurrentCommentDragging]);
 
   const handleViewPrevCommentImage = () => {
-    console.log('currentIndex', currentViewImageCommentIndex);
-    const prevIndex =
-      (currentViewImageCommentIndex -
-        1 +
-        mappedImagesOfCurrentCommentDragging.length) %
-      mappedImagesOfCurrentCommentDragging.length;
-    console.log('prevIndex', prevIndex);
-    setCurrentViewImageCommentIndex(prevIndex);
-    setImageChoseToViewComment(
-      `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`
-    );
+    if (currentViewImageCommentIndex < 0) {
+      setCurrentViewImageCommentIndex(
+        mappedImagesOfCurrentCommentDragging.length - 1
+      );
+    } else if (
+      currentViewImageCommentIndex >=
+      mappedImagesOfCurrentCommentDragging.length
+    ) {
+      setCurrentViewImageCommentIndex(0);
+    } else {
+      const prevIndex =
+        (currentViewImageCommentIndex -
+          1 +
+          mappedImagesOfCurrentCommentDragging.length) %
+        mappedImagesOfCurrentCommentDragging.length;
+      setCurrentViewImageCommentIndex(prevIndex);
+      setImageChoseToViewComment(
+        `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`
+      );
+    }
   };
 
   const handleViewNextCommentImage = () => {
-    console.log('currentIndex', currentViewImageCommentIndex);
-    const nextIndex =
-      (currentViewImageCommentIndex + 1) %
-      mappedImagesOfCurrentCommentDragging.length;
-    console.log('nextIndex', nextIndex);
-    setCurrentViewImageCommentIndex(nextIndex);
-    setImageChoseToViewComment(
-      `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`
-    );
-  };
-
-  useEffect(() => {
-    if (currentViewImageCommentIndex === -1) {
-      setCurrentViewImageCommentIndex((current) => current + 1);
+    if (currentViewImageCommentIndex < 0) {
+      setCurrentViewImageCommentIndex(
+        mappedImagesOfCurrentCommentDragging.length - 1
+      );
+    } else if (
+      currentViewImageCommentIndex >=
+      mappedImagesOfCurrentCommentDragging.length
+    ) {
+      setCurrentViewImageCommentIndex(0);
+    } else {
+      const nextIndex =
+        (currentViewImageCommentIndex + 1) %
+        mappedImagesOfCurrentCommentDragging.length;
+      setCurrentViewImageCommentIndex(nextIndex);
+      setImageChoseToViewComment(
+        `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`
+      );
     }
-  }, [currentViewImageCommentIndex]);
+  };
 
   useEffect(() => {
     if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
@@ -653,11 +665,9 @@ export const Common = ({ children }) => {
 
   useEffect(() => {
     //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
-    const currentImageChoseToViewComment =
-      mappedImagesOfCurrentCommentDragging.find(
-        (path) => imageChoseToViewComment === `${apiBaseUrl}${path}`
-      );
-
+    const currentImageChoseToViewComment = imagesOfCurrentCommentDragging
+      .map((element) => element.attacheditem_comment_path)
+      .find((path) => imageChoseToViewComment === `${apiBaseUrl}${path}`);
     setCurrentViewImageCommentIndex(
       mappedImagesOfCurrentCommentDragging.indexOf(
         currentImageChoseToViewComment
@@ -668,7 +678,6 @@ export const Common = ({ children }) => {
   //Post Modal
   const handleOpenPostModal = () => {
     setPostModal(true);
-    console.log('open modal');
   };
 
   const handleClosePostModal = (e) => {
@@ -817,11 +826,9 @@ export const Common = ({ children }) => {
   const handleClickPostNew = (e) => {
     if (e.target.value.trim()) {
       setHasPostContent(true);
-      console.log('change');
       setPostContent(e.target.value.trim());
     } else {
       setHasPostContent(false);
-      console.log('not change');
       setPostContent('');
     }
   };
@@ -829,11 +836,9 @@ export const Common = ({ children }) => {
   const handleClickPostNewComment = (e) => {
     if (e.target.value.trim()) {
       setHasPostCommentContent(true);
-      console.log('change');
       setCommentContent(e.target.value.trim());
     } else {
       setHasPostCommentContent(false);
-      console.log('not change');
       setCommentContent('');
     }
   };
@@ -918,7 +923,6 @@ export const Common = ({ children }) => {
         formData.append('images', file);
         console.log('Added image to formData:', file);
       });
-      console.log('imagesurllist post', imageUrlsList);
       try {
         await axios.post(`${apiBaseUrl}/posts/createpost`, formData, {
           headers: {
@@ -1069,7 +1073,7 @@ export const Common = ({ children }) => {
 
   useEffect(() => {
     if (selectedCommentRemoveEdit) {
-      console.log('selected remove', selectedCommentRemoveEdit);
+      console.log('selected remove edit', selectedCommentRemoveEdit);
       setCommentForUpdate(selectedCommentRemoveEdit.comment_content);
     }
   }, [selectedCommentRemoveEdit]);
@@ -1084,23 +1088,6 @@ export const Common = ({ children }) => {
     }
   }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId.length]);
 
-  useEffect(() => {
-    console.log('isDraggingPostImage', isDraggingPostImage);
-  }, [isDraggingPostImage]);
-
-  useEffect(() => {
-    console.log('isDraggingCommentImage', isDraggingCommentImage);
-  }, [isDraggingCommentImage]);
-
-  useEffect(() => {
-    console.log('isDraggingPostCommonImage', isDraggingPostCommonImage);
-  }, [isDraggingPostCommonImage]);
-  useEffect(() => {
-    console.log(
-      'imagesOfCurrentCommentDragging',
-      imagesOfCurrentCommentDragging
-    );
-  }, [imagesOfCurrentCommentDragging]);
   return (
     <CommonContext.Provider
       value={{

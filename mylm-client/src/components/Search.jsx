@@ -12,6 +12,7 @@ import {
   BiXCircle,
 } from 'react-icons/bi';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useMediaQuery } from 'react-responsive';
 import { FaChevronRight } from 'react-icons/fa';
 import { BiPen, BiPencil } from 'react-icons/bi';
 import { toast } from 'react-toastify';
@@ -117,6 +118,9 @@ function Search() {
     setCurrentViewImageCommentIndex,
   } = useCommon();
 
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 640px)' });
+  const isScreenLessThan400Px = useMediaQuery({ query: '(max-width: 440px)' });
+
   const [searchContent, setSearchContent] = useState('');
   const [postsResult, setPostsResult] = useState([]);
 
@@ -179,10 +183,6 @@ function Search() {
     setOpenCommentOptionsModal(index);
     setSelectedCommentRemoveEdit(comment);
   };
-
-  // useEffect(() => {
-  //   console.log('selected remove', selectedCommentRemoveEdit);
-  // }, [selectedCommentRemoveEdit]);
 
   //Click outside of comment options modal
   const handleClickOutsideCommentOptionsModal = (event) => {
@@ -744,7 +744,9 @@ function Search() {
                                           )}
                                         </div>
                                         <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                          {comment?.comment_content}
+                                          {decodeEntities(
+                                            comment?.comment_content
+                                          )}
                                         </div>
                                         {/*-------------------- View Images of comments ------------------*/}
                                         <div
@@ -764,17 +766,25 @@ function Search() {
                                             e.preventDefault()
                                           }
                                           className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
-                                            localUrlImagesComment &&
-                                            // handleSortImagesCommentPath(
-                                            //   localUrlImagesComment
-                                            // ).find(
-                                            //   (image) =>
-                                            //     image.comment_id ===
-                                            //     comment.comment_id
-                                            // )?.attached_items
-                                            findAttachItemsByCommentIdAfterSorting(
+                                            (localUrlImagesComment &&
+                                              // handleSortImagesCommentPath(
+                                              //   localUrlImagesComment
+                                              // ).find(
+                                              //   (image) =>
+                                              //     image.comment_id ===
+                                              //     comment.comment_id
+                                              // )?.attached_items
+                                              findAttachItemsByCommentIdAfterSorting(
+                                                comment
+                                              ).length > 2) ||
+                                            (findAttachItemsByCommentIdAfterSorting(
                                               comment
-                                            ).length > 1
+                                            ).length === 2 &&
+                                              !isSmallScreen) ||
+                                            (findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length === 2 &&
+                                              isScreenLessThan400Px)
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}
@@ -1056,7 +1066,9 @@ function Search() {
                                           )}
                                         </div>
                                         <div className='leading-loose break-words whitespace-pre-wrap w-[90%]'>
-                                          {comment?.comment_content}
+                                          {decodeEntities(
+                                            comment?.comment_content
+                                          )}
                                         </div>
                                         {/*-------------------- View Images of comments ------------------*/}
                                         <div
@@ -1076,17 +1088,25 @@ function Search() {
                                             e.preventDefault()
                                           }
                                           className={`rounded-lg wrapper-images-of-comment-images vulv-uploaded-images vulv-scrollbar-hide overflow-x-auto mt-1 ${
-                                            localUrlImagesComment &&
-                                            // handleSortImagesCommentPath(
-                                            //   localUrlImagesComment
-                                            // ).find(
-                                            //   (image) =>
-                                            //     image.comment_id ===
-                                            //     comment.comment_id
-                                            // )?.attached_items
-                                            findAttachItemsByCommentIdAfterSorting(
+                                            (localUrlImagesComment &&
+                                              // handleSortImagesCommentPath(
+                                              //   localUrlImagesComment
+                                              // ).find(
+                                              //   (image) =>
+                                              //     image.comment_id ===
+                                              //     comment.comment_id
+                                              // )?.attached_items
+                                              findAttachItemsByCommentIdAfterSorting(
+                                                comment
+                                              ).length > 2) ||
+                                            (findAttachItemsByCommentIdAfterSorting(
                                               comment
-                                            ).length > 1
+                                            ).length === 2 &&
+                                              !isSmallScreen) ||
+                                            (findAttachItemsByCommentIdAfterSorting(
+                                              comment
+                                            ).length === 2 &&
+                                              isScreenLessThan400Px)
                                               ? 'border border-slate-300'
                                               : ''
                                           }`}

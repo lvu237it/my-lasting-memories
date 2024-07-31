@@ -160,10 +160,6 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    console.log('localUrlImages', localUrlImages);
-    console.log('imageChoseToView', imageChoseToView);
-  }, []);
 
   const handleLogOut = () => {
     localStorage.removeItem('admin');
@@ -479,7 +475,7 @@ const MainLayout = () => {
             ref={cancelViewPostImageRef}
             className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
           >
-            <BiX />
+            <BiX title='Đóng' />
           </div>
 
           <div id='wrapper-prev-next-icon' className=''>
@@ -518,7 +514,7 @@ const MainLayout = () => {
             ref={cancelViewCommentImageRef}
             className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
           >
-            <BiX />
+            <BiX title='Đóng' />
           </div>
 
           <div id='wrapper-prev-next-icon-comment' className=''>

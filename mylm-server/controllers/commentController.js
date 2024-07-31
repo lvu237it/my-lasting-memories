@@ -50,7 +50,7 @@ exports.upload = multer({
 exports.getAllCommentsByPostId = catchAsync(async (req, res, next) => {
   const postid = req.post_id;
   const rows = await poolQuery(
-    'SELECT * FROM comments WHERE is_deleted = 0 and post_id = $1 ORDER BY created_at DESC',
+    'SELECT * FROM comments WHERE is_deleted = 0 and post_id = $1 ORDER BY created_at ASC',
     [postid]
   );
 
