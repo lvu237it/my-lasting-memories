@@ -603,12 +603,13 @@ export const Common = ({ children }) => {
   }, [openViewImageCommentModal]);
 
   const handleViewPrevCommentImage = () => {
+    console.log('currentIndex', currentViewImageCommentIndex);
     const prevIndex =
       (currentViewImageCommentIndex -
         1 +
         mappedImagesOfCurrentCommentDragging.length) %
       mappedImagesOfCurrentCommentDragging.length;
-
+    console.log('prevIndex', prevIndex);
     setCurrentViewImageCommentIndex(prevIndex);
     setImageChoseToViewComment(
       `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`
@@ -616,9 +617,11 @@ export const Common = ({ children }) => {
   };
 
   const handleViewNextCommentImage = () => {
+    console.log('currentIndex', currentViewImageCommentIndex);
     const nextIndex =
       (currentViewImageCommentIndex + 1) %
       mappedImagesOfCurrentCommentDragging.length;
+    console.log('nextIndex', nextIndex);
     setCurrentViewImageCommentIndex(nextIndex);
     setImageChoseToViewComment(
       `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`
@@ -626,8 +629,14 @@ export const Common = ({ children }) => {
   };
 
   useEffect(() => {
+    if (currentViewImageCommentIndex === -1) {
+      setCurrentViewImageCommentIndex((current) => current + 1);
+    }
+  }, [currentViewImageCommentIndex]);
+
+  useEffect(() => {
     if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
-      if (sortedUrlImagesComment.length <= 1) {
+      if (mappedImagesOfCurrentCommentDragging.length <= 1) {
         viewPrevCommentImageRef.current.style.display = 'none';
         viewNextCommentImageRef.current.style.display = 'none';
       } else {
@@ -638,6 +647,7 @@ export const Common = ({ children }) => {
   }, [
     currentViewImageComment,
     openViewImageCommentModal,
+    mappedImagesOfCurrentCommentDragging,
     sortedUrlImagesComment,
   ]);
 
