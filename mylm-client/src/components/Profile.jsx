@@ -146,6 +146,14 @@ function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!viewPostDetails) {
+      setChosenPost(null);
+    } else {
+      getImageUrlsCommentByPostId(chosenPost);
+    }
+  }, [viewPostDetails, chosenPost]);
+
+  useEffect(() => {
     if (viewPostDetails) {
       navigate('/post-details', { state: { from: location.pathname } });
     }
@@ -197,7 +205,7 @@ function Profile() {
                     className={`${allMyPosts.length === 0 ? 'mb-0' : 'mb-5'}`}
                   >
                     <div className=''>
-                      <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
+                      <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3 my-5'>
                         <img
                           src={currentUserInfor && currentUserInfor.avatar_path} //Thông tin của người đăng nhập hiện tại
                           alt=''

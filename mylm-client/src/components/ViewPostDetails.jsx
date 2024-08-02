@@ -186,7 +186,6 @@ function ViewPostDetails() {
       setIsSuccessFullyRemoved(false);
       setImagesComment([]);
       setLocalUrlImagesComment([]);
-      setChosenPost(null);
       setCurrentViewImageCommentIndex(null);
     } else if (from === '/search') {
       setSearchContent('');
@@ -198,14 +197,13 @@ function ViewPostDetails() {
       setIsSuccessFullyRemoved(false);
       setImagesComment([]);
       setLocalUrlImagesComment([]);
-      setChosenPost(null);
       setCurrentViewImageCommentIndex(null);
     }
   };
 
   return (
     <>
-      <div className='wrapper-post-details'>
+      <div className='m wrapper-post-details feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 md:mx-10 lg:mx-14 py-7 md:py-10'>
         <button
           onClick={handleBack}
           className='text-2xl mb-1 rounded-full p-3 hover:bg-slate-100 cursor-pointer hover:-translate-x-1 duration-300 ease-in-out'
@@ -321,7 +319,7 @@ function ViewPostDetails() {
             <div className='col-span-1'>
               {/* avatar */}
               <img
-                src={chosenPost && getAuthorAvatarByUserId(chosenPost.user_id)}
+                src={getAuthorAvatarByUserId(chosenPost.user_id)}
                 alt=''
                 className='my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
               />
@@ -616,10 +614,12 @@ function ViewPostDetails() {
                                     </div>
                                   </div>
                                 </div>
-                                {!role ||
-                                (role &&
-                                  comment.user_id !==
-                                    currentUserInfor.user_id) ? ( //KHÔNG đăng nhập hoặc KHÔNG phải comment của mình thì không được sửa
+                                {/* //KHÔNG đăng nhập hoặc KHÔNG phải comment của mình thì không được sửa - được xoá nếu đó là post của mình*/}
+                                {/* {!role || comment.user_id === currentUserInfor.user_id} */}
+                                {/* Người đăng bài và người comment là cùng 1 người */}
+                                {currentUserInfor.user_id !==
+                                  chosenPost.user_id &&
+                                currentUserInfor.user_id !== comment.user_id ? (
                                   ''
                                 ) : (
                                   <div
@@ -644,16 +644,25 @@ function ViewPostDetails() {
                                       className='comment-options-modal z-20 absolute translate-y-0 top-0 right-0 w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
                                     >
                                       <div>
-                                        <div
-                                          onClick={handleOpenEditingComment}
-                                          id='edit-post'
-                                          className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
-                                        >
-                                          <div className='col-span-11'>
-                                            Chỉnh sửa
+                                        {chosenPost.user_id ===
+                                          comment.user_id ||
+                                        (chosenPost.user_id !==
+                                          comment.user_id &&
+                                          currentUserInfor.user_id ===
+                                            comment.user_id) ? (
+                                          <div
+                                            onClick={handleOpenEditingComment}
+                                            id='edit-post'
+                                            className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                          >
+                                            <div className='col-span-11'>
+                                              Chỉnh sửa
+                                            </div>
+                                            <BiEdit className='col-span-1 my-auto' />
                                           </div>
-                                          <BiEdit className='col-span-1 my-auto' />
-                                        </div>
+                                        ) : (
+                                          ''
+                                        )}
                                         <div
                                           onClick={handleRemoveCommentWarning}
                                           id='delete-post'
@@ -946,10 +955,9 @@ function ViewPostDetails() {
                                     </div>
                                   </div>
                                 </div>
-                                {!role ||
-                                (role &&
-                                  comment.user_id !==
-                                    currentUserInfor.user_id) ? ( //KHÔNG đăng nhập hoặc KHÔNG phải comment của mình thì không được sửa
+                                {currentUserInfor.user_id !==
+                                  chosenPost.user_id &&
+                                currentUserInfor.user_id !== comment.user_id ? (
                                   ''
                                 ) : (
                                   <div
@@ -974,16 +982,25 @@ function ViewPostDetails() {
                                       className='comment-options-modal z-20 absolute translate-y-0 top-0 right-0 w-[170px] p-3 dropdown-options-post-details rounded-xl bg-white border border-slate-300 shadow shadow-slate-300'
                                     >
                                       <div>
-                                        <div
-                                          onClick={handleOpenEditingComment}
-                                          id='edit-post'
-                                          className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
-                                        >
-                                          <div className='col-span-11'>
-                                            Chỉnh sửa
+                                        {chosenPost.user_id ===
+                                          comment.user_id ||
+                                        (chosenPost.user_id !==
+                                          comment.user_id &&
+                                          currentUserInfor.user_id ===
+                                            comment.user_id) ? (
+                                          <div
+                                            onClick={handleOpenEditingComment}
+                                            id='edit-post'
+                                            className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
+                                          >
+                                            <div className='col-span-11'>
+                                              Chỉnh sửa
+                                            </div>
+                                            <BiEdit className='col-span-1 my-auto' />
                                           </div>
-                                          <BiEdit className='col-span-1 my-auto' />
-                                        </div>
+                                        ) : (
+                                          ''
+                                        )}
                                         <div
                                           onClick={handleRemoveCommentWarning}
                                           id='delete-post'

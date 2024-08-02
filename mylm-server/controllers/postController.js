@@ -86,6 +86,7 @@ exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
 exports.getLastestPostCreatedByMe = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
   const rows = await poolQuery(
+    // 'SELECT * FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id = $1 ORDER BY posts.created_at DESC LIMIT 1',
     'SELECT * FROM posts WHERE posts.is_deleted = 0 AND posts.user_id = $1 ORDER BY posts.created_at DESC LIMIT 1',
     [userid]
   );

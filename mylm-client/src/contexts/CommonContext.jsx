@@ -661,8 +661,8 @@ export const Common = ({ children }) => {
     //sau đó mặc định đặt giá trị content đó cho updated content
     //Để phục vụ cho việc update content
     setContentForUpdate(post.content); // Cập nhật contentForUpdate khi chọn post
-    setViewPostDetails(true);
     getCommentsByPostId(post);
+    setViewPostDetails(true);
   };
 
   //Open options modal
@@ -973,18 +973,17 @@ export const Common = ({ children }) => {
         setImageUrlsList([]);
         setImages([]);
         console.log('current', currentUserInfor);
-        const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
-        console.log('lastestPost', lastestPost);
+        // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
         toast.success(
           <div>
             Đăng bài thành công! Hãy xem bài viết mới nhất của bạn tại
             <div
               onClick={() => {
-                handleViewPostDetails(lastestPost);
+                navigate('/profile');
               }}
               className='cursor-pointer underline hover:text-blue-500 text-blue-400 ease-in-out duration-300'
             >
-              đây.
+              trang cá nhân.
             </div>
           </div>
         );
