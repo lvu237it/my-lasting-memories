@@ -9,6 +9,8 @@ import {
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useMediaQuery } from 'react-responsive';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CommonContext = createContext();
 
@@ -28,6 +30,10 @@ export const Common = ({ children }) => {
     'header-icon-bi-message',
     'header-icon-profile',
   ]);
+
+  const isScreenLessThan730Px = useMediaQuery({ query: '(max-width: 730px)' });
+
+  const [viewPostDetails, setViewPostDetails] = useState(false);
 
   const [postModal, setPostModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -60,8 +66,9 @@ export const Common = ({ children }) => {
   const viewNextCommentImageRef = useRef(null);
   const contentEditableRef = useRef(null);
   const commentEditableRef = useRef(null);
-
-  // const [containerBeforeDragging, setContainerBeforeDragging] = useState(null);
+  const postDetailsRef = useRef(null);
+  const optionsModalRef = useRef(null);
+  const commentOptionsModalRef = useRef(null);
 
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
@@ -69,15 +76,19 @@ export const Common = ({ children }) => {
   const [commentBeforeUpdate, setCommentBeforeUpdate] = useState('');
 
   const [postsList, setPostsList] = useState([]);
+  const [allMyPosts, setAllMyPosts] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
   const [commentContent, setCommentContent] = useState('');
   const [images, setImages] = useState([]);
   const [imagesComment, setImagesComment] = useState([]);
   const [imageUrlsList, setImageUrlsList] = useState([]);
-  const isLoggedByAdmin = JSON.parse(localStorage.getItem('admin'));
   const [adminInfor, setAdminInfor] = useState(null);
-  const [isUser, setIsUser] = useState(true);
+  const [currentUserInfor, setCurrentUserInfor] = useState(null);
+  const [role, setRole] = useState(null);
+  /*
+  role chính: user, exceptional, admin
+  */
 
   const [chosenPost, setChosenPost] = useState(null);
 
@@ -112,6 +123,8 @@ export const Common = ({ children }) => {
     setMappedImagesOfCurrentCommentDragging,
   ] = useState([]);
 
+  const [searchContent, setSearchContent] = useState('');
+
   const [commentsByPostId, setCommentsByPostId] = useState([]);
   const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
 
@@ -145,29 +158,18 @@ export const Common = ({ children }) => {
     setRedundantEditingCommentCharactersNumber,
   ] = useState(0);
 
-  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { from } = location.state || { from: '/' }; // Nếu không có thông tin from thì mặc định về trang chủ
+
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+
   useEffect(() => {
-    //Nếu tồn tại phiên đăng nhập của admin thì chuyển quyền truy cập thành admin thay vì user
-    if (isLoggedByAdmin) {
-      setIsUser(false);
+    if (viewPostDetails) {
+      setViewPostDetails(false);
     }
-  }, [isUser]);
-
-  useEffect(() => {
-    const getAdminInformation = async () => {
-      try {
-        const response = await axios.get(`${apiBaseUrl}/admin/information`);
-        setAdminInfor(response.data[0]);
-      } catch (err) {
-        console.log('Error when getting admin information', err);
-      }
-    };
-
-    getAdminInformation();
-    console.log('apiBaseUrl', apiBaseUrl);
-    console.log('isUser', isUser);
-  }, []);
+  }, [location.pathname]);
 
   const getCommentsByPostId = async (post) => {
     try {
@@ -186,29 +188,6 @@ export const Common = ({ children }) => {
     textArea.innerHTML = encodedString;
     return textArea.value;
   };
-
-  // const decodeEntitiesAndFormatLinks = (encodedString) => {
-  //   // Function to decode HTML entities
-  //   const decodeEntities = (encodedString) => {
-  //     const textArea = document.createElement('textarea');
-  //     textArea.innerHTML = encodedString;
-  //     return textArea.value;
-  //   };
-
-  //   // Decode the entities first
-  //   let decodedString = decodeEntities(encodedString);
-
-  //   // Regular expression to find URLs that are not already wrapped in <a> tags
-  //   const urlPattern =
-  //     /(?<!href="|">)(https?:\/\/[^\s/$.?#].[^\s]*)(?!<\/a>)/gi;
-
-  //   // Replace URLs with anchor tags if not already present
-  //   decodedString = decodedString.replace(urlPattern, (url) => {
-  //     return `<a href="${url}">${url}</a>`;
-  //   });
-
-  //   return decodedString;
-  // };
 
   //Chuyển chuỗi thành link - xử lý URL trước khi đưa vào database
   const convertTextToLinks = (text) => {
@@ -398,12 +377,6 @@ export const Common = ({ children }) => {
     //   reader.readAsDataURL(file);
     // }
   };
-
-  useEffect(() => {
-    if (!openAddCommentModal) {
-      setImageUrlsList([]);
-    }
-  }, [openAddCommentModal]);
 
   const handleSortImagesPath = (localUrlImages) => {
     // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
@@ -600,18 +573,6 @@ export const Common = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (viewPrevImageRef.current && viewNextImageRef.current) {
-      if (sortedUrlImages.length <= 1) {
-        viewPrevImageRef.current.style.display = 'none';
-        viewNextImageRef.current.style.display = 'none';
-      } else {
-        viewPrevImageRef.current.style.display = 'block';
-        viewNextImageRef.current.style.display = 'block';
-      }
-    }
-  }, [currentViewImage, openViewImageModal, sortedUrlImages]);
-
   const handleViewPrevImage = () => {
     const prevIndex =
       (currentViewImageIndex - 1 + sortedUrlImages.length) %
@@ -629,24 +590,6 @@ export const Common = ({ children }) => {
       `${apiBaseUrl}${sortedUrlImages[nextIndex]?.attacheditem_path}`
     );
   };
-
-  useEffect(() => {
-    //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
-    const currentImageChoseToView = sortedUrlImages.find(
-      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
-    );
-
-    setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
-  }, [imageChoseToView]);
-
-  useEffect(() => {
-    if (imagesOfCurrentCommentDragging) {
-      const mappedInfor = imagesOfCurrentCommentDragging.map((element) => {
-        return element.attacheditem_comment_path;
-      });
-      setMappedImagesOfCurrentCommentDragging(mappedInfor);
-    }
-  }, [openViewImageCommentModal, imagesOfCurrentCommentDragging]);
 
   const handleViewPrevCommentImage = () => {
     if (currentViewImageCommentIndex < 0) {
@@ -692,35 +635,6 @@ export const Common = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
-      if (mappedImagesOfCurrentCommentDragging.length <= 1) {
-        viewPrevCommentImageRef.current.style.display = 'none';
-        viewNextCommentImageRef.current.style.display = 'none';
-      } else {
-        viewPrevCommentImageRef.current.style.display = 'block';
-        viewNextCommentImageRef.current.style.display = 'block';
-      }
-    }
-  }, [
-    currentViewImageComment,
-    openViewImageCommentModal,
-    mappedImagesOfCurrentCommentDragging,
-    sortedUrlImagesComment,
-  ]);
-
-  useEffect(() => {
-    //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
-    const currentImageChoseToViewComment = imagesOfCurrentCommentDragging
-      .map((element) => element.attacheditem_comment_path)
-      .find((path) => imageChoseToViewComment === `${apiBaseUrl}${path}`);
-    setCurrentViewImageCommentIndex(
-      mappedImagesOfCurrentCommentDragging.indexOf(
-        currentImageChoseToViewComment
-      )
-    );
-  }, [imageChoseToViewComment, openViewImageCommentModal]);
-
   //Post Modal
   const handleOpenPostModal = () => {
     setPostModal(true);
@@ -734,6 +648,32 @@ export const Common = ({ children }) => {
       setPostModal(false);
       setImageUrlsList([]);
     }
+  };
+
+  //View post details
+  const handleViewPostDetails = (post) => {
+    setChosenPost(post);
+    //Lấy images url
+    getImageUrlsByPostId(post);
+    //Lưu dữ liệu (content) gốc vào 1 biến khác để so sánh khi cập nhật/huỷ cập nhật
+    setContentBeforeUpdate(post.content);
+    //Hiển thị content của selected post (to view details) lần đầu tiên,
+    //sau đó mặc định đặt giá trị content đó cho updated content
+    //Để phục vụ cho việc update content
+    setContentForUpdate(post.content); // Cập nhật contentForUpdate khi chọn post
+    setViewPostDetails(true);
+    getCommentsByPostId(post);
+  };
+
+  //Open options modal
+  const handleSetOptionsModal = () => {
+    setOpenOptionsModal(!openOptionsModal);
+  };
+
+  //Open comment options modal
+  const handleSetCommentOptionsModal = (index, comment) => {
+    setOpenCommentOptionsModal(index);
+    setSelectedCommentRemoveEdit(comment);
   };
 
   //Editing
@@ -922,12 +862,44 @@ export const Common = ({ children }) => {
     }
   };
 
-  const getAllPosts = async () => {
+  const getAllPostsOfAdmin = async () => {
     try {
-      const response = await axios.get(`${apiBaseUrl}/posts/`);
+      //Nếu không có người đăng nhập thì mặc định getAllPost của admin
+      const response = await axios.get(`${apiBaseUrl}/posts/admin`);
       setPostsList(response.data);
     } catch (error) {
-      console.error('Error getting all posts', error);
+      console.error('Error getting all posts of admin', error);
+    }
+  };
+
+  const getAllPostsExceptMe = async () => {
+    try {
+      //Nếu đăng nhập thì lấy post của mọi người trừ của currentRole
+      const currentInfor =
+        JSON.parse(localStorage.getItem('admin')) ||
+        JSON.parse(localStorage.getItem('user')) ||
+        JSON.parse(localStorage.getItem('exceptional'));
+      const response = await axios.get(
+        `${apiBaseUrl}/posts/except-me/${currentInfor.user_id}`
+      );
+      setPostsList(response.data);
+    } catch (error) {
+      console.error('Error getting all posts except me', error);
+    }
+  };
+
+  const getAllMyPosts = async () => {
+    try {
+      const currentInfor =
+        JSON.parse(localStorage.getItem('admin')) ||
+        JSON.parse(localStorage.getItem('user')) ||
+        JSON.parse(localStorage.getItem('exceptional'));
+      const response = await axios.get(
+        `${apiBaseUrl}/posts/my-all-posts/${currentInfor.user_id}`
+      );
+      setAllMyPosts(response.data);
+    } catch (error) {
+      console.error('Error getting my all posts', error);
     }
   };
 
@@ -952,7 +924,21 @@ export const Common = ({ children }) => {
 
   //Format posted time to yyyy/mm/dd
   const getPostedTime = (createdAt) => {
-    return createdAt.split('T')[0];
+    if (createdAt) {
+      return createdAt.split('T')[0];
+    }
+  };
+
+  //Get lastest - newest post
+  const getLastestPostCreatedByMe = async (currentUserInfor) => {
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/posts/my-lastest-post/${currentUserInfor.user_id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting lastest post', error);
+    }
   };
 
   //Create post
@@ -967,7 +953,8 @@ export const Common = ({ children }) => {
     } else {
       const formData = new FormData();
       formData.append('content', postContent);
-      formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      // formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
       images.forEach((file) => {
         formData.append('images', file);
         console.log('Added image to formData:', file);
@@ -981,10 +968,26 @@ export const Common = ({ children }) => {
         setPostModal(false);
         textareaRef.current.value = '';
         setHasPostContent(false);
-        toast.success('Đăng bài thành công!');
-        getAllPosts();
+        getAllPostsExceptMe();
+        getAllMyPosts();
         setImageUrlsList([]);
         setImages([]);
+        console.log('current', currentUserInfor);
+        const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
+        console.log('lastestPost', lastestPost);
+        toast.success(
+          <div>
+            Đăng bài thành công! Hãy xem bài viết mới nhất của bạn tại
+            <div
+              onClick={() => {
+                handleViewPostDetails(lastestPost);
+              }}
+              className='cursor-pointer underline hover:text-blue-500 text-blue-400 ease-in-out duration-300'
+            >
+              đây.
+            </div>
+          </div>
+        );
       } catch (error) {
         console.error('Error creating post', error);
         setPostModal(false);
@@ -1001,10 +1004,12 @@ export const Common = ({ children }) => {
       // textareaRef.current.value = '';
       // setHasPostContent(false);
       setOpenDeleteModal(false);
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000); // Tự động reload sau 2 giây
-      toast.success('Xoá bài thành công! Đang trở về trang chủ...');
+      toast.success('Xoá bài thành công!');
+      console.log('pho rom 1', from);
+      setViewPostDetails(false);
+      navigate(from); // Điều hướng về trang trước khi đến PostDetails
+      getAllPostsExceptMe();
+      getAllMyPosts();
     } catch (error) {
       console.error('Error deleting post', error);
       setOpenDeleteModal(false);
@@ -1049,7 +1054,8 @@ export const Common = ({ children }) => {
       const formData = new FormData();
       formData.append('post_id', post.post_id);
       formData.append('comment_content', commentContent);
-      formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      // formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
       imagesComment.forEach((file) => {
         // ------------------------------WARNING-----------------------------------------
         //TÊN TRƯỜNG NÀY CẦN PHẢI TRÙNG KHỚP VỚI TÊN Ở commentRoutes
@@ -1081,61 +1087,6 @@ export const Common = ({ children }) => {
       }
     }
   };
-
-  useEffect(() => {
-    if (isEditing && contentEditableRef.current) {
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(contentEditableRef.current);
-      range.collapse(false); // Đặt con trỏ ở cuối nội dung
-      selection.removeAllRanges();
-      selection.addRange(range);
-      contentEditableRef.current.focus();
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    if (isEditingComment && commentEditableRef.current) {
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(commentEditableRef.current);
-      range.collapse(false); // Đặt con trỏ ở cuối nội dung
-      selection.removeAllRanges();
-      selection.addRange(range);
-      commentEditableRef.current.focus();
-    }
-  }, [isEditingComment]);
-
-  //Counting redundant editing characters number
-  useEffect(() => {
-    const countRedundantCharacter =
-      numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
-    setRedundantEditingCharactersNumber(countRedundantCharacter);
-  }, [contentForUpdate, redundantEditingCharactersNumber]);
-
-  //Counting redundant editing comment characters number
-  useEffect(() => {
-    const countRedundantCommentCharacter =
-      numberCharactersAllowed - commentForUpdate.length; //Số lượng kí tự dư thừa
-    setRedundantEditingCommentCharactersNumber(countRedundantCommentCharacter);
-  }, [commentForUpdate, redundantEditingCommentCharactersNumber]);
-
-  useEffect(() => {
-    if (selectedCommentRemoveEdit) {
-      console.log('selected remove edit', selectedCommentRemoveEdit);
-      setCommentForUpdate(selectedCommentRemoveEdit.comment_content);
-    }
-  }, [selectedCommentRemoveEdit]);
-
-  useEffect(() => {
-    if (
-      isEditingComment ||
-      isSuccessFullyRemoved ||
-      commentsByPostId.length > 0
-    ) {
-      getCommentsByPostId(chosenPost);
-    }
-  }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId.length]);
 
   return (
     <CommonContext.Provider
@@ -1184,8 +1135,8 @@ export const Common = ({ children }) => {
         handleSwipeCommentImage,
         handleSwipePostCommonImage,
         getAllUsers,
-        getAllPosts,
-        postsList,
+        getAllPostsOfAdmin,
+        getAllPostsExceptMe,
         usersList,
         getAuthorNameOfPostByUserId,
         getAuthorAvatarByUserId,
@@ -1199,10 +1150,8 @@ export const Common = ({ children }) => {
         redundantCommentCharactersNumber,
         setRedundantCommentCharactersNumber,
         numberCharactersAllowed,
-        isUser,
-        setIsUser,
-        isLoggedByAdmin,
         adminInfor,
+        setAdminInfor,
         openViewImageModal,
         setOpenViewImageModal,
         handleOpenViewImageModal,
@@ -1228,6 +1177,7 @@ export const Common = ({ children }) => {
         setLengthOfViewPostImage,
         viewPrevImageRef,
         viewNextImageRef,
+        currentViewImage,
         currentViewImageIndex,
         setCurrentViewImageIndex,
         currentViewImageCommentIndex,
@@ -1320,6 +1270,31 @@ export const Common = ({ children }) => {
         findAttachItemsByCommentIdAfterSorting,
         imagesOfCurrentCommentDragging,
         setImagesOfCurrentCommentDragging,
+        role,
+        setRole,
+        currentUserInfor,
+        setCurrentUserInfor,
+        postsList,
+        setPostsList,
+        viewPostDetails,
+        setViewPostDetails,
+        isScreenLessThan730Px,
+        postDetailsRef,
+        optionsModalRef,
+        commentOptionsModalRef,
+        handleSetOptionsModal,
+        handleSetCommentOptionsModal,
+        handleViewPostDetails,
+        getAllMyPosts,
+        allMyPosts,
+        setAllMyPosts,
+        sortedUrlImages,
+        setMappedImagesOfCurrentCommentDragging,
+        currentViewImageComment,
+        mappedImagesOfCurrentCommentDragging,
+        sortedUrlImagesComment,
+        searchContent,
+        setSearchContent,
         // notify,
       }}
     >

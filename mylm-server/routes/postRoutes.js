@@ -1,13 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const postController = require('../controllers/postController');
+const userController = require('../controllers/userController');
 
 //general router: /posts/
-router.get('/', postController.getAllPosts);
+router.get('/admin', postController.getAllPostsOfAdmin);
+router.get(
+  '/my-all-posts/:userid',
+  userController.checkUserIsExistById,
+  postController.getAllMyPosts
+);
+router.get(
+  '/except-me/:userid',
+  userController.checkUserIsExistById,
+  postController.getAllPostsExceptCurrentLoggedInUser
+);
+
+router.get(
+  '/my-lastest-post/:userid',
+  userController.checkUserIsExistById,
+  postController.getLastestPostCreatedByMe
+);
+
 router.get('/:postid/images', postController.getAllImagesByPostId);
 // router.post('/uploadimages', postController.uploadImages);
 router.post('/bycontent', postController.getPostsByContent);
-router.get('/:postid', postController.getPostById);
+router.get(
+  '/:postid',
+  postController.checkPostIsExist,
+  postController.getPostById
+);
 router.post(
   '/createpost',
   postController.upload.array('images', 10),

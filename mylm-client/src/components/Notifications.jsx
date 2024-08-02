@@ -3,7 +3,14 @@ import { BiFilter, BiPen, BiPencil } from 'react-icons/bi';
 import { useCommon } from '../contexts/CommonContext';
 
 function Notifications() {
-  const { adminInfor, apiBaseUrl } = useCommon();
+  const {
+    adminInfor,
+    apiBaseUrl,
+    role,
+    setRole,
+    currentUserInfor,
+    setCurrentUserInfor,
+  } = useCommon();
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -42,7 +49,11 @@ function Notifications() {
             <div className='result-item grid relative mb-[85px]'>
               <div className='image-avatar absolute top-0 left-0'>
                 <img
-                  src={adminInfor && adminInfor.avatar_path}
+                  src={
+                    currentUserInfor
+                      ? currentUserInfor?.avatar_path
+                      : adminInfor?.avatar_path
+                  }
                   alt=''
                   className='rounded-full w-12 h-12'
                 />
@@ -50,7 +61,9 @@ function Notifications() {
               <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
                 <div className='name-and-posted-at'>
                   <div className='font-semibold'>
-                    {adminInfor && adminInfor.username}
+                    {currentUserInfor
+                      ? currentUserInfor?.username
+                      : adminInfor?.username}
                   </div>
                   <div className='text-slate-700 opacity-70'>Posted at</div>
                   <div className='result-little-detail whitespace-nowrap overflow-hidden overflow-ellipsis'>

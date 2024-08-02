@@ -29,7 +29,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const { isUser, setIsUser, apiBaseUrl } = useCommon();
+  const { apiBaseUrl, role, setRole } = useCommon();
 
   // Effect to transform labels when inputs are filled
   useEffect(() => {
@@ -66,11 +66,19 @@ function Login() {
       });
       console.log('Login successful');
       // Xử lý response sau khi đăng nhập thành công
-      const admin = response.data.data.user;
-      if (admin.role === 'admin') {
-        setIsUser(false);
-        localStorage.setItem('admin', JSON.stringify(admin));
-        console.log('admin', admin);
+      const account = response.data.data.user;
+      if (account.role === 'admin') {
+        localStorage.setItem('admin', JSON.stringify(account));
+        setRole('admin');
+        console.log('admin', account);
+      } else if (account.role === 'user') {
+        localStorage.setItem('user', JSON.stringify(account));
+        setRole('user');
+        console.log('user', account);
+      } else if (account.role === 'exceptional') {
+        localStorage.setItem('exceptional', JSON.stringify(account));
+        setRole('exceptional');
+        console.log('exceptional', account);
       }
       navigate('/');
     } catch (error) {
@@ -80,13 +88,6 @@ function Login() {
     }
   };
 
-  useEffect(() => {
-    const admin = JSON.parse(localStorage.getItem('admin'));
-    if (admin) {
-      setIsUser(false);
-      navigate('/');
-    }
-  }, []);
   return (
     <>
       <div className='background-image-common'>
@@ -146,10 +147,18 @@ function Login() {
                 />
                 <label htmlFor='Remember Me'>Remember Me</label>
               </div> */}
-              <div className='mx-auto'>
+              {/* <div className='mx-auto'>
                 <Link to='/forgotpassword' className='text-blue-500'>
                   Quên mật khẩu?
                 </Link>
+              </div> */}
+              <div
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+                className='mx-auto text-blue-500 text-xl cursor-pointer'
+              >
+                Trang chủ
               </div>
             </div>
             <button

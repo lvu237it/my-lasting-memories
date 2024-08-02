@@ -4,13 +4,16 @@ import App from './App.jsx';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Common } from './contexts/CommonContext.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Common>
+    <ErrorBoundary>
       <BrowserRouter>
-        <App />
+        <Common>
+          <App />
+        </Common>
       </BrowserRouter>
-    </Common>
+    </ErrorBoundary>
   </React.StrictMode>
 );

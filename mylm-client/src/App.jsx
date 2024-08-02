@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import AuthLayout from './components/AuthLayout';
 import Profile from './components/Profile';
+import ViewPostDetails from './components/ViewPostDetails';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path='/savedposts' element={<SavedPosts />} />
           <Route path='/messages' element={<Messages />} />
           <Route path='/profile' element={<Profile />} />
+          <Route path='/post-details' element={<ViewPostDetails />} />
         </Route>
       </Routes>
     </>

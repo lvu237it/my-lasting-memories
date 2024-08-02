@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import axios from 'axios';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   BiHome,
@@ -26,6 +27,7 @@ import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import NavBar from './NavBar';
 
 import { useCommon } from '../contexts/CommonContext';
+import ViewPostDetails from './ViewPostDetails';
 
 const MainLayout = () => {
   const {
@@ -84,9 +86,8 @@ const MainLayout = () => {
     redundantCommentCharactersNumber,
     setRedundantCommentCharactersNumber,
     numberCharactersAllowed,
-    isUser,
-    setIsUser,
     adminInfor,
+    setAdminInfor,
     openViewImageModal,
     openViewImageCommentModal,
     setOpenViewImageCommentModal,
@@ -109,7 +110,6 @@ const MainLayout = () => {
     handleViewNextImage,
     openAddCommentModal,
     setOpenAddCommentModal,
-    isLoggedByAdmin,
     handleClosePostCommentModal,
     showdiscardCommentModal,
     setShowDiscardCommentModal,
@@ -155,16 +155,133 @@ const MainLayout = () => {
     handleViewPrevCommentImage,
     handleViewNextCommentImage,
     commentsByPostId,
+    role,
+    setRole,
+    currentUserInfor,
+    setCurrentUserInfor,
+    apiBaseUrl,
+    getAllUsers,
+    getAllPostsOfAdmin,
+    getAllPostsExceptMe,
+    postsList,
+    setPostsList,
+    getAllMyPosts,
+    allMyPosts,
+    setAllMyPosts,
+    setCurrentViewImageIndex,
+    sortedUrlImages,
+    imagesOfCurrentCommentDragging,
+    currentViewImage,
+    setMappedImagesOfCurrentCommentDragging,
+    currentViewImageComment,
+    mappedImagesOfCurrentCommentDragging,
+    sortedUrlImagesComment,
+    redundantEditingCommentCharactersNumber,
+    contentEditableRef,
+    isSuccessFullyRemoved,
+    setCommentForUpdate,
+    setCurrentViewImageCommentIndex,
+    redundantEditingCharactersNumber,
+    commentEditableRef,
+    setRedundantEditingCharactersNumber,
+    contentForUpdate,
+    commentForUpdate,
+    getCommentsByPostId,
+    setRedundantEditingCommentCharactersNumber,
+    viewPostDetails,
+    setViewPostDetails,
+    commentOptionsModalRef,
+    optionsModalRef,
   } = useCommon();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogOut = () => {
+    setPostsList([]);
     localStorage.removeItem('admin');
-    setIsUser(true);
+    localStorage.removeItem('user');
+    localStorage.removeItem('exceptional');
     navigate('/login');
   };
+
+  //Lấy thông tin admin để hiển thị mặc định ở trang home - trang chính thức
+  useEffect(() => {
+    const getAdminInformation = async () => {
+      try {
+        const response = await axios.get(`${apiBaseUrl}/admin/information`);
+        setAdminInfor(response.data[0]);
+      } catch (err) {
+        console.log('Error when getting admin information', err);
+      }
+    };
+
+    getAdminInformation();
+    console.log('apiBaseUrl', apiBaseUrl);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const currentLoggedIn =
+        JSON.parse(localStorage.getItem('admin')) ||
+        JSON.parse(localStorage.getItem('user')) ||
+        JSON.parse(localStorage.getItem('exceptional'));
+
+      if (currentLoggedIn) {
+        try {
+          // Lấy thông tin người dùng hiện tại
+          const userResponse = await axios.get(
+            `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}`
+          );
+          setCurrentUserInfor(userResponse.data[0]);
+
+          // Lấy các bài viết ngoại trừ của người dùng hiện tại
+          const postsResponse = await axios.get(
+            `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
+          );
+          setPostsList(postsResponse.data);
+        } catch (err) {
+          console.log('Error when getting data', err);
+        }
+
+        getAllMyPosts();
+      } else {
+        try {
+          // Lấy tất cả các bài viết của admin nếu không có ai đăng nhập
+          const postsResponse = await axios.get(`${apiBaseUrl}/posts/admin`);
+          setPostsList(postsResponse.data);
+        } catch (err) {
+          console.log('Error when getting admin posts', err);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    getAllUsers();
+
+    const admin = JSON.parse(localStorage.getItem('admin'));
+    const user = JSON.parse(localStorage.getItem('user'));
+    const exceptional = JSON.parse(localStorage.getItem('exceptional'));
+    if (admin) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('exceptional');
+      setRole('admin');
+      // navigate('/');
+    } else if (user) {
+      localStorage.removeItem('admin');
+      localStorage.removeItem('exceptional');
+      setRole('user');
+    } else if (exceptional) {
+      localStorage.removeItem('admin');
+      localStorage.removeItem('user');
+      setRole('exceptional');
+    } else {
+      setRole(null);
+    }
+  }, []);
 
   useEffect(() => {
     setLengthOfViewPostImage(localUrlImages.length);
@@ -315,6 +432,132 @@ const MainLayout = () => {
   }, [clickCancelCommentDiscard]);
 
   useEffect(() => {
+    if (!openAddCommentModal) {
+      setImageUrlsList([]);
+    }
+  }, [openAddCommentModal]);
+
+  useEffect(() => {
+    if (viewPrevImageRef.current && viewNextImageRef.current) {
+      if (sortedUrlImages.length <= 1) {
+        viewPrevImageRef.current.style.display = 'none';
+        viewNextImageRef.current.style.display = 'none';
+      } else {
+        viewPrevImageRef.current.style.display = 'block';
+        viewNextImageRef.current.style.display = 'block';
+      }
+    }
+  }, [currentViewImage, openViewImageModal, sortedUrlImages]);
+
+  useEffect(() => {
+    //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
+    const currentImageChoseToView = sortedUrlImages.find(
+      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
+    );
+
+    setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
+  }, [imageChoseToView]);
+
+  useEffect(() => {
+    if (imagesOfCurrentCommentDragging) {
+      const mappedInfor = imagesOfCurrentCommentDragging.map((element) => {
+        return element.attacheditem_comment_path;
+      });
+      setMappedImagesOfCurrentCommentDragging(mappedInfor);
+    }
+  }, [openViewImageCommentModal, imagesOfCurrentCommentDragging]);
+
+  useEffect(() => {
+    if (viewPrevCommentImageRef.current && viewNextCommentImageRef.current) {
+      if (mappedImagesOfCurrentCommentDragging.length <= 1) {
+        viewPrevCommentImageRef.current.style.display = 'none';
+        viewNextCommentImageRef.current.style.display = 'none';
+      } else {
+        viewPrevCommentImageRef.current.style.display = 'block';
+        viewNextCommentImageRef.current.style.display = 'block';
+      }
+    }
+  }, [
+    currentViewImageComment,
+    openViewImageCommentModal,
+    mappedImagesOfCurrentCommentDragging,
+    sortedUrlImagesComment,
+  ]);
+
+  useEffect(() => {
+    //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
+    const currentImageChoseToViewComment = imagesOfCurrentCommentDragging
+      .map((element) => element.attacheditem_comment_path)
+      .find((path) => imageChoseToViewComment === `${apiBaseUrl}${path}`);
+    setCurrentViewImageCommentIndex(
+      mappedImagesOfCurrentCommentDragging.indexOf(
+        currentImageChoseToViewComment
+      )
+    );
+  }, [imageChoseToViewComment, openViewImageCommentModal]);
+
+  useEffect(() => {
+    if (isEditing && contentEditableRef.current) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(contentEditableRef.current);
+      range.collapse(false); // Đặt con trỏ ở cuối nội dung
+      selection.removeAllRanges();
+      selection.addRange(range);
+      contentEditableRef.current.focus();
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditingComment && commentEditableRef.current) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(commentEditableRef.current);
+      range.collapse(false); // Đặt con trỏ ở cuối nội dung
+      selection.removeAllRanges();
+      selection.addRange(range);
+      commentEditableRef.current.focus();
+    }
+  }, [isEditingComment]);
+
+  //Counting redundant editing characters number
+  useEffect(() => {
+    if (contentForUpdate) {
+      const countRedundantCharacter =
+        numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
+      setRedundantEditingCharactersNumber(countRedundantCharacter);
+    }
+  }, [contentForUpdate, redundantEditingCharactersNumber, chosenPost]);
+
+  //Counting redundant editing comment characters number
+  useEffect(() => {
+    if (commentForUpdate) {
+      const countRedundantCommentCharacter =
+        numberCharactersAllowed - commentForUpdate.length; //Số lượng kí tự dư thừa
+      setRedundantEditingCommentCharactersNumber(
+        countRedundantCommentCharacter
+      );
+    }
+  }, [commentForUpdate, redundantEditingCommentCharactersNumber]);
+
+  useEffect(() => {
+    if (selectedCommentRemoveEdit) {
+      console.log('selected remove edit', selectedCommentRemoveEdit);
+      setCommentForUpdate(selectedCommentRemoveEdit.comment_content);
+    }
+  }, [selectedCommentRemoveEdit]);
+
+  useEffect(() => {
+    if (
+      isEditingComment ||
+      isSuccessFullyRemoved ||
+      commentsByPostId.length > 0
+    ) {
+      getCommentsByPostId(chosenPost);
+    }
+  }, [isEditingComment, isSuccessFullyRemoved, commentsByPostId.length]);
+
+  useEffect(() => {
     const htmlPage = document.getElementsByTagName('html')[0];
     const body = document.getElementsByTagName('body')[0];
     const stickyHeader = document.getElementById('sticky-header');
@@ -462,6 +705,46 @@ const MainLayout = () => {
     };
   }, [commentsByPostId.length, scrollContainerCommentImageRef]);
 
+  //Click outside of options modal
+  const handleClickOutsideOptionsModal = (event) => {
+    if (
+      optionsModalRef.current &&
+      !optionsModalRef.current.contains(event.target)
+    ) {
+      setOpenOptionsModal(false);
+    }
+  };
+
+  //Click outside of comment options modal
+  const handleClickOutsideCommentOptionsModal = (event) => {
+    if (
+      commentOptionsModalRef.current &&
+      !commentOptionsModalRef.current.contains(event.target)
+    ) {
+      setOpenCommentOptionsModal(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutsideOptionsModal);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideOptionsModal);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener(
+      'mousedown',
+      handleClickOutsideCommentOptionsModal
+    );
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideCommentOptionsModal
+      );
+    };
+  }, []);
+
   return (
     <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
       {/* View images of a post */}
@@ -571,14 +854,14 @@ const MainLayout = () => {
                     <div className='fixed'>
                       <img
                         className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
-                        src={isLoggedByAdmin && isLoggedByAdmin.avatar_path}
+                        src={currentUserInfor && currentUserInfor.avatar_path}
                         alt=''
                       />
                     </div>
                     <div className='ml-0 sm:ml-16'>
                       <div className='pt-14 sm:pt-0'>
                         <div className='font-semibold tracking-wide'>
-                          {isLoggedByAdmin && isLoggedByAdmin.username}
+                          {currentUserInfor && currentUserInfor.username}
                         </div>
                         <div className='w-full sm2:w-[95%]'>
                           {/* Display images before uploading to database */}
@@ -663,13 +946,13 @@ const MainLayout = () => {
         </div>
       )}
 
-      {isUser === true ? (
+      {!role ? (
         <Link to={'/login'}>
           <div
             id='log-in-icon'
             className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
           >
-            <div className='text-xl p-2 sm2:text-2xl sm2:p-3'>
+            <div className='text-xl p-2 sm2:text-2xl sm2:p-3' title='Đăng nhập'>
               <BiLogIn />
             </div>
           </div>
@@ -683,13 +966,14 @@ const MainLayout = () => {
           <div
             onClick={handleLogOut}
             className='text-xl p-2 sm2:text-2xl sm2:p-3'
+            title='Đăng xuất'
           >
             <BiLogOut />
           </div>
         </div>
       )}
 
-      {isUser === false ? (
+      {role ? (
         <div
           id='add-post-icon'
           ref={addPostIconRef}
@@ -698,6 +982,7 @@ const MainLayout = () => {
           <div
             onClick={handleOpenPostModal}
             className='text-xl p-2 sm2:text-2xl sm2:p-3'
+            title='Viết bài'
           >
             <BiPencil />
           </div>
@@ -771,7 +1056,7 @@ const MainLayout = () => {
         <>
           <div
             id='background-delete-comment-modal'
-            className='z-10 fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+            className='z-[1001] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
           >
             <div className='w-full h-full flex justify-center items-center'>
               <div id='delete-comment-modal' className='relative z-20'>
@@ -836,14 +1121,14 @@ const MainLayout = () => {
                   <div className='fixed'>
                     <img
                       className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
-                      src={adminInfor && adminInfor.avatar_path}
+                      src={currentUserInfor && currentUserInfor.avatar_path}
                       alt=''
                     />
                   </div>
                   <div className='ml-0 sm:ml-16'>
                     <div className='pt-14 sm:pt-0'>
                       <div className='font-semibold tracking-wide'>
-                        {adminInfor && adminInfor.username}
+                        {currentUserInfor && currentUserInfor.username}
                       </div>
                       <div className='w-full sm2:w-[95%]'>
                         {/* Display images before uploading to database */}
@@ -982,7 +1267,7 @@ const MainLayout = () => {
               >
                 <BiSolidPlaylist />
               </div>
-              {isUser === false ? (
+              {role ? (
                 <div
                   id='header-icon-bi-bookmark'
                   className='left-sidebar-icons'
@@ -993,7 +1278,7 @@ const MainLayout = () => {
               ) : (
                 ''
               )}
-              {isUser === false ? (
+              {role ? (
                 <div
                   id='header-icon-bi-message'
                   className='left-sidebar-icons'

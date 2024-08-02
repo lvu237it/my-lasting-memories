@@ -10,13 +10,88 @@ const path = require('path');
 const fs = require('fs');
 
 //Get existed posts (EXCEPT deleted posts)
-exports.getAllPosts = catchAsync(async (req, res, next) => {
+exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
   const rows = await poolQuery(
-    'SELECT * FROM posts WHERE is_deleted = 0 ORDER BY created_at DESC;'
+    'SELECT * FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
+    ['admin']
   );
 
   if (!rows) {
     return next(new AppError('No posts found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
+exports.getAllMyPosts = catchAsync(async (req, res, next) => {
+  const userid = req.userid;
+  const rows = await poolQuery(
+    'SELECT * FROM posts WHERE is_deleted = 0 and user_id = $1 ORDER BY posts.created_at DESC',
+    [userid]
+  );
+
+  if (!rows) {
+    return next(new AppError('No posts found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
+exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
+  async (req, res, next) => {
+    const { userid } = req.params;
+    const rows = await poolQuery(
+      'SELECT * FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
+      [userid]
+    );
+
+    if (!rows) {
+      return next(new AppError('No posts found', 404));
+    }
+
+    //Test API using Postman
+    // res.status(200).json({
+    //   status: 'success',
+    //   results: rows.length,
+    //   data: {
+    //     data: rows,
+    //   },
+    // });
+
+    //Response to client
+    res.status(200).json(rows);
+  }
+);
+
+exports.getLastestPostCreatedByMe = catchAsync(async (req, res, next) => {
+  const { userid } = req.params;
+  const rows = await poolQuery(
+    'SELECT * FROM posts WHERE posts.is_deleted = 0 AND posts.user_id = $1 ORDER BY posts.created_at DESC LIMIT 1',
+    [userid]
+  );
+
+  if (!rows) {
+    return next(new AppError('No posts created by me found', 404));
   }
 
   //Test API using Postman

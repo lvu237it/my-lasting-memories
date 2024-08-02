@@ -3,7 +3,7 @@ import { BiMenu } from 'react-icons/bi';
 import { useCommon } from '../contexts/CommonContext';
 
 function NavBar() {
-  const { isUser } = useCommon();
+  const { role, setRole, currentUserInfor, setCurrentUserInfor } = useCommon();
   const isExistLogin =
     JSON.parse(localStorage.getItem('admin')) ||
     JSON.parse(localStorage.getItem('user'));
@@ -34,7 +34,7 @@ function NavBar() {
             Danh sách nhạc
           </Link>
         </li>
-        {isUser === false ? (
+        {role ? (
           <li className='nav-link-routing'>
             <Link className='nav-link-dropdown' to={'/savedposts'}>
               Bài viết đã lưu
@@ -43,7 +43,7 @@ function NavBar() {
         ) : (
           ''
         )}
-        {isUser === false ? (
+        {role ? (
           <li className='nav-link-routing'>
             <Link className='nav-link-dropdown' to={'/messages'}>
               Tin nhắn

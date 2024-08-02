@@ -19,6 +19,11 @@ router.patch(
   authController.updateUserPassword
 );
 
+router.get(
+  '/current-logged-in-information',
+  userController.getCurrentLoggedInUserInformation
+);
+
 router.route('/').get(
   // authController.protect,
   // authController.restrictTo('admin', 'user'),

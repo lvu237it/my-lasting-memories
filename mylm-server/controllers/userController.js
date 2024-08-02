@@ -8,6 +8,31 @@ const { v4: uuidv4 } = require('uuid');
 const { promisify } = require('util');
 
 // Controller Function
+exports.getCurrentLoggedInUserInformation = catchAsync(
+  async (req, res, next) => {
+    const { role } = req.query;
+    if (!role) {
+      return next(new AppError('Role parameter is missing', 400));
+    }
+    const rows = await poolQuery('SELECT * FROM users where role = $1', [role]);
+    if (!rows) {
+      return next(new AppError('No user found', 404));
+    }
+
+    // Lọc các trường cần hiển thị
+    const filteredRows = rows.map((row) => ({
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      role: row.role,
+      avatar_path: row.avatar_path,
+    }));
+
+    // Response to client
+    res.status(200).json(filteredRows);
+  }
+);
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const rows = await poolQuery('SELECT * FROM users');
 
@@ -75,7 +100,7 @@ exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
   ]);
 
   if (!rows) {
-    return next(new AppError('No post found', 404));
+    return next(new AppError('No users found', 404));
   }
 
   req.userid = userid;

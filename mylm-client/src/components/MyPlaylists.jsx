@@ -4,7 +4,14 @@ import { AiOutlinePlus } from 'react-icons/ai';
 import { useCommon } from '../contexts/CommonContext';
 
 function MyPlaylists() {
-  const { isUser, setIsUser, adminInfor, apiBaseUrl } = useCommon();
+  const {
+    adminInfor,
+    apiBaseUrl,
+    role,
+    setRole,
+    currentUserInfor,
+    setCurrentUserInfor,
+  } = useCommon();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -30,7 +37,7 @@ function MyPlaylists() {
     <>
       <div className='wrapper my-3 relative'>
         <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
-          {isUser === false ? (
+          {role ? (
             <>
               <div className='relative grid grid-cols-12 create-new-playlist mb-3 cursor-pointer rounded-xl bg-white hover:bg-slate-100 duration-300 ease-in-out'>
                 <div className='col-span-1 flex items-center'>
@@ -51,7 +58,11 @@ function MyPlaylists() {
             <div className='result-item grid relative mb-[85px]'>
               <div className='image-avatar absolute top-0 left-0'>
                 <img
-                  src={adminInfor && adminInfor.avatar_path}
+                  src={
+                    currentUserInfor
+                      ? currentUserInfor?.avatar_path
+                      : adminInfor?.avatar_path
+                  }
                   alt=''
                   className='rounded-full w-12 h-12'
                 />
@@ -59,7 +70,9 @@ function MyPlaylists() {
               <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
                 <div className='name-and-posted-at'>
                   <div className='font-semibold'>
-                    {adminInfor && adminInfor.username}
+                    {currentUserInfor
+                      ? currentUserInfor?.username
+                      : adminInfor?.username}
                   </div>
                   <div className='text-slate-700 opacity-70'>Posted at</div>
                   <div className='result-little-detail whitespace-nowrap overflow-hidden overflow-ellipsis'>
