@@ -27,7 +27,6 @@ import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import NavBar from './NavBar';
 
 import { useCommon } from '../contexts/CommonContext';
-import ViewPostDetails from './ViewPostDetails';
 
 const MainLayout = () => {
   const {
@@ -230,12 +229,11 @@ const MainLayout = () => {
         JSON.parse(localStorage.getItem('admin')) ||
         JSON.parse(localStorage.getItem('user')) ||
         JSON.parse(localStorage.getItem('exceptional'));
-
       if (currentLoggedIn) {
         try {
           // Lấy thông tin người dùng hiện tại
           const userResponse = await axios.get(
-            `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}`
+            `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}&userid=${currentLoggedIn.user_id}`
           );
           setCurrentUserInfor(userResponse.data[0]);
 
@@ -356,20 +354,6 @@ const MainLayout = () => {
       navigate('/profile');
     }
   }, [headerIconsClicked]);
-
-  // useEffect(() => {
-  //   if (location.pathname === '/') {
-  //     if (currentUserInfor) {
-  //       getAllPostsExceptMe();
-  //     } else {
-  //       getAllPostsOfAdmin();
-  //     }
-  //   }
-  //   // else if (location.pathname === 'profile') {
-  //   //   //fetch lại all my post để cập nhật post mới nhất của bản thân ở profile
-  //   //   getAllMyPosts();
-  //   // }
-  // }, [location.pathname, currentUserInfor]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideNavBar);
@@ -666,20 +650,6 @@ const MainLayout = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const container = scrollContainerCommentImageRef.current;
-  //   if (container) {
-  //     container.addEventListener('mousedown', handleSwipeCommentImage);
-  //   }
-
-  //   // Clean up the event listener on unmount
-  //   return () => {
-  //     if (container) {
-  //       container.removeEventListener('mousedown', handleSwipeCommentImage);
-  //     }
-  //   };
-  // }, []);
-
   useEffect(() => {
     const container = scrollContainerPostCommonRef.current;
     if (container) {
@@ -765,6 +735,45 @@ const MainLayout = () => {
 
   return (
     <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
+      {/* Edit user information */}
+      {/* {openViewImageModal && (
+        <div
+          style={{ display: 'flex' }}
+          className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
+        >
+          <div
+            ref={cancelViewPostImageRef}
+            className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
+          >
+            <BiX title='Đóng' />
+          </div>
+
+          <div id='wrapper-prev-next-icon' className=''>
+            <div
+              ref={viewPrevImageRef}
+              onClick={handleViewPrevImage}
+              className='fixed p-3 left-0 top-1/2 -translate-y-1/2 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleLeft />
+            </div>
+            <div
+              ref={viewNextImageRef}
+              onClick={handleViewNextImage}
+              className='fixed p-3 right-0 top-1/2 -translate-y-1/2 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+            >
+              <FaAngleRight />
+            </div>
+          </div>
+
+          <img
+            ref={imageChoseToViewRef}
+            src={imageChoseToView}
+            alt='image-modal'
+            className='max-w-full max-h-full shadow shadow-slate-300'
+          />
+        </div>
+      )} */}
+
       {/* View images of a post */}
       {openViewImageModal && (
         <div
@@ -872,7 +881,12 @@ const MainLayout = () => {
                     <div className='fixed'>
                       <img
                         className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
-                        src={currentUserInfor && currentUserInfor.avatar_path}
+                        src={
+                          currentUserInfor
+                            ? currentUserInfor?.avatar_path ||
+                              './user-avatar-default.png'
+                            : adminInfor?.avatar_path
+                        }
                         alt=''
                       />
                     </div>
@@ -1139,7 +1153,12 @@ const MainLayout = () => {
                   <div className='fixed'>
                     <img
                       className='w-[50px] h-[50px] rounded-full bg-no-repeat bg-center bg-cover object-cover'
-                      src={currentUserInfor && currentUserInfor.avatar_path}
+                      src={
+                        currentUserInfor
+                          ? currentUserInfor?.avatar_path ||
+                            './user-avatar-default.png'
+                          : adminInfor?.avatar_path
+                      }
                       alt=''
                     />
                   </div>

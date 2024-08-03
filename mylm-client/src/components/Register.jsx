@@ -53,7 +53,8 @@ function Register() {
       });
       console.log('Register successful:', response.data);
       // Xử lý response sau khi đăng ký thành công
-      navigate('/');
+
+      navigate('/login');
     } catch (error) {
       console.error('Error registering:', error);
       // Xử lý lỗi khi đăng ký

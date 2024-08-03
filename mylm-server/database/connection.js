@@ -81,6 +81,7 @@
 const { Pool } = require('pg'); // Import pg library
 const dotenv = require('dotenv');
 const path = require('path');
+const AppError = require('../utils/appError');
 
 dotenv.config({
   path: path.join(__dirname, '../.env'),

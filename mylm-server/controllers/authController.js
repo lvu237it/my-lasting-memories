@@ -51,14 +51,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
   //Kiểm tra username
-  if (!username.match(/^[a-zA-Z\s]+$/)) {
-    return next(
-      new AppError(
-        // 'User name only contain alphabets characters and spaces',
-        'Họ và Tên chỉ chứa kí tự alphabet và khoảng trắng',
-        400
-      )
-    );
+  if (!username.match(/^[\p{L}\s]+$/u)) {
+    return next(new AppError('Họ và Tên chỉ chứa kí tự alphabet', 400));
   }
 
   // Kiểm tra sự tồn tại của email và password

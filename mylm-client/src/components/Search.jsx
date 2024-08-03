@@ -141,15 +141,7 @@ function Search() {
 
   const searchContentRef = useRef();
 
-  // const contentEditableRef = useRef(null);
-
   const [isSavedPost, setIsSavedPost] = useState(true);
-  // const [openOptionsModal, setOpenOptionsModal] = useState(false);
-  // const [openCommentOptionsModal, setOpenCommentOptionsModal] = useState(null);
-  // const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  // const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
-  // const [contentForUpdate, setContentForUpdate] = useState('');
-  // const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
 
   useEffect(() => {
     if (!viewPostDetails) {
@@ -158,26 +150,6 @@ function Search() {
       getImageUrlsCommentByPostId(chosenPost);
     }
   }, [viewPostDetails, chosenPost]);
-
-  // //Click outside of options modal
-  // const handleClickOutsideOptionsModal = (event) => {
-  //   if (
-  //     optionsModalRef.current &&
-  //     !optionsModalRef.current.contains(event.target)
-  //   ) {
-  //     setOpenOptionsModal(false);
-  //   }
-  // };
-
-  // //Click outside of comment options modal
-  // const handleClickOutsideCommentOptionsModal = (event) => {
-  //   if (
-  //     commentOptionsModalRef.current &&
-  //     !commentOptionsModalRef.current.contains(event.target)
-  //   ) {
-  //     setOpenCommentOptionsModal(false);
-  //   }
-  // };
 
   // Handle modals and z-index
   useEffect(() => {
@@ -221,13 +193,6 @@ function Search() {
     openDeleteModal,
     openCancelEditingModal,
   ]);
-
-  // //Counting redundant editing characters number
-  // useEffect(() => {
-  //   const countRedundantCharacter =
-  //     numberCharactersAllowed - contentForUpdate.length; //Số lượng kí tự dư thừa
-  //   setRedundantEditingCharactersNumber(countRedundantCharacter);
-  // }, [contentForUpdate, redundantEditingCharactersNumber]);
 
   //Back home from view post details
   const handleBackSearch = () => {

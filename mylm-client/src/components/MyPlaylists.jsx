@@ -60,7 +60,8 @@ function MyPlaylists() {
                 <img
                   src={
                     currentUserInfor
-                      ? currentUserInfor?.avatar_path
+                      ? currentUserInfor?.avatar_path ||
+                        './user-avatar-default.png'
                       : adminInfor?.avatar_path
                   }
                   alt=''

@@ -24,7 +24,6 @@ import {
   FaRepublican,
 } from 'react-icons/fa';
 import { AiOutlineComment, AiOutlineGlobal } from 'react-icons/ai';
-import ViewPostDetails from './ViewPostDetails';
 
 function HomePage() {
   const {
@@ -153,13 +152,6 @@ function HomePage() {
   // const contentEditableRef = useRef(null);
 
   const [isSavedPost, setIsSavedPost] = useState(true); //not yet
-  // const [openOptionsModal, setOpenOptionsModal] = useState(false);
-  // const [openCommentOptionsModal, setOpenCommentOptionsModal] = useState(null);
-  // const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  // const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
-  // const [contentForUpdate, setContentForUpdate] = useState('');
-
-  // const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,12 +173,6 @@ function HomePage() {
   //   };
   //   checkRememberMeSession();
   // }, []);
-
-  // useEffect(() => {
-  //   if (!viewPostDetails) {
-  //     setChosenPost(null);
-  //   }
-  // }, [viewPostDetails]);
 
   useEffect(() => {
     if (!viewPostDetails) {
@@ -249,7 +235,12 @@ function HomePage() {
                   <div className=''>
                     <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3'>
                       <img
-                        src={currentUserInfor && currentUserInfor.avatar_path} //Thông tin của người đăng nhập hiện tại
+                        src={
+                          currentUserInfor
+                            ? currentUserInfor?.avatar_path ||
+                              './user-avatar-default.png'
+                            : adminInfor?.avatar_path
+                        } //Thông tin của người đăng nhập hiện tại
                         alt=''
                         className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
                       />
@@ -298,7 +289,10 @@ function HomePage() {
                       <div className='feeds-content-posts grid relative'>
                         <div className='feeds-content-top-about absolute top-0 left-0'>
                           <img
-                            src={getAuthorAvatarByUserId(post.user_id)}
+                            src={
+                              getAuthorAvatarByUserId(post.user_id) ||
+                              './user-avatar-default.png'
+                            }
                             alt=''
                             className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
                           />
@@ -335,7 +329,10 @@ function HomePage() {
                       <div className='feeds-content-posts grid relative'>
                         <div className='feeds-content-top-about absolute top-0 left-0'>
                           <img
-                            src={getAuthorAvatarByUserId(post.user_id)}
+                            src={
+                              getAuthorAvatarByUserId(post.user_id) ||
+                              './user-avatar-default.png'
+                            }
                             alt=''
                             className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
                           />

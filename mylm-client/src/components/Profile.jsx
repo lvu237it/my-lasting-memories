@@ -14,7 +14,6 @@ import {
 import { FaChevronRight } from 'react-icons/fa';
 import { AiOutlineComment } from 'react-icons/ai';
 
-import ViewPostDetails from './ViewPostDetails';
 import { useLocation, useNavigate } from 'react-router-dom';
 function Profile() {
   const location = useLocation();
@@ -171,13 +170,18 @@ function Profile() {
                     ? currentUserInfor?.username
                     : adminInfor?.username}
                 </div>
-                <div className='social-url italic'>nickname...</div>
+                <div className='social-url italic tracking-widest'>
+                  {currentUserInfor
+                    ? currentUserInfor?.nickname
+                    : adminInfor?.nickname}
+                </div>
               </div>
               <div className='avatar-infor shrink-0'>
                 <img
                   src={
                     currentUserInfor
-                      ? currentUserInfor?.avatar_path
+                      ? currentUserInfor?.avatar_path ||
+                        './user-avatar-default.png'
                       : adminInfor?.avatar_path
                   }
                   alt='avatar-infor'
@@ -186,14 +190,23 @@ function Profile() {
               </div>
             </div>
             <div
-              className={`whitespace-pre-wrap break-words ${
+              className={`whitespace-pre-wrap break-words italic ${
                 role ? 'mb-5' : ''
               }`}
             >
-              Tiểu sử chưa được cập nhật...
+              {currentUserInfor
+                ? currentUserInfor?.biography || 'Tiểu sử chưa được cập nhật...'
+                : adminInfor?.biography}
             </div>
             {role && (
-              <div className='mb-5 border border-slate-300 rounded-2xl hover:bg-slate-50 duration-300 ease-in-out text-center py-2 cursor-pointer'>
+              <div
+                onClick={() =>
+                  window.alert(
+                    'Chức năng này sắp được ra mắt rồi ạ 😺. Vui lòng đợi nha!'
+                  )
+                }
+                className='mb-5 border border-slate-300 rounded-2xl hover:bg-slate-50 duration-300 ease-in-out text-center py-2 cursor-pointer'
+              >
                 Chỉnh sửa thông tin
               </div>
             )}
@@ -207,7 +220,12 @@ function Profile() {
                     <div className=''>
                       <div className='feeds-content-posts-of-myself flex flex-row justify-between gap-3 my-5'>
                         <img
-                          src={currentUserInfor && currentUserInfor.avatar_path} //Thông tin của người đăng nhập hiện tại
+                          src={
+                            currentUserInfor
+                              ? currentUserInfor?.avatar_path ||
+                                './user-avatar-default.png'
+                              : adminInfor?.avatar_path
+                          } //Thông tin của người đăng nhập hiện tại
                           alt=''
                           className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
                         />
@@ -256,7 +274,10 @@ function Profile() {
                         <div className='feeds-content-posts grid relative'>
                           <div className='feeds-content-top-about absolute top-0 left-0'>
                             <img
-                              src={getAuthorAvatarByUserId(post.user_id)}
+                              src={
+                                getAuthorAvatarByUserId(post.user_id) ||
+                                './user-avatar-default.png'
+                              }
                               alt=''
                               className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
                             />
@@ -293,7 +314,10 @@ function Profile() {
                         <div className='feeds-content-posts grid relative'>
                           <div className='feeds-content-top-about absolute top-0 left-0'>
                             <img
-                              src={getAuthorAvatarByUserId(post.user_id)}
+                              src={
+                                getAuthorAvatarByUserId(post.user_id) ||
+                                './user-avatar-default.png'
+                              }
                               alt=''
                               className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
                             />

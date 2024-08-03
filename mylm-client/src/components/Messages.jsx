@@ -50,7 +50,12 @@ function Messages() {
             <div className='result-item grid relative mb-[85px]'>
               <div className='image-avatar absolute top-0 left-0'>
                 <img
-                  src={currentUserInfor && currentUserInfor.avatar_path}
+                  src={
+                    currentUserInfor
+                      ? currentUserInfor?.avatar_path ||
+                        './user-avatar-default.png'
+                      : adminInfor?.avatar_path
+                  }
                   alt=''
                   className='rounded-full w-12 h-12'
                 />

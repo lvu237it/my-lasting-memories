@@ -150,12 +150,6 @@ function ViewPostDetails() {
   const handleBack = () => {
     setViewPostDetails(false);
     console.log('current', currentUserInfor);
-    //Ở trang profile thì hiển thị riêng chỉ các post của người hiện tại
-    // if (currentUserInfor) {
-    //   getAllPostsExceptMe();
-    // } else {
-    //   getAllPostsOfAdmin();
-    // }
 
     setLocalUrlImages([]);
     setLengthOfViewPostImage(0);
@@ -319,7 +313,10 @@ function ViewPostDetails() {
             <div className='col-span-1'>
               {/* avatar */}
               <img
-                src={getAuthorAvatarByUserId(chosenPost.user_id)}
+                src={
+                  (chosenPost && getAuthorAvatarByUserId(chosenPost.user_id)) ||
+                  './user-avatar-default.png'
+                }
                 alt=''
                 className='my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
               />
@@ -329,12 +326,13 @@ function ViewPostDetails() {
               <div className='flex justify-between'>
                 <div className='name-and-postedat absolute top-0 left-12 sm2:left-16'>
                   <div className='font-semibold'>
-                    {getAuthorNameOfPostByUserId(chosenPost.user_id)}
+                    {chosenPost &&
+                      getAuthorNameOfPostByUserId(chosenPost.user_id)}
                   </div>
                   <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
                     <BiPencil />
                     <div className=''>
-                      {getPostedTime(chosenPost.created_at)}
+                      {chosenPost && getPostedTime(chosenPost.created_at)}
                     </div>
                   </div>
                 </div>
@@ -477,7 +475,7 @@ function ViewPostDetails() {
                                 (user) =>
                                   user.user_id ===
                                   selectedCommentRemoveEdit.user_id
-                              )?.avatar_path
+                              )?.avatar_path || './user-avatar-default.png'
                             }
                             alt='infor-user-comment'
                           />
@@ -593,7 +591,8 @@ function ViewPostDetails() {
                                       usersList.find(
                                         (user) =>
                                           user.user_id === comment.user_id
-                                      )?.avatar_path
+                                      )?.avatar_path ||
+                                      './user-avatar-default.png'
                                     }
                                     alt='infor-user-comment'
                                   />
@@ -820,7 +819,7 @@ function ViewPostDetails() {
                                 (user) =>
                                   user.user_id ===
                                   selectedCommentRemoveEdit.user_id
-                              )?.avatar_path
+                              )?.avatar_path || './user-avatar-default.png'
                             }
                             alt='infor-user-comment'
                           />
@@ -936,7 +935,8 @@ function ViewPostDetails() {
                                       usersList.find(
                                         (user) =>
                                           user.user_id === comment.user_id
-                                      )?.avatar_path
+                                      )?.avatar_path ||
+                                      './user-avatar-default.png'
                                     }
                                     alt='infor-user-comment'
                                   />

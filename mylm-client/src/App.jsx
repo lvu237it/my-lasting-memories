@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import { Route, Routes, useFetcher } from 'react-router-dom';
+import { Navigate, Route, Routes, useFetcher } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import HomePage from './components/HomePage';
@@ -39,6 +39,8 @@ function App() {
           <Route path='/messages' element={<Messages />} />
           <Route path='/profile' element={<Profile />} />
           <Route path='/post-details' element={<ViewPostDetails />} />
+          {/* Redirect all other routes to the home page */}
+          <Route path='*' element={<Navigate to='/' />} />
         </Route>
       </Routes>
     </>

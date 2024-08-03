@@ -88,6 +88,16 @@ function Login() {
     }
   };
 
+  useEffect(() => {
+    const isUserLoggedIn =
+      JSON.parse(localStorage.getItem('admin')) ||
+      JSON.parse(localStorage.getItem('user')) ||
+      JSON.parse(localStorage.getItem('exceptional'));
+    if (isUserLoggedIn) {
+      navigate('/');
+    }
+  }, []);
+
   return (
     <>
       <div className='background-image-common'>

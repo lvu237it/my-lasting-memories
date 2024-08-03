@@ -11,11 +11,14 @@ const moment = require('moment-timezone');
 // Controller Function
 exports.getCurrentLoggedInUserInformation = catchAsync(
   async (req, res, next) => {
-    const { role } = req.query;
+    const { role, userid } = req.query;
     if (!role) {
       return next(new AppError('Role parameter is missing', 400));
     }
-    const rows = await poolQuery('SELECT * FROM users where role = $1', [role]);
+    const rows = await poolQuery(
+      'SELECT * FROM users where role = $1 and user_id = $2',
+      [role, userid]
+    );
     if (!rows) {
       return next(new AppError('No user found', 404));
     }
@@ -27,6 +30,8 @@ exports.getCurrentLoggedInUserInformation = catchAsync(
       email: row.email,
       role: row.role,
       avatar_path: row.avatar_path,
+      nickname: row.nickname,
+      biography: row.biography,
     }));
 
     // Response to client
@@ -48,6 +53,8 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     email: user.email,
     role: user.role,
     avatar_path: user.avatar_path,
+    nickname: user.nickname,
+    biography: user.biography,
   }));
 
   // Response to client
@@ -131,3 +138,38 @@ exports.findUserById = async (user_id) => {
   }
   return rows[0];
 };
+
+exports.updateUserInformation = catchAsync(async (req, res, next) => {
+  const { userid } = req.params;
+  const { username, nickname, biography } = req.body;
+
+  let executeString = 'UPDATE users SET ';
+  const params = [];
+
+  // Thêm các cột cần cập nhật vào câu lệnh
+  if (username) {
+    executeString += 'username = $1, ';
+    params.push(username);
+  }
+  if (nickname) {
+    executeString += 'nickname = $2, ';
+    params.push(nickname);
+  }
+  if (biography) {
+    executeString += 'biography = $3, ';
+    params.push(biography);
+  }
+
+  // Xóa dấu phẩy cuối cùng và thêm điều kiện WHERE
+  executeString = executeString.replace(/, $/, ''); // Loại bỏ dấu phẩy cuối cùng
+  executeString += ' WHERE user_id = $4';
+  params.push(userid);
+
+  // Thực thi câu lệnh
+  await poolExecute(executeString, params);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'update user information successfully!',
+  });
+});

@@ -19,6 +19,11 @@ router.patch(
   authController.updateUserPassword
 );
 
+router.patch(
+  '/update-user-information/:userid',
+  userController.updateUserInformation
+);
+
 router.get(
   '/current-logged-in-information',
   userController.getCurrentLoggedInUserInformation

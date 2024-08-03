@@ -22,6 +22,8 @@ exports.getAdminInformation = catchAsync(async (req, res, next) => {
     email: row.email,
     role: row.role,
     avatar_path: row.avatar_path,
+    nickname: row.nickname,
+    biography: row.biography,
   }));
 
   // Response to client

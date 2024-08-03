@@ -12,7 +12,7 @@ const fs = require('fs');
 //Get existed posts (EXCEPT deleted posts)
 exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
   const rows = await poolQuery(
-    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
+    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
     ['admin']
   );
 
@@ -61,7 +61,7 @@ exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
   async (req, res, next) => {
     const { userid } = req.params;
     const rows = await poolQuery(
-      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
+      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
       [userid]
     );
 
@@ -242,13 +242,29 @@ const storage = multer.diskStorage({
 // Limit is by default set to 1mb but using the limit property we can set it to 10MB
 exports.upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+
+    // Thay đổi thông báo lỗi để phù hợp với mã lỗi HTTP hoặc thông báo người dùng
+    cb(new AppError('Invalid file type', 400)); // Ví dụ: trả về lỗi HTTP 400
+  },
 });
 
 exports.createPost = catchAsync(async (req, res, next) => {
   const { content, user_id } = req.body;
   const files = req.files || [];
   const post_id = uuidv4();
+
+  console.log('Received files:', files);
 
   if (files && files.length > 10) {
     return next(new AppError('Not exceed 10 files per post', 400));
@@ -264,7 +280,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
     [post_id, content, currentDateTime, user_id]
   );
 
-  //Chỉ post content mà ko post ảnh
+  // Chỉ post content mà ko post ảnh
   if (!files || files.length === 0) {
     res.status(200).json({
       status: 'success',
@@ -282,6 +298,9 @@ exports.createPost = catchAsync(async (req, res, next) => {
 exports.uploadImages = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
   const files = req.files;
+
+  console.log('Uploading images for post_id:', post_id);
+  console.log('Files:', files);
 
   const promises = files.map(async (file) => {
     const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
@@ -308,6 +327,70 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
     message: 'create post and upload images successfully!',
   });
 });
+
+// exports.createPost = catchAsync(async (req, res, next) => {
+//   const { content, user_id } = req.body;
+//   const files = req.files || [];
+//   const post_id = uuidv4();
+
+//   if (files && files.length > 10) {
+//     return next(new AppError('Not exceed 10 files per post', 400));
+//   }
+
+//   const currentDateTime = moment()
+//     .tz('Asia/Ho_Chi_Minh')
+//     .format('YYYY-MM-DD HH:mm:ss');
+
+//   // Lưu thông tin bài đăng vào cơ sở dữ liệu
+//   await poolExecute(
+//     'INSERT INTO posts(post_id, content, created_at, user_id) VALUES ($1, $2, $3, $4)',
+//     [post_id, content, currentDateTime, user_id]
+//   );
+
+//   //Chỉ post content mà ko post ảnh
+//   if (!files || files.length === 0) {
+//     res.status(200).json({
+//       status: 'success',
+//       message: 'create post successfully!',
+//     });
+//   }
+
+//   req.post_id = post_id;
+//   if (files) {
+//     req.files = files;
+//   }
+//   next();
+// });
+
+// exports.uploadImages = catchAsync(async (req, res, next) => {
+//   const post_id = req.post_id;
+//   const files = req.files;
+
+//   const promises = files.map(async (file) => {
+//     const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
+//     const attacheditem_path = `/assets/images/${file.filename}`;
+//     const attachedValues = [
+//       attached_items_id,
+//       'file',
+//       attacheditem_path,
+//       post_id,
+//     ];
+
+//     // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
+//     await poolExecute(
+//       'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
+//       attachedValues
+//     );
+//   });
+
+//   // Chờ cho tất cả các promise được giải quyết
+//   await Promise.all(promises);
+
+//   res.status(200).json({
+//     status: 'success',
+//     message: 'create post and upload images successfully!',
+//   });
+// });
 
 exports.updatePost = catchAsync(async (req, res, next) => {
   const post_id = req.post_id; //post_id là giá trị được tạo trực tiếp trong quá trình chạy, không phải đối tượng {}

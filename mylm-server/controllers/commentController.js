@@ -43,7 +43,21 @@ const storage = multer.diskStorage({
 // Limit is by default set to 1mb but using the limit property we can set it to 10MB
 exports.upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+
+    // Thay đổi thông báo lỗi để phù hợp với mã lỗi HTTP hoặc thông báo người dùng
+    cb(new AppError('Invalid file type', 400)); // Ví dụ: trả về lỗi HTTP 400
+  },
 });
 
 //Get existed comments (EXCEPT deleted comments)

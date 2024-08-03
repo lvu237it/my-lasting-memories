@@ -162,8 +162,8 @@ export const Common = ({ children }) => {
   const navigate = useNavigate();
   const { from } = location.state || { from: '/' }; // Nếu không có thông tin from thì mặc định về trang chủ
 
-  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
 
   useEffect(() => {
     if (viewPostDetails) {
@@ -691,7 +691,7 @@ export const Common = ({ children }) => {
   const handleEditingPost = async () => {
     if (contentForUpdate.length > 1000) {
       toast.error(
-        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
+        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự 😿.'
       );
     } else {
       try {
@@ -702,11 +702,11 @@ export const Common = ({ children }) => {
         // Cập nhật contentBeforeUpdate khi cập nhật thành công
         //ContentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của content khi chưa thay đổi
         setContentBeforeUpdate(contentForUpdate);
-        toast.success('Chỉnh sửa bài thành công!');
+        toast.success('Chỉnh sửa bài thành công 😸!');
       } catch (error) {
         console.error('Error editing post', error);
         setIsEditing(false);
-        toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại.');
+        toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại 😿.');
       }
     }
   };
@@ -715,7 +715,7 @@ export const Common = ({ children }) => {
   const handleEditingComment = async () => {
     if (commentForUpdate.length > 1000) {
       toast.error(
-        'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 1000 kí tự.'
+        'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 1000 kí tự 😿.'
       );
     } else {
       setIsEditingComment(true);
@@ -730,11 +730,13 @@ export const Common = ({ children }) => {
         // // Cập nhật commentBeforeUpdate khi cập nhật thành công
         // //CommentBeforeUpdate lúc này sẽ giữ trạng thái ban đầu của comment khi chưa thay đổi
         // setCommentBeforeUpdate(commentForUpdate);
-        toast.success('Chỉnh sửa bình luận thành công!');
+        toast.success('Chỉnh sửa bình luận thành công 😸!');
       } catch (error) {
         console.error('Error editing comment', error);
         setIsEditingComment(false);
-        toast.error('Chỉnh sửa bình luận không thành công. Vui lòng thử lại.');
+        toast.error(
+          'Chỉnh sửa bình luận không thành công. Vui lòng thử lại 😿.'
+        );
       }
     }
   };
@@ -947,10 +949,10 @@ export const Common = ({ children }) => {
     console.log('images.length', images.length);
     if (postContent.length > 1000) {
       toast.error(
-        'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự.'
+        'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự 😿.'
       );
     } else if (images.length > 10) {
-      toast.error('Đăng bài không thành công. Tối đa không quá 10 ảnh.');
+      toast.error('Đăng bài không thành công. Tối đa không quá 10 ảnh 😿.');
     } else {
       const formData = new FormData();
       formData.append('content', postContent);
@@ -977,22 +979,24 @@ export const Common = ({ children }) => {
         // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
         toast.success(
           <div>
-            Đăng bài thành công! Hãy xem bài viết mới nhất của bạn tại
+            Đăng bài thành công 😸! Hãy xem bài viết mới nhất của bạn tại
             <div
               onClick={() => {
                 setHeaderIconsClicked('header-icon-profile');
                 navigate('/profile');
               }}
-              className='cursor-pointer underline hover:text-blue-500 text-blue-400 ease-in-out duration-300'
+              className='cursor-pointer hover:text-blue-500 text-blue-400 ease-in-out duration-300'
             >
-              trang cá nhân.
+              trang cá nhân
             </div>
           </div>
         );
       } catch (error) {
         console.error('Error creating post', error);
         setPostModal(false);
-        toast.error('Đăng bài không thành công. Vui lòng thử lại.');
+        toast.error(
+          'Đăng bài không thành công. Chức năng hiện tại chưa hoàn thiện, rất xin lỗi vì sự bất tiện này 😿.'
+        );
       }
     }
   };
@@ -1005,7 +1009,7 @@ export const Common = ({ children }) => {
       // textareaRef.current.value = '';
       // setHasPostContent(false);
       setOpenDeleteModal(false);
-      toast.success('Xoá bài thành công!');
+      toast.success('Xoá bài thành công 😸!');
       console.log('pho rom 1', from);
       setViewPostDetails(false);
       navigate(from); // Điều hướng về trang trước khi đến PostDetails
@@ -1014,7 +1018,7 @@ export const Common = ({ children }) => {
     } catch (error) {
       console.error('Error deleting post', error);
       setOpenDeleteModal(false);
-      toast.error('Xoá bài không thành công. Vui lòng thử lại.');
+      toast.error('Xoá bài không thành công. Vui lòng thử lại 😿.');
     }
   };
 
@@ -1033,12 +1037,12 @@ export const Common = ({ children }) => {
       // }, 2000); // Tự động reload sau 2 giây
       setIsSuccessFullyRemoved(true);
       getCommentsByPostId(chosenPost);
-      toast.success('Xoá bình luận thành công!');
+      toast.success('Xoá bình luận thành công 😸!');
     } catch (error) {
       console.error('Error deleting comment', error);
       setOpenDeleteCommentModal(false);
       setIsSuccessFullyRemoved(false);
-      toast.error('Xoá bình luận không thành công. Vui lòng thử lại.');
+      toast.error('Xoá bình luận không thành công. Vui lòng thử lại 😿.');
     }
   };
 
@@ -1047,10 +1051,10 @@ export const Common = ({ children }) => {
     console.log('imagesComment.length', imagesComment.length);
     if (commentContent.length > 1000) {
       toast.error(
-        'Bình luận không thành công. Nội dung bình luận không được vượt quá 1000 kí tự.'
+        'Bình luận không thành công. Nội dung bình luận không được vượt quá 1000 kí tự 😿.'
       );
     } else if (imagesComment.length > 10) {
-      toast.error('Bình luận không thành công. Tối đa không quá 10 ảnh.');
+      toast.error('Bình luận không thành công. Tối đa không quá 10 ảnh 😿.');
     } else {
       const formData = new FormData();
       formData.append('post_id', post.post_id);
@@ -1076,7 +1080,7 @@ export const Common = ({ children }) => {
         setOpenAddCommentModal(false);
         textareaCommentRef.current.value = '';
         setHasPostCommentContent(false);
-        toast.success('Bình luận thành công!');
+        toast.success('Bình luận thành công 😸!');
         getCommentsByPostId(post);
         getImageUrlsCommentByPostId(post);
         setImageUrlsList([]);
@@ -1084,7 +1088,7 @@ export const Common = ({ children }) => {
       } catch (error) {
         console.error('Error creating comment', error);
         setOpenAddCommentModal(false);
-        toast.error('Bình luận không thành công. Vui lòng thử lại.');
+        toast.error('Bình luận không thành công. Vui lòng thử lại 😿.');
       }
     }
   };
