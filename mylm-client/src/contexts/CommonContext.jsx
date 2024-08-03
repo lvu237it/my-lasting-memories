@@ -162,8 +162,8 @@ export const Common = ({ children }) => {
   const navigate = useNavigate();
   const { from } = location.state || { from: '/' }; // Nếu không có thông tin from thì mặc định về trang chủ
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
-  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
 
   useEffect(() => {
     if (viewPostDetails) {
