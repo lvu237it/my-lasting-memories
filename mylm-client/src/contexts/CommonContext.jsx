@@ -172,14 +172,17 @@ export const Common = ({ children }) => {
   }, [location.pathname]);
 
   const getCommentsByPostId = async (post) => {
-    try {
-      const response = await axios.get(
-        `${apiBaseUrl}/comments/post/${post.post_id}`
-      );
-      setCommentsByPostId(response.data);
-    } catch (err) {
-      console.log('Error when getting comments by post id', err);
+    if (post) {
+      try {
+        const response = await axios.get(
+          `${apiBaseUrl}/comments/post/${post.post_id}`
+        );
+        setCommentsByPostId(response.data);
+      } catch (err) {
+        console.log('Error when getting comments by post id', err);
+      }
     }
+    return;
   };
 
   // Function to decode HTML entities
@@ -924,9 +927,7 @@ export const Common = ({ children }) => {
 
   //Format posted time to yyyy/mm/dd
   const getPostedTime = (createdAt) => {
-    if (createdAt) {
-      return createdAt.split('T')[0];
-    }
+    return createdAt.split('T')[0];
   };
 
   //Get lastest - newest post
@@ -979,6 +980,7 @@ export const Common = ({ children }) => {
             Đăng bài thành công! Hãy xem bài viết mới nhất của bạn tại
             <div
               onClick={() => {
+                setHeaderIconsClicked('header-icon-profile');
                 navigate('/profile');
               }}
               className='cursor-pointer underline hover:text-blue-500 text-blue-400 ease-in-out duration-300'

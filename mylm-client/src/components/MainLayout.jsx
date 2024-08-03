@@ -155,6 +155,7 @@ const MainLayout = () => {
     handleViewPrevCommentImage,
     handleViewNextCommentImage,
     commentsByPostId,
+    setCommentsByPostId,
     role,
     setRole,
     currentUserInfor,
@@ -199,6 +200,9 @@ const MainLayout = () => {
 
   const handleLogOut = () => {
     setPostsList([]);
+    setCurrentUserInfor(null);
+    setAllMyPosts([]);
+    setCommentsByPostId([]);
     localStorage.removeItem('admin');
     localStorage.removeItem('user');
     localStorage.removeItem('exceptional');
@@ -352,6 +356,20 @@ const MainLayout = () => {
       navigate('/profile');
     }
   }, [headerIconsClicked]);
+
+  // useEffect(() => {
+  //   if (location.pathname === '/') {
+  //     if (currentUserInfor) {
+  //       getAllPostsExceptMe();
+  //     } else {
+  //       getAllPostsOfAdmin();
+  //     }
+  //   }
+  //   // else if (location.pathname === 'profile') {
+  //   //   //fetch lại all my post để cập nhật post mới nhất của bản thân ở profile
+  //   //   getAllMyPosts();
+  //   // }
+  // }, [location.pathname, currentUserInfor]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideNavBar);

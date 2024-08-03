@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const { promisify } = require('util');
 const userController = require('./userController');
 const sendEmail = require('../utils/email');
+const moment = require('moment-timezone');
 
 const singToken = (id) => {
   console.log('process.env.JWT_SECRET', process.env.JWT_SECRET);
@@ -83,13 +84,17 @@ exports.signup = catchAsync(async (req, res, next) => {
   // Mã hóa mật khẩu
   const hashedPassword = await bcrypt.hash(password, 12);
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   const user_id = uuidv4();
   const newUser = await poolExecute(
-    'INSERT INTO users(user_id, username, email, password, role) VALUES ($1,$2,$3,$4,$5)',
-    [user_id, username, email, hashedPassword, 'user']
+    'INSERT INTO users(user_id, username, email, password, role, created_at) VALUES ($1,$2,$3,$4,$5,$6)',
+    [user_id, username, email, hashedPassword, 'user', currentDateTime]
   );
 
-  createSendToken({ user_id, username, email }, 201, res);
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -120,7 +125,14 @@ exports.login = catchAsync(async (req, res, next) => {
           .createHash('sha256')
           .update(token)
           .digest('hex');
-        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        // const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+        // Tính toán thời gian hết hạn (ví dụ: 30 ngày kể từ bây giờ) với múi giờ Asia/Ho_Chi_Minh
+        const expiresAt = moment()
+          .tz('Asia/Ho_Chi_Minh')
+          .add(30, 'days')
+          .valueOf();
+
         const rememberId = uuidv4();
         //kiểm tra xem thông tin của remember_me_tokens ứng với user_id, trước đó có tồn tại chưa
         //Nếu có thì ghi đè lên thông tin cũ - đồng nghĩa với việc update thông tin mới, cụ thể là update [series, token, expires_at]
@@ -332,9 +344,13 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
   // Mã hóa mật khẩu mới
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   const [result] = await poolExecute(
-    'UPDATE users SET password = $1 where users.user_id = $2',
-    [hashedPassword, req.user.user_id]
+    'UPDATE users SET password = $1, updated_at = $2 where users.user_id = $3',
+    [hashedPassword, currentDateTime, req.user.user_id]
   );
   res.status(200).json({
     status: 'success',
@@ -373,7 +389,12 @@ const createPasswordResetToken = () => {
     .update(resetToken)
     .digest('hex');
 
-  const passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  // const passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  // Tính toán thời gian hết hạn (ví dụ: 10 phút kể từ bây giờ) với múi giờ Asia/Ho_Chi_Minh
+  const passwordResetExpires = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .add(10, 'minutes')
+    .valueOf();
 
   return { resetToken, passwordResetToken, passwordResetExpires };
 };
@@ -473,9 +494,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   const newPassword = await bcrypt.hash(password, 12);
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   await poolExecute(
-    'UPDATE users SET password = $1, passwordResetToken = $2, passwordResetExpires = $3 WHERE user_id = $4',
-    [newPassword, null, null, user.user_id]
+    'UPDATE users SET password = $1, passwordResetToken = $2, passwordResetExpires = $3, updated_at = $4 WHERE user_id = $5',
+    [newPassword, null, null, currentDateTime, user.user_id]
   );
 
   // 3. Update changedPasswordAt property for the user

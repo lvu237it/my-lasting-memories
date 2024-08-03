@@ -203,7 +203,7 @@ function ViewPostDetails() {
 
   return (
     <>
-      <div className='m wrapper-post-details feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 md:mx-10 lg:mx-14 py-7 md:py-10'>
+      <div className='my-5 wrapper-post-details feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 md:mx-10 lg:mx-14 py-7 md:py-10'>
         <button
           onClick={handleBack}
           className='text-2xl mb-1 rounded-full p-3 hover:bg-slate-100 cursor-pointer hover:-translate-x-1 duration-300 ease-in-out'
@@ -617,9 +617,11 @@ function ViewPostDetails() {
                                 {/* //KHÔNG đăng nhập hoặc KHÔNG phải comment của mình thì không được sửa - được xoá nếu đó là post của mình*/}
                                 {/* {!role || comment.user_id === currentUserInfor.user_id} */}
                                 {/* Người đăng bài và người comment là cùng 1 người */}
-                                {currentUserInfor.user_id !==
+                                {!role ||
+                                (currentUserInfor.user_id !==
                                   chosenPost.user_id &&
-                                currentUserInfor.user_id !== comment.user_id ? (
+                                  currentUserInfor.user_id !==
+                                    comment.user_id) ? (
                                   ''
                                 ) : (
                                   <div
@@ -955,9 +957,11 @@ function ViewPostDetails() {
                                     </div>
                                   </div>
                                 </div>
-                                {currentUserInfor.user_id !==
+                                {!role ||
+                                (currentUserInfor.user_id !==
                                   chosenPost.user_id &&
-                                currentUserInfor.user_id !== comment.user_id ? (
+                                  currentUserInfor.user_id !==
+                                    comment.user_id) ? (
                                   ''
                                 ) : (
                                   <div

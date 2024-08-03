@@ -12,7 +12,7 @@ const fs = require('fs');
 //Get existed posts (EXCEPT deleted posts)
 exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
   const rows = await poolQuery(
-    'SELECT * FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
+    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
     ['admin']
   );
 
@@ -61,7 +61,7 @@ exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
   async (req, res, next) => {
     const { userid } = req.params;
     const rows = await poolQuery(
-      'SELECT * FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
+      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
       [userid]
     );
 
@@ -254,10 +254,14 @@ exports.createPost = catchAsync(async (req, res, next) => {
     return next(new AppError('Not exceed 10 files per post', 400));
   }
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   // Lưu thông tin bài đăng vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO posts(post_id, content, user_id) VALUES ($1, $2, $3)',
-    [post_id, content, user_id]
+    'INSERT INTO posts(post_id, content, created_at, user_id) VALUES ($1, $2, $3, $4)',
+    [post_id, content, currentDateTime, user_id]
   );
 
   //Chỉ post content mà ko post ảnh
@@ -310,10 +314,14 @@ exports.updatePost = catchAsync(async (req, res, next) => {
   //Not need to check if post_id is exist because using getPostById before
   const { content } = req.body;
 
-  await poolExecute('UPDATE posts SET content = $1 WHERE post_id = $2', [
-    content,
-    post_id,
-  ]);
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
+  await poolExecute(
+    'UPDATE posts SET content = $1, updated_at = $2 WHERE post_id = $3',
+    [content, currentDateTime, post_id]
+  );
 
   res.status(200).json({
     status: 'success',

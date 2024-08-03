@@ -231,6 +231,12 @@ function HomePage() {
     }
   }, [viewPostDetails, location.pathname]);
 
+  useEffect(() => {
+    if (currentUserInfor) {
+      getAllPostsExceptMe();
+    }
+  }, []);
+
   return (
     <>
       <div className='header-feedscontent my-5'>

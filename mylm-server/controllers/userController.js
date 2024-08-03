@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { promisify } = require('util');
+const moment = require('moment-timezone');
 
 // Controller Function
 exports.getCurrentLoggedInUserInformation = catchAsync(

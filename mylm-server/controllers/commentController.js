@@ -76,7 +76,7 @@ exports.getImagesOfCommentsByPostId = catchAsync(async (req, res, next) => {
 
   //Truy vấn toàn bộ ảnh group by comment của post đó
   //Filter theo comment cụ thể - comment.comment_id
-  //Sau đó dùng find để lấy được attached_items_comment_path
+  //Sau đó dùng find (client side) để lấy được attached_items_comment_path
 
   const rows = await poolQuery(
     'select comments.comment_id, comments.comment_content, comments.post_id, comments.user_id, attached_items_comments.attached_items_comment_id, attached_items_comments.attacheditem_comment_path from comments join posts on comments.post_id = posts.post_id join attached_items_comments ON attached_items_comments.comment_id = comments.comment_id where comments.post_id LIKE $1 and comments.is_deleted = 0 ORDER BY attached_items_comments.attacheditem_comment_path DESC',
@@ -122,10 +122,14 @@ exports.createComment = catchAsync(async (req, res, next) => {
     return next(new AppError('Not exceed 10 files per comment', 400));
   }
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   // Lưu thông tin comment vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO comments(comment_id, comment_content, post_id, user_id) VALUES ($1, $2, $3, $4)',
-    [comment_id, comment_content, postid, user_id]
+    'INSERT INTO comments(comment_id, comment_content, created_at, post_id, user_id) VALUES ($1, $2, $3, $4, $5)',
+    [comment_id, comment_content, currentDateTime, postid, user_id]
   );
 
   //Chỉ bình luận content mà ko post ảnh
@@ -193,9 +197,13 @@ exports.updateComment = catchAsync(async (req, res, next) => {
   const commentid = req.commentid;
   const { comment_content } = req.body;
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   await poolExecute(
-    'UPDATE comments SET comment_content = $1 WHERE comment_id = $2',
-    [comment_content, commentid]
+    'UPDATE comments SET comment_content = $1, updated_at = $2 WHERE comment_id = $3',
+    [comment_content, currentDateTime, commentid]
   );
 
   res.status(200).json({
@@ -206,6 +214,7 @@ exports.updateComment = catchAsync(async (req, res, next) => {
 
 exports.deleteComment = catchAsync(async (req, res, next) => {
   const commentid = req.commentid;
+
   const currentDateTime = moment()
     .tz('Asia/Ho_Chi_Minh')
     .format('YYYY-MM-DD HH:mm:ss');
