@@ -47,7 +47,10 @@ input:focus {
   outline: none;
 }
 
-#feeds-content-bottom-description:focus {
+#feeds-content-bottom-description:focus,
+#vulv-update-user-infor-username:focus,
+#vulv-update-user-infor-nickname:focus,
+#vulv-update-user-infor-bio:focus {
   outline: none;
 }
 

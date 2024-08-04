@@ -27,6 +27,7 @@ import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import NavBar from './NavBar';
 
 import { useCommon } from '../contexts/CommonContext';
+import { toast } from 'react-toastify';
 
 const MainLayout = () => {
   const {
@@ -192,10 +193,32 @@ const MainLayout = () => {
     setViewPostDetails,
     commentOptionsModalRef,
     optionsModalRef,
+    openEditUserInformationModal,
+    setOpenEditUserInformationModal,
+    currentLoggedIn,
+    getCurrentLoggedInUser,
   } = useCommon();
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const editUserInformationModalRef = useRef(null);
+  const closeEditUserInformationModelRef = useRef(null);
+  const biographyEditableRef = useRef(null);
+  const usernameEditableRef = useRef(null);
+  const nicknameEditableRef = useRef(null);
+
+  const [usernameForUpdate, setUsernameForUpdate] = useState('');
+  const [usernameBeforeUpdate, setUsernameBeforeUpdate] = useState('');
+  const [nicknameForUpdate, setNicknameForUpdate] = useState('');
+  const [nicknameBeforeUpdate, setNicknameBeforeUpdate] = useState('');
+  const [biographyForUpdate, setBiographyForUpdate] = useState('');
+  const [biographyBeforeUpdate, setBiographyBeforeUpdate] = useState('');
+
+  const [
+    openWarningCancelEditingUserInformation,
+    setOpenWarningCancelEditingUserInformation,
+  ] = useState(false);
 
   const handleLogOut = () => {
     setPostsList([]);
@@ -224,42 +247,72 @@ const MainLayout = () => {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const currentLoggedIn =
-        JSON.parse(localStorage.getItem('admin')) ||
-        JSON.parse(localStorage.getItem('user')) ||
-        JSON.parse(localStorage.getItem('exceptional'));
-      if (currentLoggedIn) {
-        try {
-          // Lấy thông tin người dùng hiện tại
-          const userResponse = await axios.get(
-            `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}&userid=${currentLoggedIn.user_id}`
-          );
-          setCurrentUserInfor(userResponse.data[0]);
+    console.log('new', currentUserInfor);
+  }, [currentUserInfor]);
 
-          // Lấy các bài viết ngoại trừ của người dùng hiện tại
-          const postsResponse = await axios.get(
-            `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
-          );
-          setPostsList(postsResponse.data);
-        } catch (err) {
-          console.log('Error when getting data', err);
-        }
-
-        getAllMyPosts();
-      } else {
-        try {
-          // Lấy tất cả các bài viết của admin nếu không có ai đăng nhập
-          const postsResponse = await axios.get(`${apiBaseUrl}/posts/admin`);
-          setPostsList(postsResponse.data);
-        } catch (err) {
-          console.log('Error when getting admin posts', err);
-        }
+  const fetchData = async () => {
+    console.log('await data');
+    if (currentLoggedIn) {
+      try {
+        // Lấy thông tin người dùng hiện tại
+        const userResponse = await axios.get(
+          `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}&userid=${currentLoggedIn.user_id}`
+        );
+        setCurrentUserInfor(userResponse.data[0]);
+      } catch (err) {
+        console.log('Error when getting data', err);
       }
-    };
 
+      try {
+        // Lấy các bài viết ngoại trừ của người dùng hiện tại
+        const postsResponse = await axios.get(
+          `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
+        );
+        setPostsList(postsResponse.data);
+      } catch (err) {
+        console.log('Error when getting data', err);
+      }
+
+      try {
+        const currentInfor =
+          JSON.parse(localStorage.getItem('admin')) ||
+          JSON.parse(localStorage.getItem('user')) ||
+          JSON.parse(localStorage.getItem('exceptional'));
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/my-all-posts/${currentInfor.user_id}`
+        );
+        setAllMyPosts(response.data);
+      } catch (error) {
+        console.error('Error getting my all posts', error);
+      }
+    } else {
+      try {
+        // Lấy tất cả các bài viết của admin nếu không có ai đăng nhập
+        const postsResponse = await axios.get(`${apiBaseUrl}/posts/admin`);
+        setPostsList(postsResponse.data);
+      } catch (err) {
+        console.log('Error when getting admin posts', err);
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    //Set user information before
+    setUsernameBeforeUpdate(currentUserInfor?.username);
+    setNicknameBeforeUpdate(currentUserInfor?.nickname);
+    setBiographyBeforeUpdate(currentUserInfor?.biography);
+  }, []);
+
+  useEffect(() => {
+    //Set user information before
+    setUsernameBeforeUpdate(usernameForUpdate);
+    setNicknameBeforeUpdate(nicknameForUpdate);
+    setBiographyBeforeUpdate(biographyForUpdate);
+  }, [usernameForUpdate, nicknameForUpdate, biographyForUpdate]);
 
   useEffect(() => {
     getAllUsers();
@@ -713,6 +766,82 @@ const MainLayout = () => {
     }
   };
 
+  //Click outside of editing user information modal
+  const handleClickOutsideEditingUserInformationModal = (event) => {
+    if (
+      editUserInformationModalRef.current &&
+      !editUserInformationModalRef.current.contains(event.target)
+    ) {
+      // Hiển thị modal confirm canceling edit
+      handleOpenWarningCancelEditingUserInformation();
+    }
+  };
+
+  const handleOpenWarningCancelEditingUserInformation = () => {
+    setOpenWarningCancelEditingUserInformation(true);
+  };
+
+  const handleFinallyCancelEditingUserInformation = () => {
+    setOpenWarningCancelEditingUserInformation(false);
+    setOpenEditUserInformationModal(false);
+  };
+
+  const handleInputEditingUserInformationBlur = () => {
+    if (
+      usernameEditableRef.current.innerText &&
+      nicknameEditableRef.current.innerText &&
+      biographyEditableRef.current.innerText
+    ) {
+      setUsernameForUpdate(
+        usernameEditableRef.current.innerText || usernameBeforeUpdate
+      );
+      setNicknameForUpdate(
+        nicknameEditableRef.current.innerText || nicknameBeforeUpdate
+      );
+      setBiographyForUpdate(
+        biographyEditableRef.current.innerText || biographyBeforeUpdate
+      );
+    }
+  };
+
+  const handleUpdateUserInformation = async () => {
+    try {
+      const username = usernameEditableRef.current.innerText.trim();
+      if (
+        (usernameBeforeUpdate !== null && usernameBeforeUpdate !== '') ||
+        (usernameForUpdate !== null && usernameForUpdate !== '') ||
+        (username !== null && username !== '')
+      ) {
+        await axios.patch(
+          `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
+          {
+            username: usernameForUpdate || usernameBeforeUpdate || username,
+            nickname:
+              nicknameForUpdate ||
+              nicknameBeforeUpdate ||
+              nicknameEditableRef.current.innerText,
+            biography:
+              biographyForUpdate ||
+              biographyBeforeUpdate ||
+              biographyEditableRef.current.innerText,
+          }
+        );
+        toast.success(
+          'Cập nhật thông tin thành công 😺! Đang trở về trang chủ để cập nhật thông tin mới...'
+        );
+        setOpenEditUserInformationModal(false);
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        toast.error('Tên của bạn không được để trống 😿.');
+      }
+    } catch (err) {
+      console.log('Error when updating user information', err);
+      toast.error('Cập nhật không thành công. Vui lòng thử lại 😿.');
+    }
+  };
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideOptionsModal);
     return () => {
@@ -733,46 +862,156 @@ const MainLayout = () => {
     };
   }, []);
 
+  useEffect(() => {
+    document.addEventListener(
+      'mousedown',
+      handleClickOutsideEditingUserInformationModal
+    );
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideEditingUserInformationModal
+      );
+    };
+  }, []);
+
+  // openEditUserInformationModal;
+
   return (
     <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
       {/* Edit user information */}
-      {/* {openViewImageModal && (
+      {openEditUserInformationModal && (
         <div
           style={{ display: 'flex' }}
           className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
         >
-          <div
-            ref={cancelViewPostImageRef}
-            className='fixed text-3xl text-slate-300 duration-300 ease-in-out hover:text-white top-3 right-3 cursor-pointer'
-          >
-            <BiX title='Đóng' />
-          </div>
-
-          <div id='wrapper-prev-next-icon' className=''>
+          <div className='w-full h-full flex sm2:justify-center sm2:items-center'>
             <div
-              ref={viewPrevImageRef}
-              onClick={handleViewPrevImage}
-              className='fixed p-3 left-0 top-1/2 -translate-y-1/2 sm:left-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
+              ref={editUserInformationModalRef}
+              className='relative flex sm2:block justify-center items-center sm2:rounded-3xl sm2:h-max p-5 sm2:p-9 bg-white w-full sm2:w-[600px]'
             >
-              <FaAngleLeft />
-            </div>
-            <div
-              ref={viewNextImageRef}
-              onClick={handleViewNextImage}
-              className='fixed p-3 right-0 top-1/2 -translate-y-1/2 sm:right-3 text-6xl text-slate-300 opacity-50 hover:opacity-100 duration-300 ease-in-out hover:text-white cursor-pointer'
-            >
-              <FaAngleRight />
+              <div
+                ref={closeEditUserInformationModelRef}
+                onClick={() => handleOpenWarningCancelEditingUserInformation()}
+                className='sm2:hidden absolute top-5 left-8 cursor-pointer'
+              >
+                Đóng
+              </div>
+              <div
+                onClick={handleUpdateUserInformation}
+                className='sm2:hidden absolute top-5 right-8 cursor-pointer font-semibold text-blue-400 hover:text-blue-500'
+              >
+                Xong
+              </div>
+              <div className='sm2:hidden absolute top-5 left-1/2 -translate-x-1/2 font-bold'>
+                Cập nhật thông tin
+              </div>
+              <div className='w-full rounded-3xl shadow-sm sm2:shadow-none p-6 sm2:p-0 sm2:rounded-none border sm2:border-none border-slate-300'>
+                <div className='relative my-name-and-avatar flex'>
+                  <div className='name w-[90%]'>
+                    <div className='font-bold'>Tên</div>
+                    <div
+                      id='vulv-update-user-infor-username'
+                      contentEditable={true}
+                      ref={usernameEditableRef}
+                      onBlur={handleInputEditingUserInformationBlur}
+                      suppressContentEditableWarning={true} //Tránh cảnh báo từ React
+                      className=' whitespace-pre-wrap break-words'
+                    >
+                      {currentUserInfor && currentUserInfor.username}
+                    </div>
+                  </div>
+                  <div className='absolute top-0 right-0 avatar shrink-0'>
+                    <img
+                      className='w-12 h-12 rounded-full bg-no-repeat bg-center object-cover'
+                      src={
+                        (currentUserInfor && currentUserInfor?.avatar_path) ||
+                        './user-avatar-default.png'
+                      }
+                      alt='my-avatar'
+                    />
+                  </div>
+                </div>
+                <hr className='my-3' />
+                <div className='my-nickname'>
+                  <div className='font-bold'>Biệt danh</div>
+                  <div
+                    id='vulv-update-user-infor-nickname'
+                    contentEditable={true}
+                    ref={nicknameEditableRef}
+                    onBlur={handleInputEditingUserInformationBlur}
+                    suppressContentEditableWarning={true} //Tránh cảnh báo từ React
+                    className='whitespace-pre-wrap break-words'
+                  >
+                    {currentUserInfor && currentUserInfor?.nickname}
+                  </div>
+                </div>
+                <hr className='my-3' />
+                <div className='my-biography sm2:mb-5'>
+                  <div className='font-bold'>Tiểu sử</div>
+                  <div
+                    id='vulv-update-user-infor-bio'
+                    contentEditable={true}
+                    ref={biographyEditableRef}
+                    onBlur={handleInputEditingUserInformationBlur}
+                    suppressContentEditableWarning={true} //Tránh cảnh báo từ React
+                    className='whitespace-pre-wrap break-words'
+                  >
+                    {currentUserInfor && currentUserInfor?.biography}
+                  </div>
+                </div>
+                <div
+                  onClick={handleUpdateUserInformation}
+                  className='hidden sm2:block font-bold duration-200 ease-in-out hover:bg-black hover:text-white cursor-pointer text-center rounded-3xl border border-slate-300 px-4 py-2'
+                >
+                  Xong
+                </div>
+              </div>
             </div>
           </div>
-
-          <img
-            ref={imageChoseToViewRef}
-            src={imageChoseToView}
-            alt='image-modal'
-            className='max-w-full max-h-full shadow shadow-slate-300'
-          />
         </div>
-      )} */}
+      )}
+
+      {/* Modal warning for canceling edit user information */}
+      {openWarningCancelEditingUserInformation && (
+        <>
+          <div
+            id='background-cancel-edit-user-information-modal'
+            className='z-[1001] fixed top-0 left-0 w-full h-full bg-neutral-950 bg-opacity-90'
+          >
+            <div className='w-full h-full flex justify-center items-center'>
+              <div id='cancel-edit-user-information' className='relative z-20'>
+                <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                  <div className='mb-4 mt-2'>
+                    <div className='font-semibold text-center mb-4'>
+                      Không tiếp tục chỉnh sửa?
+                    </div>
+                  </div>
+                  <hr className='' />
+                  <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                    <div
+                      id='cancel-final-edit-user-information'
+                      onClick={() =>
+                        setOpenWarningCancelEditingUserInformation(false)
+                      }
+                      className='col-span-1 cursor-pointer p-2'
+                    >
+                      Tiếp tục
+                    </div>
+                    <div
+                      onClick={handleFinallyCancelEditingUserInformation}
+                      id='finally-cancel-edit-user-information'
+                      className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                    >
+                      Huỷ bỏ
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* View images of a post */}
       {openViewImageModal && (

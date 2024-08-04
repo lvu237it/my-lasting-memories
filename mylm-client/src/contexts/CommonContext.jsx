@@ -127,13 +127,14 @@ export const Common = ({ children }) => {
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
   const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
-
   const [openOptionsModal, setOpenOptionsModal] = useState(false);
   const [openCommentOptionsModal, setOpenCommentOptionsModal] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openDeleteCommentModal, setOpenDeleteCommentModal] = useState(false);
   const [openCancelEditingModal, setOpenCancelEditingModal] = useState(false);
   const [openCancelEditingCommentModal, setOpenCancelEditingCommentModal] =
+    useState(false);
+  const [openEditUserInformationModal, setOpenEditUserInformationModal] =
     useState(false);
 
   const [isSuccessFullyRemoved, setIsSuccessFullyRemoved] = useState(false);
@@ -164,6 +165,11 @@ export const Common = ({ children }) => {
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+
+  const currentLoggedIn =
+    JSON.parse(localStorage.getItem('admin')) ||
+    JSON.parse(localStorage.getItem('user')) ||
+    JSON.parse(localStorage.getItem('exceptional'));
 
   useEffect(() => {
     if (viewPostDetails) {
@@ -908,6 +914,24 @@ export const Common = ({ children }) => {
     }
   };
 
+  const getCurrentLoggedInUser = async (currentLoggedIn) => {
+    try {
+      // Lấy thông tin người dùng hiện tại
+      const userResponse = await axios.get(
+        `${apiBaseUrl}/users/current-logged-in-information?role=${currentLoggedIn.role}&userid=${currentLoggedIn.user_id}`
+      );
+      setCurrentUserInfor(userResponse.data[0]);
+
+      // Lấy các bài viết ngoại trừ của người dùng hiện tại
+      const postsResponse = await axios.get(
+        `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
+      );
+      setPostsList(postsResponse.data);
+    } catch (err) {
+      console.log('Error when getting data', err);
+    }
+  };
+
   const getAllUsers = async () => {
     try {
       const response = await axios.get(`${apiBaseUrl}/users/`);
@@ -1300,6 +1324,10 @@ export const Common = ({ children }) => {
         sortedUrlImagesComment,
         searchContent,
         setSearchContent,
+        openEditUserInformationModal,
+        setOpenEditUserInformationModal,
+        getCurrentLoggedInUser,
+        currentLoggedIn,
         // notify,
       }}
     >
