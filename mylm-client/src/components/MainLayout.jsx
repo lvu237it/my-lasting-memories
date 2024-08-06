@@ -303,15 +303,15 @@ const MainLayout = () => {
   useEffect(() => {
     //Set user information before
     setUsernameBeforeUpdate(currentUserInfor?.username);
-    setNicknameBeforeUpdate(currentUserInfor?.nickname);
-    setBiographyBeforeUpdate(currentUserInfor?.biography);
+    setNicknameBeforeUpdate(currentUserInfor?.nickname || '');
+    setBiographyBeforeUpdate(currentUserInfor?.biography || '');
   }, []);
 
   useEffect(() => {
     //Set user information before
     setUsernameBeforeUpdate(usernameForUpdate);
-    setNicknameBeforeUpdate(nicknameForUpdate);
-    setBiographyBeforeUpdate(biographyForUpdate);
+    setNicknameBeforeUpdate(nicknameForUpdate || '');
+    setBiographyBeforeUpdate(biographyForUpdate || '');
   }, [usernameForUpdate, nicknameForUpdate, biographyForUpdate]);
 
   useEffect(() => {
@@ -787,43 +787,42 @@ const MainLayout = () => {
   };
 
   const handleInputEditingUserInformationBlur = () => {
-    if (
-      usernameEditableRef.current.innerText &&
-      nicknameEditableRef.current.innerText &&
-      biographyEditableRef.current.innerText
-    ) {
-      setUsernameForUpdate(
-        usernameEditableRef.current.innerText || usernameBeforeUpdate
-      );
-      setNicknameForUpdate(
-        nicknameEditableRef.current.innerText || nicknameBeforeUpdate
-      );
-      setBiographyForUpdate(
-        biographyEditableRef.current.innerText || biographyBeforeUpdate
-      );
-    }
+    setUsernameForUpdate(
+      usernameEditableRef.current.innerText || usernameBeforeUpdate
+    );
+    setNicknameForUpdate(nicknameEditableRef.current.innerText);
+    setBiographyForUpdate(biographyEditableRef.current.innerText);
   };
 
   const handleUpdateUserInformation = async () => {
+    console.log('nickanemforupae', nicknameForUpdate.trim().length);
+    console.log('biographyForUpdate', biographyForUpdate.trim().length);
+    let nicknameFinal;
+    let biographyFinal;
+    if (nicknameForUpdate.trim().length === 0) {
+      nicknameFinal = null;
+    } else {
+      nicknameFinal = nicknameForUpdate;
+    }
+    if (biographyForUpdate.trim().length === 0) {
+      biographyFinal = null;
+    } else {
+      biographyFinal = biographyForUpdate;
+    }
     try {
       const username = usernameEditableRef.current.innerText.trim();
       if (
         (usernameBeforeUpdate !== null && usernameBeforeUpdate !== '') ||
         (usernameForUpdate !== null && usernameForUpdate !== '') ||
-        (username !== null && username !== '')
+        (username !== null && username !== '') ||
+        usernameForUpdate.trim().length !== 0
       ) {
         await axios.patch(
           `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
           {
             username: usernameForUpdate || usernameBeforeUpdate || username,
-            nickname:
-              nicknameForUpdate ||
-              nicknameBeforeUpdate ||
-              nicknameEditableRef.current.innerText,
-            biography:
-              biographyForUpdate ||
-              biographyBeforeUpdate ||
-              biographyEditableRef.current.innerText,
+            nickname: nicknameFinal,
+            biography: biographyFinal,
           }
         );
         toast.success(

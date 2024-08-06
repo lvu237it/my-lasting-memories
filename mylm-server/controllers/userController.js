@@ -69,7 +69,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 exports.getUserByPostId = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
   const rows = await poolQuery(
-    'SELECT * FROM users join posts where posts.user_id = users.user_id and posts.post_id = $1',
+    'SELECT * FROM users join posts on posts.user_id = users.user_id and posts.post_id = $1',
     [post_id]
   );
   if (!rows) {
@@ -145,24 +145,33 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
 
   let executeString = 'UPDATE users SET ';
   const params = [];
+  let paramIndex = 1; // Biến này sẽ theo dõi chỉ số placeholder
 
   // Thêm các cột cần cập nhật vào câu lệnh
-  if (username) {
-    executeString += 'username = $1, ';
+  if (username !== undefined && username !== '') {
+    executeString += `username = $${paramIndex}, `;
     params.push(username);
+    paramIndex++;
   }
-  if (nickname) {
-    executeString += 'nickname = $2, ';
+  if (nickname !== undefined && nickname !== '') {
+    executeString += `nickname = $${paramIndex}, `;
     params.push(nickname);
+    paramIndex++;
   }
-  if (biography) {
-    executeString += 'biography = $3, ';
+  if (biography !== undefined && biography !== '') {
+    executeString += `biography = $${paramIndex}, `;
     params.push(biography);
+    paramIndex++;
+  }
+
+  // Kiểm tra nếu không có cột nào để cập nhật
+  if (params.length === 0) {
+    return next(new AppError('No valid fields to update', 400));
   }
 
   // Xóa dấu phẩy cuối cùng và thêm điều kiện WHERE
   executeString = executeString.replace(/, $/, ''); // Loại bỏ dấu phẩy cuối cùng
-  executeString += ' WHERE user_id = $4';
+  executeString += ` WHERE user_id = $${paramIndex}`;
   params.push(userid);
 
   // Thực thi câu lệnh
@@ -170,6 +179,6 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    message: 'update user information successfully!',
+    message: 'Update user information successfully!',
   });
 });

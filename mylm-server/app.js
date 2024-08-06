@@ -23,6 +23,7 @@ const adminRouter = require('./routes/adminRoutes');
 const userRouter = require('./routes/userRoutes');
 const postRouter = require('./routes/postRoutes');
 const commentRouter = require('./routes/commentRoutes');
+const assetsRouter = require('./routes/assetsRoutes');
 
 // 1) GLOBAL MIDDLEWARE
 //Setting Security Http Headers
@@ -119,6 +120,8 @@ app.use('/users', userRouter);
 app.use('/posts', postRouter);
 //Comments
 app.use('/comments', commentRouter);
+//Assets images - commentsimages
+app.use('/image-sources', assetsRouter);
 
 //-----------------Test deploying---------------------
 app.use('/quak', (req, res, next) => {

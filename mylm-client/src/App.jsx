@@ -18,6 +18,7 @@ import MainLayout from './components/MainLayout';
 import AuthLayout from './components/AuthLayout';
 import Profile from './components/Profile';
 import ViewPostDetails from './components/ViewPostDetails';
+import AllPostsOfOtherUser from './components/AllPostsOfOtherUser';
 
 function App() {
   return (
@@ -38,9 +39,8 @@ function App() {
           <Route path='/savedposts' element={<SavedPosts />} />
           <Route path='/messages' element={<Messages />} />
           <Route path='/profile' element={<Profile />} />
+          <Route path='/profile/:userid' element={<Profile />} />
           <Route path='/post-details' element={<ViewPostDetails />} />
-          {/* Redirect all other routes to the home page */}
-          <Route path='*' element={<Navigate to='/' />} />
         </Route>
       </Routes>
     </>

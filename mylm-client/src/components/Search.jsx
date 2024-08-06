@@ -323,7 +323,10 @@ function Search() {
                       <div className=''>
                         <div className='image-avatar absolute top-0 left-0'>
                           <img
-                            src={getAuthorAvatarByUserId(post.user_id)}
+                            src={
+                              getAuthorAvatarByUserId(post.user_id) ||
+                              './user-avatar-default.png'
+                            }
                             alt=''
                             className='rounded-full w-12 h-12'
                           />

@@ -111,7 +111,8 @@ exports.getLastestPostCreatedByMe = catchAsync(async (req, res, next) => {
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
   const { post_id } = req.body;
-
+  console.log('postid', postid);
+  console.log('post_id', post_id);
   if (postid) {
     const rows = await poolQuery('select * from posts where post_id LIKE $1', [
       postid,
@@ -295,6 +296,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
   next();
 });
 
+//Uploads ảnh lên database - đồng thời uploads ảnh vào local folder trên server
 exports.uploadImages = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
   const files = req.files;
@@ -326,6 +328,8 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
     status: 'success',
     message: 'create post and upload images successfully!',
   });
+  //Tới bước trên chỉ là uploads lên database và lên local folder trên server
+  //Và sau khi commit push code mới có thể thực hiện, vì vậy cần cải thiện thành uploads trực tiếp trên server ở môi trường production
 });
 
 // exports.createPost = catchAsync(async (req, res, next) => {
