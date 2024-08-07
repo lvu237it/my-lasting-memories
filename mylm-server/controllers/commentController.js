@@ -8,36 +8,54 @@ const moment = require('moment-timezone');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+
+const dotenv = require('dotenv');
+
+dotenv.config({
+  path: path.join(__dirname, '../.env'),
+});
+
+// Configuration for cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View Credentials' below to copy your API secret
+});
 
 // Cấu hình Multer để lưu trữ file
 // Set the storage engine.
 // The destination is the folder you want the uploaded file to be saved.
 //  You will have to create the destination folder yourself in the project folder.
 // Define storage settings
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'assets/commentsimages'));
-  },
-  filename: (req, file, cb) => {
-    const dirPath = path.join(__dirname, '..', 'assets/commentsimages');
-    const originalname = file.originalname;
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.join(__dirname, '..', 'assets/commentsimages'));
+//   },
+//   filename: (req, file, cb) => {
+//     const dirPath = path.join(__dirname, '..', 'assets/commentsimages');
+//     const originalname = file.originalname;
 
-    // Check if the file already exists
-    fs.readdir(dirPath, (err, files) => {
-      if (err) {
-        console.error('Error reading directory:', err);
-        cb(err);
-      } else {
-        if (files.includes(originalname)) {
-          console.log(`File ${originalname} already exists, skipping upload.`);
-          cb(null, originalname); // Keep the original name if file exists
-        } else {
-          cb(null, Date.now() + '-' + originalname); // Append timestamp if file does not exist
-        }
-      }
-    });
-  },
-});
+//     // Check if the file already exists
+//     fs.readdir(dirPath, (err, files) => {
+//       if (err) {
+//         console.error('Error reading directory:', err);
+//         cb(err);
+//       } else {
+//         if (files.includes(originalname)) {
+//           console.log(`File ${originalname} already exists, skipping upload.`);
+//           cb(null, originalname); // Keep the original name if file exists
+//         } else {
+//           cb(null, Date.now() + '-' + originalname); // Append timestamp if file does not exist
+//         }
+//       }
+//     });
+//   },
+// });
+
+// Set up multer storage using memory storage
+const storage = multer.memoryStorage();
 
 // Set up multer instance
 // Limit is by default set to 1mb but using the limit property we can set it to 10MB
@@ -49,14 +67,11 @@ exports.upload = multer({
     const extname = allowedTypes.test(
       path.extname(file.originalname).toLowerCase()
     );
-
     const mimetype = allowedTypes.test(file.mimetype);
     if (mimetype && extname) {
       return cb(null, true);
     }
-
-    // Thay đổi thông báo lỗi để phù hợp với mã lỗi HTTP hoặc thông báo người dùng
-    cb(new AppError('Invalid file type', 400)); // Ví dụ: trả về lỗi HTTP 400
+    cb(new AppError('Invalid file type', 400));
   },
 });
 
@@ -160,13 +175,38 @@ exports.createComment = catchAsync(async (req, res, next) => {
   }
 });
 
+const uploadToCloudinary = (fileBuffer, attached_items_comment_id) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'comments-images',
+        public_id: `comments-images/${attached_items_comment_id}/${uuidv4()}`,
+        resource_type: 'image',
+      },
+      (error, result) => {
+        if (error) {
+          reject(new AppError('Error uploading to Cloudinary', 500));
+        } else {
+          resolve(result.secure_url);
+        }
+      }
+    );
+    streamifier.createReadStream(fileBuffer).pipe(stream);
+  });
+};
+
+//Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database
 exports.uploadCommentImages = catchAsync(async (req, res, next) => {
   const comment_id = req.comment_id;
   const files = req.files;
 
-  const promises = files.map(async (file) => {
+  const uploadPromises = files.map(async (file) => {
     const attached_items_comment_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
-    const attacheditem_comment_path = `/assets/commentsimages/${file.filename}`;
+    const attacheditem_comment_path = await uploadToCloudinary(
+      file.buffer,
+      attached_items_comment_id
+    );
+    console.log('result.secure_url', attacheditem_comment_path);
 
     const attachedValues = [
       attached_items_comment_id,
@@ -184,7 +224,7 @@ exports.uploadCommentImages = catchAsync(async (req, res, next) => {
   });
   console.log('file gi day uploadcomment', files);
   // Chờ cho tất cả các promise được giải quyết
-  await Promise.all(promises);
+  await Promise.all(uploadPromises);
 
   res.status(200).json({
     status: 'success',

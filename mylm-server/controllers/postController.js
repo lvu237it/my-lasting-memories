@@ -1,3 +1,4 @@
+const cloudinary = require('cloudinary').v2;
 const { poolQuery, poolExecute } = require('../database/connection');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -8,6 +9,40 @@ const moment = require('moment-timezone');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const streamifier = require('streamifier');
+
+const dotenv = require('dotenv');
+
+dotenv.config({
+  path: path.join(__dirname, '../.env'),
+});
+
+// Configuration for cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View Credentials' below to copy your API secret
+});
+
+const uploadToCloudinary = (fileBuffer, postId) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'images',
+        public_id: `images/${postId}/${uuidv4()}`,
+        resource_type: 'image',
+      },
+      (error, result) => {
+        if (error) {
+          reject(new AppError('Error uploading to Cloudinary', 500));
+        } else {
+          resolve(result.secure_url);
+        }
+      }
+    );
+    streamifier.createReadStream(fileBuffer).pipe(stream);
+  });
+};
 
 //Get existed posts (EXCEPT deleted posts)
 exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
@@ -220,27 +255,50 @@ exports.getAllImagesByPostId = catchAsync(async (req, res, next) => {
 // Set the storage engine.
 // The destination is the folder you want the uploaded file to be saved.
 //  You will have to create the destination folder yourself in the project folder.
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'assets/images'));
-  },
-  filename: async (req, file, cb) => {
-    const files = fs.readdirSync(path.join(__dirname, '..', 'assets/images'));
-    const originalname = file.originalname;
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.join(__dirname, '..', 'assets/images'));
+//   },
+//   filename: async (req, file, cb) => {
+//     const files = fs.readdirSync(path.join(__dirname, '..', 'assets/images'));
+//     const originalname = file.originalname;
 
-    // Kiểm tra xem tên file đã tồn tại trong thư mục hay chưa
-    // Đọc danh sách các file trong thư mục assets/images.
-    if (files.includes(originalname)) {
-      console.log(`File ${originalname} đã tồn tại, bỏ qua upload.`);
-      cb(null, originalname); // Nếu file đã tồn tại, không thay đổi tên file
-    } else {
-      cb(null, Date.now() + '-' + originalname); // Nếu file chưa tồn tại, thực hiện upload bình thường
-    }
-  },
-});
+//     // Kiểm tra xem tên file đã tồn tại trong thư mục hay chưa
+//     // Đọc danh sách các file trong thư mục assets/images.
+//     if (files.includes(originalname)) {
+//       console.log(`File ${originalname} đã tồn tại, bỏ qua upload.`);
+//       cb(null, originalname); // Nếu file đã tồn tại, không thay đổi tên file
+//     } else {
+//       cb(null, Date.now() + '-' + originalname); // Nếu file chưa tồn tại, thực hiện upload bình thường
+//     }
+//   },
+// });
 
 // Set up multer instance
 // Limit is by default set to 1mb but using the limit property we can set it to 10MB
+// exports.upload = multer({
+//   storage: storage,
+//   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+//   fileFilter: (req, file, cb) => {
+//     const allowedTypes = /jpeg|jpg|png/;
+//     const extname = allowedTypes.test(
+//       path.extname(file.originalname).toLowerCase()
+//     );
+
+//     const mimetype = allowedTypes.test(file.mimetype);
+//     if (mimetype && extname) {
+//       return cb(null, true);
+//     }
+
+//     // Thay đổi thông báo lỗi để phù hợp với mã lỗi HTTP hoặc thông báo người dùng
+//     cb(new AppError('Invalid file type', 400)); // Ví dụ: trả về lỗi HTTP 400
+//   },
+// });
+
+// Set up multer storage using memory storage
+const storage = multer.memoryStorage();
+
+// Set up multer instance
 exports.upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -249,14 +307,11 @@ exports.upload = multer({
     const extname = allowedTypes.test(
       path.extname(file.originalname).toLowerCase()
     );
-
     const mimetype = allowedTypes.test(file.mimetype);
     if (mimetype && extname) {
       return cb(null, true);
     }
-
-    // Thay đổi thông báo lỗi để phù hợp với mã lỗi HTTP hoặc thông báo người dùng
-    cb(new AppError('Invalid file type', 400)); // Ví dụ: trả về lỗi HTTP 400
+    cb(new AppError('Invalid file type', 400));
   },
 });
 
@@ -296,7 +351,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
   next();
 });
 
-//Uploads ảnh lên database - đồng thời uploads ảnh vào local folder trên server
+//Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database
 exports.uploadImages = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
   const files = req.files;
@@ -304,9 +359,71 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
   console.log('Uploading images for post_id:', post_id);
   console.log('Files:', files);
 
-  const promises = files.map(async (file) => {
-    const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
-    const attacheditem_path = `/assets/images/${file.filename}`;
+  // ------------------ Uploads lên database ---------------------------
+  // const promise_1 = files.map(async (file) => {
+  //   const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
+
+  //   const attacheditem_path = `/assets/images/${file.filename}`;
+  //   const attachedValues = [
+  //     attached_items_id,
+  //     'file',
+  //     attacheditem_path,
+  //     post_id,
+  //   ];
+
+  //   // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
+  //   await poolExecute(
+  //     'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
+  //     attachedValues
+  //   );
+  // });
+
+  // Chờ cho tất cả các promise được giải quyết
+  // await Promise.all(promise_1);
+
+  //----------------Upload lên cloudinary----------------------------------
+  // const promises = files.map(async (file) => {
+  //   const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
+
+  //   // Upload file lên Cloudinary
+  //   const result = await cloudinary.uploader
+  //     .upload_stream(
+  //       {
+  //         folder: 'images',
+  //         public_id: `images/${post_id}/${uuidv4()}`,
+  //         resource_type: 'image',
+  //       },
+  //       (error, result) => {
+  //         if (error) throw new AppError('Error uploading to Cloudinary', 500);
+  //         return result;
+  //       }
+  //     )
+  //     .end(file.buffer);
+  //   console.log('result.secure_url', result.secure_url);
+  //   const attacheditem_path = result.secure_url;
+  //   const attachedValues = [
+  //     attached_items_id,
+  //     'file',
+  //     attacheditem_path,
+  //     post_id,
+  //   ];
+
+  //   // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
+  //   await poolExecute(
+  //     'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
+  //     attachedValues
+  //   );
+  // });
+
+  // // Chờ cho tất cả các promise được giải quyết
+  // await Promise.all(promises);
+
+  const uploadPromises = files.map(async (file) => {
+    const attached_items_id = uuidv4();
+    const attacheditem_path = await uploadToCloudinary(file.buffer, post_id);
+
+    console.log('result.secure_url', attacheditem_path);
+
     const attachedValues = [
       attached_items_id,
       'file',
@@ -314,22 +431,18 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
       post_id,
     ];
 
-    // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
     await poolExecute(
       'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
       attachedValues
     );
   });
 
-  // Chờ cho tất cả các promise được giải quyết
-  await Promise.all(promises);
+  await Promise.all(uploadPromises);
 
   res.status(200).json({
     status: 'success',
     message: 'create post and upload images successfully!',
   });
-  //Tới bước trên chỉ là uploads lên database và lên local folder trên server
-  //Và sau khi commit push code mới có thể thực hiện, vì vậy cần cải thiện thành uploads trực tiếp trên server ở môi trường production
 });
 
 // exports.createPost = catchAsync(async (req, res, next) => {

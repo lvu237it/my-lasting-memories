@@ -435,8 +435,14 @@ function ViewPostDetails() {
                   <div className='content-attachments w-[95%] mt-4 cursor-pointer mx-auto'>
                     <img
                       onClick={(e) => handleOpenViewImageModal(e)}
-                      src={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
-                      alt='attached items'
+                      src={`${
+                        localUrlImages[0]?.attacheditem_path.includes(
+                          'https://res.cloudinary.com/'
+                        )
+                          ? `${localUrlImages[0]?.attacheditem_path}`
+                          : `${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`
+                      }`}
+                      alt={`${apiBaseUrl}${localUrlImages[0]?.attacheditem_path}`}
                       className='rounded-lg mx-auto'
                     />
                   </div>
@@ -735,7 +741,13 @@ function ViewPostDetails() {
                                             onClick={(e) =>
                                               handleOpenViewImageCommentModal(e)
                                             }
-                                            src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                            src={`${
+                                              imgurlComment?.attacheditem_comment_path.includes(
+                                                'https://res.cloudinary.com/'
+                                              )
+                                                ? `${imgurlComment?.attacheditem_comment_path} `
+                                                : `${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`
+                                            }`}
                                             alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                             className='shadow shadow-slate-300 h-full w-[300px] object-cover rounded-lg mx-auto'
                                           />
@@ -776,7 +788,13 @@ function ViewPostDetails() {
                             >
                               <img
                                 onClick={(e) => handleOpenViewImageModal(e)}
-                                src={`${apiBaseUrl}${imgurl?.attacheditem_path}`}
+                                src={`${
+                                  imgurl?.attacheditem_path.includes(
+                                    'https://res.cloudinary.com/'
+                                  )
+                                    ? imgurl?.attacheditem_path
+                                    : `${apiBaseUrl}${imgurl?.attacheditem_path}`
+                                }`}
                                 alt='attached items'
                                 className='shadow shadow-slate-300 h-[40vh] sm:h-[50vh] w-[250px] sm:w-[450px] object-cover rounded-lg mx-auto'
                               />
@@ -1076,7 +1094,13 @@ function ViewPostDetails() {
                                             onClick={(e) =>
                                               handleOpenViewImageCommentModal(e)
                                             }
-                                            src={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
+                                            src={`${
+                                              imgurlComment?.attacheditem_comment_path.includes(
+                                                'https://res.cloudinary.com/'
+                                              )
+                                                ? imgurlComment?.attacheditem_comment_path
+                                                : `${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`
+                                            }`}
                                             alt={`${apiBaseUrl}${imgurlComment?.attacheditem_comment_path}`}
                                             className='shadow shadow-slate-300 h-full w-[300px] object-cover rounded-lg mx-auto'
                                           />

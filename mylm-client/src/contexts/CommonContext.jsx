@@ -587,17 +587,23 @@ export const Common = ({ children }) => {
       (currentViewImageIndex - 1 + sortedUrlImages.length) %
       sortedUrlImages.length;
     setCurrentViewImageIndex(prevIndex);
-    setImageChoseToView(
-      `${apiBaseUrl}${sortedUrlImages[prevIndex]?.attacheditem_path}`
-    );
+    const finalPath = sortedUrlImages[prevIndex]?.attacheditem_path.includes(
+      'https://res.cloudinary.com/'
+    )
+      ? sortedUrlImages[prevIndex]?.attacheditem_path
+      : `${apiBaseUrl}${sortedUrlImages[prevIndex]?.attacheditem_path}`;
+    setImageChoseToView(finalPath);
   };
 
   const handleViewNextImage = () => {
     const nextIndex = (currentViewImageIndex + 1) % sortedUrlImages.length;
     setCurrentViewImageIndex(nextIndex);
-    setImageChoseToView(
-      `${apiBaseUrl}${sortedUrlImages[nextIndex]?.attacheditem_path}`
-    );
+    const finalPath = sortedUrlImages[nextIndex]?.attacheditem_path.includes(
+      'https://res.cloudinary.com/'
+    )
+      ? sortedUrlImages[nextIndex]?.attacheditem_path
+      : `${apiBaseUrl}${sortedUrlImages[nextIndex]?.attacheditem_path}`;
+    setImageChoseToView(finalPath);
   };
 
   const handleViewPrevCommentImage = () => {
@@ -617,9 +623,12 @@ export const Common = ({ children }) => {
           mappedImagesOfCurrentCommentDragging.length) %
         mappedImagesOfCurrentCommentDragging.length;
       setCurrentViewImageCommentIndex(prevIndex);
-      setImageChoseToViewComment(
-        `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`
-      );
+      const finalPath = mappedImagesOfCurrentCommentDragging[
+        prevIndex
+      ].includes('https://res.cloudinary.com/')
+        ? mappedImagesOfCurrentCommentDragging[prevIndex]
+        : `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[prevIndex]}`;
+      setImageChoseToViewComment(finalPath);
     }
   };
 
@@ -638,9 +647,12 @@ export const Common = ({ children }) => {
         (currentViewImageCommentIndex + 1) %
         mappedImagesOfCurrentCommentDragging.length;
       setCurrentViewImageCommentIndex(nextIndex);
-      setImageChoseToViewComment(
-        `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`
-      );
+      const finalPath = mappedImagesOfCurrentCommentDragging[
+        nextIndex
+      ].includes('https://res.cloudinary.com/')
+        ? mappedImagesOfCurrentCommentDragging[nextIndex]
+        : `${apiBaseUrl}${mappedImagesOfCurrentCommentDragging[nextIndex]}`;
+      setImageChoseToViewComment(finalPath);
     }
   };
 
@@ -1018,9 +1030,7 @@ export const Common = ({ children }) => {
       } catch (error) {
         console.error('Error creating post', error);
         setPostModal(false);
-        toast.error(
-          'Đăng bài không thành công. Chức năng hiện tại chưa hoàn thiện, rất xin lỗi vì sự bất tiện này 😿.'
-        );
+        toast.error('Đăng bài không thành công. Vui lòng thử lại 😿.');
       }
     }
   };

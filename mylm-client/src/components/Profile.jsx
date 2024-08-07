@@ -175,7 +175,8 @@ function Profile() {
                 </div>
                 <div className='social-url italic tracking-widest'>
                   {currentUserInfor
-                    ? currentUserInfor?.nickname
+                    ? currentUserInfor?.nickname ||
+                      'Tạo cho mình 1 chiếc nickname thật ngầu...'
                     : adminInfor?.nickname}
                 </div>
               </div>
