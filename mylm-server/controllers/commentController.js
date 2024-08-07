@@ -142,8 +142,7 @@ exports.getImagesOfCommentsByPostId = catchAsync(async (req, res, next) => {
 });
 
 exports.createComment = catchAsync(async (req, res, next) => {
-  const postid = req.post_id;
-  const { comment_content, user_id, images_array } = req.body;
+  const { comment_content, post_id, user_id, images_array } = req.body;
   console.log('imagesArray:', images_array); // Kiểm tra images
   const comment_id = uuidv4();
   const imageArray = JSON.parse(images_array);
@@ -155,7 +154,7 @@ exports.createComment = catchAsync(async (req, res, next) => {
   // Lưu thông tin comment vào cơ sở dữ liệu
   await poolExecute(
     'INSERT INTO comments(comment_id, comment_content, created_at, post_id, user_id) VALUES ($1, $2, $3, $4, $5)',
-    [comment_id, comment_content, currentDateTime, postid, user_id]
+    [comment_id, comment_content, currentDateTime, post_id, user_id]
   );
 
   // Chỉ bình luận content mà ko post ảnh
@@ -169,27 +168,6 @@ exports.createComment = catchAsync(async (req, res, next) => {
   req.imageArray = imageArray;
   next();
 });
-
-// const uploadToCloudinary = (fileBuffer, attached_items_comment_id) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.uploader.upload_stream(
-//       {
-//         folder: 'comments-images',
-//         public_id: `comments-images/${attached_items_comment_id}/${uuidv4()}`,
-//         resource_type: 'image',
-//         // upload_preset: 'my_lasting_memories_2307_comments_images',
-//       },
-//       (error, result) => {
-//         if (error) {
-//           reject(new AppError('Error uploading to Cloudinary', 500));
-//         } else {
-//           resolve(result.secure_url);
-//         }
-//       }
-//     );
-//     streamifier.createReadStream(fileBuffer).pipe(stream);
-//   });
-// };
 
 //Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database
 exports.uploadCommentImages = catchAsync(async (req, res, next) => {

@@ -147,8 +147,8 @@ exports.getLastestPostCreatedByMe = catchAsync(async (req, res, next) => {
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
   const { post_id } = req.body;
-  console.log('postid', postid);
-  console.log('post_id', post_id);
+  // console.log('postid', postid);
+  // console.log('post_id', post_id);
   if (postid) {
     const rows = await poolQuery('select * from posts where post_id LIKE $1', [
       postid,

@@ -23,7 +23,7 @@ router.get(
 router.post(
   '/create',
   // commentController.upload.array('imagesComment', 10), //fieldName này cần giống với tên trong formData //Bỏ qua bước upload vì đã upload trực tiếp từ client
-  postController.checkPostIsExist,
+  // postController.checkPostIsExist,
   commentController.createComment,
   commentController.uploadCommentImages
 );
