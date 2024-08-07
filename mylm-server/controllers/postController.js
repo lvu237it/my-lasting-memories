@@ -31,7 +31,7 @@ const uploadToCloudinary = (fileBuffer, postId) => {
         folder: 'images',
         public_id: `images/${postId}/${uuidv4()}`,
         resource_type: 'image',
-        upload_preset: 'my_lasting_memories_2307_images',
+        // upload_preset: 'my_lasting_memories_2307_images',
       },
       (error, result) => {
         if (error) {
@@ -422,7 +422,7 @@ exports.uploadImages = catchAsync(async (req, res, next) => {
   const uploadPromises = files.map(async (file) => {
     const attached_items_id = uuidv4();
     const attacheditem_path = await uploadToCloudinary(file.buffer, post_id);
-
+    console.log('Uploaded to Cloudinary:', attacheditem_path);
     console.log('result.secure_url', attacheditem_path);
 
     const attachedValues = [
