@@ -182,6 +182,7 @@ const uploadToCloudinary = (fileBuffer, attached_items_comment_id) => {
         folder: 'comments-images',
         public_id: `comments-images/${attached_items_comment_id}/${uuidv4()}`,
         resource_type: 'image',
+        upload_preset: 'my_lasting_memories_2307_comments_images',
       },
       (error, result) => {
         if (error) {

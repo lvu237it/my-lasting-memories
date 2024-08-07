@@ -31,6 +31,7 @@ const uploadToCloudinary = (fileBuffer, postId) => {
         folder: 'images',
         public_id: `images/${postId}/${uuidv4()}`,
         resource_type: 'image',
+        upload_preset: 'my_lasting_memories_2307_images',
       },
       (error, result) => {
         if (error) {
