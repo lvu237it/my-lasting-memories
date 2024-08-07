@@ -143,13 +143,10 @@ exports.getImagesOfCommentsByPostId = catchAsync(async (req, res, next) => {
 
 exports.createComment = catchAsync(async (req, res, next) => {
   const postid = req.post_id;
-  const { comment_content, user_id } = req.body;
+  const { comment_content, user_id, images_array } = req.body;
+  console.log('imagesArray:', images_array); // Kiểm tra images
   const comment_id = uuidv4();
-  const files = req.files || [];
-  console.log('file gi day', files);
-  if (files && files.length > 10) {
-    return next(new AppError('Not exceed 10 files per comment', 400));
-  }
+  const imageArray = JSON.parse(images_array);
 
   const currentDateTime = moment()
     .tz('Asia/Ho_Chi_Minh')
@@ -161,18 +158,16 @@ exports.createComment = catchAsync(async (req, res, next) => {
     [comment_id, comment_content, currentDateTime, postid, user_id]
   );
 
-  //Chỉ bình luận content mà ko post ảnh
-  if (!files || files.length === 0) {
+  // Chỉ bình luận content mà ko post ảnh
+  if (!imageArray || imageArray.length === 0) {
     res.status(200).json({
       status: 'success',
       message: 'create comment successfully!',
     });
-  } else {
-    req.comment_id = comment_id;
-    req.files = files;
-    console.log('file gi day', files);
-    next();
   }
+  req.comment_id = comment_id;
+  req.imageArray = imageArray;
+  next();
 });
 
 // const uploadToCloudinary = (fileBuffer, attached_items_comment_id) => {
@@ -199,38 +194,44 @@ exports.createComment = catchAsync(async (req, res, next) => {
 //Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database
 exports.uploadCommentImages = catchAsync(async (req, res, next) => {
   const comment_id = req.comment_id;
-  const files = req.files;
+  const imageArray = req.imageArray;
 
-  const uploadPromises = files.map(async (file) => {
-    const attached_items_comment_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
-    const attacheditem_comment_path = await uploadToCloudinary(
-      file.buffer,
-      attached_items_comment_id
-    );
-    console.log('result.secure_url', attacheditem_comment_path);
+  try {
+    const uploadPromises = imageArray.map(async (imageUrl) => {
+      const attached_items_comment_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
 
-    const attachedValues = [
-      attached_items_comment_id,
-      attacheditem_comment_path,
-      comment_id,
-    ];
+      const attacheditem_comment_path = imageUrl;
+      console.log('result.secure_url', attacheditem_comment_path);
 
-    console.log('attachedValues', attachedValues);
+      const attachedValues = [
+        attached_items_comment_id,
+        attacheditem_comment_path,
+        comment_id,
+      ];
 
-    // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
-    await poolExecute(
-      'INSERT INTO attached_items_comments(attached_items_comment_id, attacheditem_comment_path, comment_id) VALUES ($1, $2, $3)',
-      attachedValues
-    );
-  });
-  console.log('file gi day uploadcomment', files);
-  // Chờ cho tất cả các promise được giải quyết
-  await Promise.all(uploadPromises);
+      console.log('attachedValues', attachedValues);
 
-  res.status(200).json({
-    status: 'success',
-    message: 'create comment and upload images successfully!',
-  });
+      // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
+      await poolExecute(
+        'INSERT INTO attached_items_comments(attached_items_comment_id, attacheditem_comment_path, comment_id) VALUES ($1, $2, $3)',
+        attachedValues
+      );
+    });
+
+    // Chờ cho tất cả các promise được giải quyết
+    await Promise.all(uploadPromises);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'create comment and upload images successfully!',
+    });
+  } catch (error) {
+    console.error('Error uploading comments images:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to upload comments images.',
+    });
+  }
 });
 
 exports.checkCommentIsExist = catchAsync(async (req, res, next) => {

@@ -1010,6 +1010,35 @@ export const Common = ({ children }) => {
     }
   };
 
+  const uploadImageCommentsToCloudinary = async (file) => {
+    // https://api.cloudinary.com/v1_1/demo/image/upload
+    const url = 'https://api.cloudinary.com/v1_1/dgzkbbqjx/image/upload';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append(
+      'upload_preset',
+      'my_lasting_memories_2307_comments_images'
+    );
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Upload successful');
+      console.log('response.data.url', response.data.url);
+      console.log('response.data', response.data);
+      return response.data.secure_url; //ok
+    } catch (error) {
+      console.error(
+        'Error uploading comments image to Cloudinary',
+        error.response ? error.response.data : error.message
+      );
+      throw new Error('Upload comments image to Cloudinary failed');
+    }
+  };
+
   //Create post
   const handleCreatePost = async () => {
     console.log('images.length', images.length);
@@ -1034,12 +1063,6 @@ export const Common = ({ children }) => {
         })
       );
       console.log('imageurlsall', imageUrls);
-
-      // const formData = new FormData();
-      // formData.append('content', postContent);
-      // formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
-      // const imgs = JSON.stringify(imageUrls);
-      // formData.append('images_array', imgs); // Gửi các URL của ảnh đã tải lênformData.append('images', JSON.stringify(imageUrls)); // Gửi các URL của ảnh đã tải lên
 
       const postData = {
         content: postContent,
@@ -1138,25 +1161,40 @@ export const Common = ({ children }) => {
     } else if (imagesComment.length > 10) {
       toast.error('Bình luận không thành công. Tối đa không quá 10 ảnh 😿.');
     } else {
-      const formData = new FormData();
-      formData.append('post_id', post.post_id);
-      formData.append('comment_content', commentContent);
-      // formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
-      formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
-      imagesComment.forEach((file) => {
-        // ------------------------------WARNING-----------------------------------------
-        //TÊN TRƯỜNG NÀY CẦN PHẢI TRÙNG KHỚP VỚI TÊN Ở commentRoutes
-        //Cụ thể là:
-        //       commentController.upload.array('imagesComment', 10),   (ĐÚNG)
-        //Chứ không phải:
-        //       commentController.upload.array('images', 10),   (SAI)
-        formData.append('imagesComment', file);
-      });
+      // const formData = new FormData();
+      // formData.append('post_id', post.post_id);
+      // formData.append('comment_content', commentContent);
+      // // formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      // formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      // imagesComment.forEach((file) => {
+      //   // ------------------------------WARNING-----------------------------------------
+      //   //TÊN TRƯỜNG NÀY CẦN PHẢI TRÙNG KHỚP VỚI TÊN Ở commentRoutes
+      //   //Cụ thể là:
+      //   //       commentController.upload.array('imagesComment', 10),   (ĐÚNG)
+      //   //Chứ không phải:
+      //   //       commentController.upload.array('images', 10),   (SAI)
+      //   formData.append('imagesComment', file);
+      // });
 
       try {
-        await axios.post(`${apiBaseUrl}/comments/create`, formData, {
+        // Tải ảnh lên Cloudinary
+        const imageCommentsUrls = await Promise.all(
+          imagesComment.map(async (file) => {
+            const url = await uploadImageCommentsToCloudinary(file);
+            return url;
+          })
+        );
+
+        const commentData = {
+          content: commentContent,
+          post_id: post.post_id,
+          user_id: currentUserInfor.user_id,
+          images_array: JSON.stringify(imageCommentsUrls), // Chuyển mảng ảnh thành chuỗi JSON
+        };
+
+        await axios.post(`${apiBaseUrl}/comments/create`, commentData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         });
         setOpenAddCommentModal(false);
