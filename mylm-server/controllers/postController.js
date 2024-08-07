@@ -297,35 +297,36 @@ exports.getAllImagesByPostId = catchAsync(async (req, res, next) => {
 // });
 
 // Set up multer storage using memory storage
-const storage = multer.memoryStorage();
+// const storage = multer.memoryStorage();
 
 // Set up multer instance
-exports.upload = multer({
-  storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
-    const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new AppError('Invalid file type', 400));
-  },
-});
+// exports.upload = multer({
+//   storage: storage,
+//   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+//   fileFilter: (req, file, cb) => {
+//     const allowedTypes = /jpeg|jpg|png/;
+//     const extname = allowedTypes.test(
+//       path.extname(file.originalname).toLowerCase()
+//     );
+//     const mimetype = allowedTypes.test(file.mimetype);
+//     if (mimetype && extname) {
+//       return cb(null, true);
+//     }
+//     cb(new AppError('Invalid file type', 400));
+//   },
+// });
 
 exports.createPost = catchAsync(async (req, res, next) => {
-  const { content, user_id } = req.body;
-  const files = req.files || [];
+  const { content, user_id, images_array } = req.body;
+  console.log('Content:', content); // Kiểm tra content
+  console.log('User ID:', user_id); // Kiểm tra user_id
+  console.log('imagesArray:', images_array); // Kiểm tra images
+  // const files = req.files || [];
   const post_id = uuidv4();
-
-  console.log('Received files:', files);
-
-  if (files && files.length > 10) {
-    return next(new AppError('Not exceed 10 files per post', 400));
-  }
+  const imageArray = JSON.parse(images_array);
+  console.log('Image Array:', imageArray);
+  console.log('Mảng các ảnh uploading', imageArray);
+  // Xử lý các giá trị null hoặc undefined
 
   const currentDateTime = moment()
     .tz('Asia/Ho_Chi_Minh')
@@ -338,7 +339,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
   );
 
   // Chỉ post content mà ko post ảnh
-  if (!files || files.length === 0) {
+  if (!imageArray || imageArray.length === 0) {
     res.status(200).json({
       status: 'success',
       message: 'create post successfully!',
@@ -346,104 +347,55 @@ exports.createPost = catchAsync(async (req, res, next) => {
   }
 
   req.post_id = post_id;
-  if (files) {
-    req.files = files;
+  if (imageArray) {
+    req.imageArray = imageArray;
   }
   next();
 });
 
-//Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database
+//lưu thông tin vào database
 exports.uploadImages = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
-  const files = req.files;
+  const imageArray = req.imageArray;
 
-  console.log('Uploading images for post_id:', post_id);
-  console.log('Files:', files);
+  console.log('Uploading imageArray for post_id:', post_id);
+  console.log('Immages:', imageArray);
 
   // ------------------ Uploads lên database ---------------------------
-  // const promise_1 = files.map(async (file) => {
-  //   const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
 
-  //   const attacheditem_path = `/assets/images/${file.filename}`;
-  //   const attachedValues = [
-  //     attached_items_id,
-  //     'file',
-  //     attacheditem_path,
-  //     post_id,
-  //   ];
+  try {
+    const uploadPromises = imageArray.map(async (imageUrl) => {
+      const attached_items_id = uuidv4();
+      const attacheditem_path = imageUrl; // URL ảnh
 
-  //   // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
-  //   await poolExecute(
-  //     'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
-  //     attachedValues
-  //   );
-  // });
+      const attachedValues = [
+        attached_items_id,
+        'image', // Hoặc 'file' nếu bạn muốn giữ 'file' cho mọi loại tệp
+        attacheditem_path,
+        post_id,
+      ];
 
-  // Chờ cho tất cả các promise được giải quyết
-  // await Promise.all(promise_1);
+      // Thực hiện câu lệnh INSERT vào bảng attached_items
+      await poolExecute(
+        'INSERT INTO attached_items (attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
+        attachedValues
+      );
+    });
 
-  //----------------Upload lên cloudinary----------------------------------
-  // const promises = files.map(async (file) => {
-  //   const attached_items_id = uuidv4(); // Tạo attached_items_id mới cho mỗi ảnh
+    // Chờ tất cả các câu lệnh INSERT hoàn tất
+    await Promise.all(uploadPromises);
 
-  //   // Upload file lên Cloudinary
-  //   const result = await cloudinary.uploader
-  //     .upload_stream(
-  //       {
-  //         folder: 'images',
-  //         public_id: `images/${post_id}/${uuidv4()}`,
-  //         resource_type: 'image',
-  //       },
-  //       (error, result) => {
-  //         if (error) throw new AppError('Error uploading to Cloudinary', 500);
-  //         return result;
-  //       }
-  //     )
-  //     .end(file.buffer);
-  //   console.log('result.secure_url', result.secure_url);
-  //   const attacheditem_path = result.secure_url;
-  //   const attachedValues = [
-  //     attached_items_id,
-  //     'file',
-  //     attacheditem_path,
-  //     post_id,
-  //   ];
-
-  //   // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
-  //   await poolExecute(
-  //     'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
-  //     attachedValues
-  //   );
-  // });
-
-  // // Chờ cho tất cả các promise được giải quyết
-  // await Promise.all(promises);
-
-  const uploadPromises = files.map(async (file) => {
-    const attached_items_id = uuidv4();
-    const attacheditem_path = await uploadToCloudinary(file.buffer, post_id);
-    console.log('Uploaded to Cloudinary:', attacheditem_path);
-    console.log('result.secure_url', attacheditem_path);
-
-    const attachedValues = [
-      attached_items_id,
-      'file',
-      attacheditem_path,
-      post_id,
-    ];
-
-    await poolExecute(
-      'INSERT INTO attached_items(attached_items_id, attacheditem_type, attacheditem_path, post_id) VALUES ($1, $2, $3, $4)',
-      attachedValues
-    );
-  });
-
-  await Promise.all(uploadPromises);
-
-  res.status(200).json({
-    status: 'success',
-    message: 'create post and upload images successfully!',
-  });
+    res.status(200).json({
+      status: 'success',
+      message: 'Create post and upload images successfully!',
+    });
+  } catch (error) {
+    console.error('Error uploading images:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to upload images.',
+    });
+  }
 });
 
 // exports.createPost = catchAsync(async (req, res, next) => {

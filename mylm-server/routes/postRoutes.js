@@ -32,7 +32,7 @@ router.get(
 );
 router.post(
   '/createpost',
-  postController.upload.array('images', 10),
+  // postController.upload.array('images', 10), //Bỏ qua bước upload vì đã upload trực tiếp từ client
   postController.createPost,
   postController.uploadImages
 );

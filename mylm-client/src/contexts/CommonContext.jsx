@@ -11,6 +11,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useMediaQuery } from 'react-responsive';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AdvancedImage } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
 
 const CommonContext = createContext();
 
@@ -980,6 +982,34 @@ export const Common = ({ children }) => {
     }
   };
 
+  const uploadImageToCloudinary = async (file) => {
+    // https://api.cloudinary.com/v1_1/demo/image/upload
+    const url = 'https://api.cloudinary.com/v1_1/dgzkbbqjx/image/upload';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'my_lasting_memories_2307_images'); // Thay đổi với upload_preset của bạn
+    // formData.append('folder', 'images'); // Thay đổi với upload_preset của bạn
+
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Upload successful');
+      console.log('response.data.url', response.data.url);
+      console.log('response.data', response.data);
+      return response.data.secure_url; //ok
+    } catch (error) {
+      console.error(
+        'Error uploading to Cloudinary',
+        error.response ? error.response.data : error.message
+      );
+      throw new Error('Upload to Cloudinary failed');
+    }
+  };
+
   //Create post
   const handleCreatePost = async () => {
     console.log('images.length', images.length);
@@ -987,51 +1017,69 @@ export const Common = ({ children }) => {
       toast.error(
         'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 1000 kí tự 😿.'
       );
-    } else if (images.length > 10) {
+      return;
+    }
+
+    if (images.length > 10) {
       toast.error('Đăng bài không thành công. Tối đa không quá 10 ảnh 😿.');
-    } else {
-      const formData = new FormData();
-      formData.append('content', postContent);
-      // formData.append('user_id', '7634b4ee-e27e-4d03-8e61-d7d6d4459607'); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
-      formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
-      images.forEach((file) => {
-        formData.append('images', file);
-        console.log('Added image to formData:', file);
+      return;
+    }
+
+    try {
+      // Tải ảnh lên Cloudinary
+      const imageUrls = await Promise.all(
+        images.map(async (file) => {
+          const url = await uploadImageToCloudinary(file);
+          return url;
+        })
+      );
+      console.log('imageurlsall', imageUrls);
+
+      // const formData = new FormData();
+      // formData.append('content', postContent);
+      // formData.append('user_id', currentUserInfor.user_id); //admin - chuyển thành thông tin của người đang đăng nhập nếu scale
+      // const imgs = JSON.stringify(imageUrls);
+      // formData.append('images_array', imgs); // Gửi các URL của ảnh đã tải lênformData.append('images', JSON.stringify(imageUrls)); // Gửi các URL của ảnh đã tải lên
+
+      const postData = {
+        content: postContent,
+        user_id: currentUserInfor.user_id,
+        images_array: JSON.stringify(imageUrls), // Chuyển mảng ảnh thành chuỗi JSON
+      };
+
+      await axios.post(`${apiBaseUrl}/posts/createpost`, postData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      try {
-        await axios.post(`${apiBaseUrl}/posts/createpost`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        setPostModal(false);
-        textareaRef.current.value = '';
-        setHasPostContent(false);
-        getAllPostsExceptMe();
-        getAllMyPosts();
-        setImageUrlsList([]);
-        setImages([]);
-        console.log('current', currentUserInfor);
-        // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
-        toast.success(
-          <div>
-            Đăng bài thành công 😸! Hãy xem bài viết mới nhất của bạn tại
-            <div
-              onClick={() => {
-                setHeaderIconsClicked('header-icon-profile');
-                navigate('/profile');
-              }}
-              className='cursor-pointer hover:text-blue-500 text-blue-400 ease-in-out duration-300'
-            >
-              trang cá nhân
-            </div>
+
+      setPostModal(false);
+      textareaRef.current.value = '';
+      setHasPostContent(false);
+      getAllPostsExceptMe();
+      getAllMyPosts();
+      setImageUrlsList([]);
+      setImages([]);
+      console.log('current', currentUserInfor);
+      // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
+      toast.success(
+        <div>
+          Đăng bài thành công 😸! Hãy xem bài viết mới nhất của bạn tại
+          <div
+            onClick={() => {
+              setHeaderIconsClicked('header-icon-profile');
+              navigate('/profile');
+            }}
+            className='cursor-pointer hover:text-blue-500 text-blue-400 ease-in-out duration-300'
+          >
+            trang cá nhân
           </div>
-        );
-      } catch (error) {
-        console.error('Error creating post', error);
-        setPostModal(false);
-        toast.error('Đăng bài không thành công. Vui lòng thử lại 😿.');
-      }
+        </div>
+      );
+    } catch (error) {
+      console.error('Error creating post', error);
+      setPostModal(false);
+      toast.error('Đăng bài không thành công. Vui lòng thử lại 😿.');
     }
   };
 
