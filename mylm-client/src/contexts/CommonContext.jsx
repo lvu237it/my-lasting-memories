@@ -79,6 +79,8 @@ export const Common = ({ children }) => {
 
   const [postsList, setPostsList] = useState([]);
   const [allMyPosts, setAllMyPosts] = useState([]);
+  const [mySavedPostList, setMySavedPostList] = useState([]);
+
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
   const [commentContent, setCommentContent] = useState('');
@@ -1477,6 +1479,8 @@ export const Common = ({ children }) => {
         getSavedPostByPostIdAndSaverId,
         isSavedPost,
         setIsSavedPost,
+        mySavedPostList,
+        setMySavedPostList,
         // notify,
       }}
     >

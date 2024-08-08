@@ -60,6 +60,10 @@ router.patch(
 );
 
 router.get(
+  '/saved-post/my-all-saved-posts/:userid',
+  postController.getAllMySavedPosts
+);
+router.get(
   '/saved-post/check-saved-post/:postid',
   postController.getSavedPostByPostIdAndSaverId
 );

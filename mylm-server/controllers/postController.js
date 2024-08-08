@@ -470,8 +470,22 @@ exports.getSavedPostByPostIdAndSaverId = catchAsync(async (req, res, next) => {
   const { author_user_id, saver_user_id } = req.query;
 
   const rows = await poolQuery(
-    'select * from saved_posts where post_id = $1 and author_user_id = $2 and saver_user_id = $3 and is_deleted = 0',
+    'select * from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.post_id = $1 and saved_posts.author_user_id = $2 and saved_posts.saver_user_id = $3 and saved_posts.is_deleted = 0 and posts.is_deleted = 0',
     [postid, author_user_id, saver_user_id]
+  );
+
+  if (!rows) {
+    return next(new AppError('No saved post found', 404));
+  }
+
+  res.status(200).json(rows);
+});
+
+exports.getAllMySavedPosts = catchAsync(async (req, res, next) => {
+  const { userid } = req.params;
+  const rows = await poolQuery(
+    'select saved_posts.*, posts.* from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.saver_user_id = $1 and saved_posts.is_deleted = 0 and posts.is_deleted = 0 order by posts.created_at desc',
+    [userid]
   );
 
   if (!rows) {

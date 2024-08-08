@@ -1,7 +1,8 @@
 import { BiPencil, BiFilter } from 'react-icons/bi';
 import { useEffect, useState } from 'react';
 import { useCommon } from '../contexts/CommonContext';
-
+import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 function SavedPosts() {
   const {
     adminInfor,
@@ -10,7 +11,20 @@ function SavedPosts() {
     setRole,
     currentUserInfor,
     setCurrentUserInfor,
+    mySavedPostList,
+    setMySavedPostList,
+    handleViewPostDetails,
+    getAuthorAvatarByUserId,
+    getAuthorNameOfPostByUserId,
+    getPostedTime,
+    viewPostDetails,
+    getImageUrlsCommentByPostId,
+    setChosenPost,
+    chosenPost,
   } = useCommon();
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -32,6 +46,37 @@ function SavedPosts() {
     };
   }, []);
 
+  const getAllMySavedPosts = async () => {
+    if (currentUserInfor) {
+      try {
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/saved-post/my-all-saved-posts/${currentUserInfor.user_id}`
+        );
+        setMySavedPostList(response.data);
+      } catch (error) {
+        console.error('Error fetching all my saved post by user id', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getAllMySavedPosts();
+  }, []);
+
+  useEffect(() => {
+    if (viewPostDetails) {
+      navigate('/post-details', { state: { from: location.pathname } });
+    }
+  }, [viewPostDetails, location.pathname]);
+
+  useEffect(() => {
+    if (!viewPostDetails) {
+      setChosenPost(null);
+    } else {
+      getImageUrlsCommentByPostId(chosenPost);
+    }
+  }, [viewPostDetails, chosenPost]);
+
   return (
     <>
       <div className='wrapper my-3 relative'>
@@ -46,33 +91,92 @@ function SavedPosts() {
               </button>
             </div>
           </div>
-          <div className='grid-savedposts-results'>
-            <div className='result-item grid relative mb-[85px]'>
-              <div className='image-avatar absolute top-0 left-0'>
-                <img
-                  src={
-                    currentUserInfor
-                      ? currentUserInfor?.avatar_path ||
-                        './user-avatar-default.png'
-                      : adminInfor?.avatar_path
-                  }
-                  alt=''
-                  className='rounded-full w-12 h-12'
-                />
-              </div>
-              <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>
-                <div className='name-and-posted-at'>
-                  <div className='font-semibold'>
-                    {currentUserInfor && currentUserInfor.username}
+          {/* List of saved post */}
+          <div className='list-of-saved-posts'>
+            {mySavedPostList &&
+              mySavedPostList.map((post, index) =>
+                index === 0 ? (
+                  <div
+                    onClick={() => handleViewPostDetails(post)}
+                    key={post.post_id}
+                    className='cursor-pointer text-sm sm2:text-base pb-10 sm2:pb-12'
+                  >
+                    <div className='feeds-content-posts grid relative'>
+                      <div className='feeds-content-top-about absolute top-0 left-0'>
+                        <img
+                          src={
+                            getAuthorAvatarByUserId(post.author_user_id) ||
+                            './user-avatar-default.png'
+                          }
+                          alt=''
+                          className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                        />
+                      </div>
+                      <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
+                        <div className='information-and-posttime'>
+                          <div className='author-name font-semibold'>
+                            {getAuthorNameOfPostByUserId(post.author_user_id)}
+                          </div>
+                          <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                            <BiPencil />
+                            <div className=''>
+                              {getPostedTime(post.created_at)}
+                            </div>
+                          </div>
+                          <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                            {post.content || '* Bài viết không có tiêu đề'}
+                          </div>
+                        </div>
+                      </div>
+                      {index !== mySavedPostList.length - 1 ? (
+                        <div className='absolute top-[75px] sm2:top-[85px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                      ) : (
+                        <div className='absolute top-[75px] sm2:top-[85px] bg-white w-full h-[0.2px]'></div>
+                      )}
+                    </div>
                   </div>
-                  <div className='text-slate-700 opacity-70'>Posted at</div>
-                  <div className='result-little-detail whitespace-nowrap overflow-hidden overflow-ellipsis'>
-                    Tính năng này đang trong quá trình triển khai...
+                ) : (
+                  <div
+                    onClick={() => handleViewPostDetails(post)}
+                    key={post.post_id}
+                    className='cursor-pointer text-sm sm2:text-base py-12'
+                  >
+                    <div className='feeds-content-posts grid relative'>
+                      <div className='feeds-content-top-about absolute top-0 left-0'>
+                        <img
+                          src={
+                            getAuthorAvatarByUserId(post.author_user_id) ||
+                            './user-avatar-default.png'
+                          }
+                          alt=''
+                          className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                        />
+                      </div>
+                      <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
+                        <div className='information-and-posttime'>
+                          <div className='author-name font-semibold'>
+                            {getAuthorNameOfPostByUserId(post.author_user_id)}
+                          </div>
+                          <div className='flex flex-row gap-1 items-center text-slate-700 opacity-70'>
+                            <BiPencil />
+                            <div className=''>
+                              {getPostedTime(post.created_at)}
+                            </div>
+                          </div>
+                          <div className='feeds-content-bottom-description whitespace-nowrap overflow-hidden overflow-ellipsis'>
+                            {post.content || '* Bài viết không có tiêu đề'}
+                          </div>
+                        </div>
+                      </div>
+                      {index !== mySavedPostList.length - 1 ? (
+                        <div className='absolute top-[75px] sm2:top-[85px] bg-slate-300 font-thin w-full h-[0.2px]'></div>
+                      ) : (
+                        <div className='absolute top-[75px] sm2:top-[85px] bg-white w-full h-[0.2px]'></div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <hr className='mb-5' />
+                )
+              )}
           </div>
         </div>
       </div>

@@ -151,8 +151,6 @@ function HomePage() {
 
   // const contentEditableRef = useRef(null);
 
-  const [isSavedPost, setIsSavedPost] = useState(true); //not yet
-
   const navigate = useNavigate();
   const location = useLocation();
   // useEffect(() => {
