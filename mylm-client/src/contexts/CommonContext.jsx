@@ -138,6 +138,8 @@ export const Common = ({ children }) => {
     useState(false);
   const [openEditUserInformationModal, setOpenEditUserInformationModal] =
     useState(false);
+  const [openChangePostStatusModal, setOpenChangePostStatusModal] =
+    useState(false);
 
   const [isSuccessFullyRemoved, setIsSuccessFullyRemoved] = useState(false);
 
@@ -1423,6 +1425,9 @@ export const Common = ({ children }) => {
         setOpenEditUserInformationModal,
         getCurrentLoggedInUser,
         currentLoggedIn,
+
+        openChangePostStatusModal,
+        setOpenChangePostStatusModal,
         // notify,
       }}
     >

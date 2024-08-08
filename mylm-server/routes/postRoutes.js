@@ -17,6 +17,18 @@ router.get(
 );
 
 router.get(
+  '/current-status/:postid',
+  postController.checkPostIsExist,
+  postController.getCurrentStatusOfChosenPost
+);
+
+router.patch(
+  '/update-current-status/:postid',
+  postController.checkPostIsExist,
+  postController.updateCurrentStatusOfChosenPost
+);
+
+router.get(
   '/my-lastest-post/:userid',
   userController.checkUserIsExistById,
   postController.getLastestPostCreatedByMe

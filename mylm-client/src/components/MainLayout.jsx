@@ -197,6 +197,8 @@ const MainLayout = () => {
     setOpenEditUserInformationModal,
     currentLoggedIn,
     getCurrentLoggedInUser,
+    openChangePostStatusModal,
+    setOpenChangePostStatusModal,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -664,7 +666,8 @@ const MainLayout = () => {
           openCommentOptionsModal ||
           openDeleteModal ||
           openCancelEditingModal ||
-          openDeleteCommentModal
+          openDeleteCommentModal ||
+          openChangePostStatusModal
         ) {
           addPostIcon.classList.add('hidden');
         } else {
@@ -680,7 +683,8 @@ const MainLayout = () => {
           openCommentOptionsModal ||
           openDeleteModal ||
           openCancelEditingModal ||
-          openDeleteCommentModal
+          openDeleteCommentModal ||
+          openChangePostStatusModal
         ) {
           logoutIcon.classList.add('hidden');
         } else {
@@ -698,6 +702,7 @@ const MainLayout = () => {
     openDeleteModal,
     openCancelEditingModal,
     openDeleteCommentModal,
+    openChangePostStatusModal,
   ]);
 
   useEffect(() => {

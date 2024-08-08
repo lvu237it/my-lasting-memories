@@ -48,8 +48,8 @@ const uploadToCloudinary = (fileBuffer, postId) => {
 //Get existed posts (EXCEPT deleted posts)
 exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
   const rows = await poolQuery(
-    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
-    ['admin']
+    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 and posts.access_range = $2 ORDER BY posts.created_at DESC',
+    ['admin', 'public']
   );
 
   if (!rows) {
@@ -97,8 +97,8 @@ exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
   async (req, res, next) => {
     const { userid } = req.params;
     const rows = await poolQuery(
-      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 ORDER BY posts.created_at DESC',
-      [userid]
+      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 and posts.access_range = $2 ORDER BY posts.created_at DESC',
+      [userid, 'public']
     );
 
     if (!rows) {
@@ -142,6 +142,38 @@ exports.getLastestPostCreatedByMe = catchAsync(async (req, res, next) => {
 
   //Response to client
   res.status(200).json(rows);
+});
+
+exports.getCurrentStatusOfChosenPost = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id;
+
+  const rows = await poolQuery(
+    'SELECT access_range FROM posts WHERE post_id = $1',
+    [post_id]
+  );
+
+  if (!rows) {
+    return next(new AppError('No post found', 404));
+  }
+  res.status(200).json(rows);
+});
+
+exports.updateCurrentStatusOfChosenPost = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id;
+  const { access_range } = req.body;
+
+  const rows = await poolQuery(
+    'Update posts SET access_range = $1 WHERE post_id = $2',
+    [access_range, post_id]
+  );
+
+  if (!rows) {
+    return next(new AppError('No post found', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    message: 'update post status successfully!',
+  });
 });
 
 exports.checkPostIsExist = catchAsync(async (req, res, next) => {
@@ -318,14 +350,10 @@ exports.getAllImagesByPostId = catchAsync(async (req, res, next) => {
 
 exports.createPost = catchAsync(async (req, res, next) => {
   const { content, user_id, images_array } = req.body;
-  console.log('Content:', content); // Kiểm tra content
-  console.log('User ID:', user_id); // Kiểm tra user_id
-  console.log('imagesArray:', images_array); // Kiểm tra images
+
   // const files = req.files || [];
   const post_id = uuidv4();
   const imageArray = JSON.parse(images_array);
-  console.log('Image Array:', imageArray);
-  console.log('Mảng các ảnh uploading', imageArray);
   // Xử lý các giá trị null hoặc undefined
 
   const currentDateTime = moment()
@@ -334,8 +362,8 @@ exports.createPost = catchAsync(async (req, res, next) => {
 
   // Lưu thông tin bài đăng vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO posts(post_id, content, created_at, user_id) VALUES ($1, $2, $3, $4)',
-    [post_id, content, currentDateTime, user_id]
+    'INSERT INTO posts(post_id, content, created_at, user_id, access_range) VALUES ($1, $2, $3, $4, $5)',
+    [post_id, content, currentDateTime, user_id, 'public']
   );
 
   // Chỉ post content mà ko post ảnh

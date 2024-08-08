@@ -14,6 +14,8 @@ import {
 import { FaChevronRight } from 'react-icons/fa';
 import { AiOutlineComment } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
 
 function ViewPostDetails() {
   const {
@@ -141,16 +143,20 @@ function ViewPostDetails() {
     setAllMyPosts,
     searchContent,
     setSearchContent,
+    openChangePostStatusModal,
+    setOpenChangePostStatusModal,
   } = useCommon();
 
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from || '/'; // Đường dẫn mặc định nếu không có state
+  const [statusOfCurrentChosenPost, setStatusOfCurrentChosenPost] =
+    useState(null);
 
   const handleBack = () => {
     setViewPostDetails(false);
     console.log('current', currentUserInfor);
-
+    setStatusOfCurrentChosenPost(null);
     setLocalUrlImages([]);
     setLengthOfViewPostImage(0);
     setCommentsByPostId([]);
@@ -195,8 +201,56 @@ function ViewPostDetails() {
     }
   };
 
+  const getCurrentStatusOfChosenPost = async () => {
+    if (chosenPost) {
+      const response = await axios.get(
+        `${apiBaseUrl}/posts/current-status/${chosenPost.post_id}`
+      );
+      console.log('response', response.data[0].access_range);
+      setStatusOfCurrentChosenPost(response.data[0].access_range);
+    }
+  };
+
+  useEffect(() => {
+    //truy vấn chosenPost có status hiện tại là gì
+
+    getCurrentStatusOfChosenPost();
+  }, [chosenPost]);
+
+  useEffect(() => {
+    if (openChangePostStatusModal) {
+      setOpenOptionsModal(false);
+    }
+    getCurrentStatusOfChosenPost();
+  }, [openChangePostStatusModal]);
+
+  const handleChangePostStatus = async () => {
+    console.log('stt', statusOfCurrentChosenPost);
+    const updatePostStatus = async () => {
+      try {
+        await axios.patch(
+          `${apiBaseUrl}/posts/update-current-status/${chosenPost.post_id}`,
+          {
+            access_range: statusOfCurrentChosenPost,
+          }
+        );
+        toast.success('Cập nhật trạng thái bài viết thành cảnh công 😸!');
+      } catch (error) {
+        console.error('Error updating post status', error);
+        toast.error(
+          'Cập nhật trạng thái bài viết không thành công. Vui lòng thử lại 😿.'
+        );
+      }
+    };
+    setOpenChangePostStatusModal(false);
+    await updatePostStatus();
+
+    await getCurrentStatusOfChosenPost();
+  };
+
   return (
     <>
+      <ToastContainer />
       <div className='my-5 wrapper-post-details feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 md:mx-10 lg:mx-14 py-7 md:py-10'>
         <button
           onClick={handleBack}
@@ -239,6 +293,7 @@ function ViewPostDetails() {
                   ) : (
                     <div>
                       <div
+                        onClick={() => setOpenChangePostStatusModal(true)}
                         id='change-post-status'
                         className='grid grid-cols-12 cursor-pointer px-3 py-2 p-1 hover:bg-slate-100 hover:rounded-lg'
                       >
@@ -267,6 +322,67 @@ function ViewPostDetails() {
               </div>
             </>
           )}
+
+          {/* Modal change post status*/}
+          {openChangePostStatusModal && (
+            <>
+              <div
+                id='background-change-post-status-modal'
+                className='z-[1001] fixed top-0 left-0 w-full h-full bg-neutral-700 bg-opacity-90'
+              >
+                <div className='w-full h-full flex justify-center items-center'>
+                  <div id='change-post-status-modal' className='relative z-20'>
+                    <div className='bg-white w-[220px] rounded-2xl p-3'>
+                      {/* Radio button for change post status */}
+                      <div className='w-full px-3 py-2 relative mb-2'>
+                        <input
+                          checked={statusOfCurrentChosenPost === 'public'}
+                          onChange={() => {
+                            setStatusOfCurrentChosenPost('public');
+                          }}
+                          className='vulv-radio-button scale-125 sm2:scale-150'
+                          type='radio'
+                          name='post_status'
+                        />
+                        <div className='absolute top-[0.35rem] right-3'>
+                          Công khai
+                        </div>
+                      </div>
+                      <div className='w-full px-3 py-2 relative mb-2'>
+                        <input
+                          checked={statusOfCurrentChosenPost === 'private'}
+                          onChange={() => {
+                            setStatusOfCurrentChosenPost('private');
+                          }}
+                          className='vulv-radio-button scale-125 sm2:scale-150'
+                          type='radio'
+                          name='post_status'
+                        />
+                        <div className='absolute top-[0.35rem] right-3'>
+                          Riêng tư
+                        </div>
+                      </div>
+                      <div
+                        onClick={handleChangePostStatus}
+                        className='mb-2 font-semibold cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 text-white bg-black duration-300 ease-in-out'
+                      >
+                        Cập nhật
+                      </div>
+                      <div
+                        onClick={() => {
+                          setOpenChangePostStatusModal(false);
+                        }}
+                        className='cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 duration-300 ease-in-out'
+                      >
+                        Đóng
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Modal delete post */}
           {openDeleteModal && (
             <>
