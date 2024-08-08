@@ -553,7 +553,6 @@ export const Common = ({ children }) => {
           const currentImage = sortedUrlImages.find(
             (img) => img.attacheditem_path === imagePath
           );
-
           if (currentImage) {
             setCurrentViewImage(currentImage);
           }

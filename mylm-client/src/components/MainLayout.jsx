@@ -506,10 +506,22 @@ const MainLayout = () => {
 
   useEffect(() => {
     //Xem imageChoseToView là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToView và tiếp tục
-    const currentImageChoseToView = sortedUrlImages.find(
-      (image) => `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
-    );
-
+    let currentImageChoseToView;
+    //Đối với ảnh nằm trên cloudinary
+    if (
+      imageChoseToView &&
+      imageChoseToView.includes('https://res.cloudinary.com/')
+    ) {
+      currentImageChoseToView = sortedUrlImages.find(
+        (image) => image.attacheditem_path === imageChoseToView
+      );
+    } else {
+      //Đối với ảnh nằm trên local folder
+      currentImageChoseToView = sortedUrlImages.find(
+        (image) =>
+          `${apiBaseUrl}` + image.attacheditem_path === imageChoseToView
+      );
+    }
     setCurrentViewImageIndex(sortedUrlImages.indexOf(currentImageChoseToView));
   }, [imageChoseToView]);
 
@@ -541,9 +553,21 @@ const MainLayout = () => {
 
   useEffect(() => {
     //Xem imageChoseToViewComment là cái nào, tìm index => set index hiện tại trở thành index của imageChoseToViewComment và tiếp tục
-    const currentImageChoseToViewComment = imagesOfCurrentCommentDragging
-      .map((element) => element.attacheditem_comment_path)
-      .find((path) => imageChoseToViewComment === `${apiBaseUrl}${path}`);
+    let currentImageChoseToViewComment;
+    //Đối với ảnh nằm trên cloudinary
+    if (
+      imageChoseToViewComment &&
+      imageChoseToViewComment.includes('https://res.cloudinary.com/')
+    ) {
+      currentImageChoseToViewComment = imagesOfCurrentCommentDragging
+        .map((element) => element.attacheditem_comment_path)
+        .find((path) => imageChoseToViewComment === path);
+    } else {
+      //Đối với ảnh nằm trên local folder
+      currentImageChoseToViewComment = imagesOfCurrentCommentDragging
+        .map((element) => element.attacheditem_comment_path)
+        .find((path) => imageChoseToViewComment === `${apiBaseUrl}${path}`);
+    }
     setCurrentViewImageCommentIndex(
       mappedImagesOfCurrentCommentDragging.indexOf(
         currentImageChoseToViewComment
