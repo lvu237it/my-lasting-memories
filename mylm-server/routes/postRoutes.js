@@ -59,4 +59,19 @@ router.patch(
   postController.deletePost
 );
 
+router.get(
+  '/saved-post/check-saved-post/:postid',
+  postController.getSavedPostByPostIdAndSaverId
+);
+router.post(
+  '/saved-post/create-for-post/:postid',
+  postController.checkPostIsExist,
+  postController.createSavedPost
+);
+router.patch(
+  '/saved-post/un-save-post/:postid',
+  postController.checkPostIsExist,
+  postController.deleteSavedPost
+);
+
 module.exports = router;

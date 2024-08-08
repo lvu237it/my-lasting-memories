@@ -145,13 +145,17 @@ function ViewPostDetails() {
     setSearchContent,
     openChangePostStatusModal,
     setOpenChangePostStatusModal,
+    statusOfCurrentChosenPost,
+    setStatusOfCurrentChosenPost,
+    updatePostStatus,
+    getSavedPostByPostIdAndSaverId,
+    isSavedPost,
+    setIsSavedPost,
   } = useCommon();
 
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from || '/'; // Đường dẫn mặc định nếu không có state
-  const [statusOfCurrentChosenPost, setStatusOfCurrentChosenPost] =
-    useState(null);
 
   const handleBack = () => {
     setViewPostDetails(false);
@@ -166,6 +170,7 @@ function ViewPostDetails() {
     setLocalUrlImagesComment([]);
     setChosenPost(null);
     setCurrentViewImageCommentIndex(null);
+    setIsSavedPost(null);
     navigate(from);
     console.log('pho rom', from);
     if (from === '/profile') {
@@ -206,51 +211,63 @@ function ViewPostDetails() {
       const response = await axios.get(
         `${apiBaseUrl}/posts/current-status/${chosenPost.post_id}`
       );
-      console.log('response', response.data[0].access_range);
       setStatusOfCurrentChosenPost(response.data[0].access_range);
     }
   };
 
-  useEffect(() => {
-    //truy vấn chosenPost có status hiện tại là gì
+  const handleSavePost = async () => {
+    try {
+      const response = await axios.post(
+        `${apiBaseUrl}/posts/saved-post/create-for-post/${chosenPost.post_id}`,
+        {
+          saver_user_id: currentUserInfor.user_id,
+          author_user_id: chosenPost.user_id,
+        }
+      );
+      if (response.status === 200) {
+        setIsSavedPost(true);
+        toast.success('Lưu bài đăng thành công 😸!');
+      }
+    } catch (error) {
+      console.error('Error creating saved post by post id', error);
+      toast.error('Lưu bài đăng thất bại. Vui lòng thử lại 😿.');
+    }
+  };
 
-    getCurrentStatusOfChosenPost();
-  }, [chosenPost]);
+  const handleUnSavePost = async () => {
+    try {
+      const response = await axios.patch(
+        `${apiBaseUrl}/posts/saved-post/un-save-post/${chosenPost.post_id}`,
+        {
+          saver_user_id: currentUserInfor.user_id,
+          author_user_id: chosenPost.user_id,
+        }
+      );
+      if (response.status === 200) {
+        setIsSavedPost(false);
+        toast.success('Bỏ lưu bài đăng thành công 😸!');
+      }
+    } catch (error) {
+      console.error('Error unsave post by post id', error);
+      toast.error('Bỏ lưu bài đăng thất bại. Vui lòng thử lại 😿.');
+    }
+  };
 
   useEffect(() => {
     if (openChangePostStatusModal) {
       setOpenOptionsModal(false);
     }
+    //truy vấn chosenPost có status hiện tại là gì
     getCurrentStatusOfChosenPost();
   }, [openChangePostStatusModal]);
 
-  const handleChangePostStatus = async () => {
-    console.log('stt', statusOfCurrentChosenPost);
-    const updatePostStatus = async () => {
-      try {
-        await axios.patch(
-          `${apiBaseUrl}/posts/update-current-status/${chosenPost.post_id}`,
-          {
-            access_range: statusOfCurrentChosenPost,
-          }
-        );
-        toast.success('Cập nhật trạng thái bài viết thành cảnh công 😸!');
-      } catch (error) {
-        console.error('Error updating post status', error);
-        toast.error(
-          'Cập nhật trạng thái bài viết không thành công. Vui lòng thử lại 😿.'
-        );
-      }
-    };
-    setOpenChangePostStatusModal(false);
-    await updatePostStatus();
-
-    await getCurrentStatusOfChosenPost();
-  };
+  useEffect(() => {
+    //Truy vấn liệu post hiện tại có nằm trong list saved post của currentUser không
+    getSavedPostByPostIdAndSaverId();
+  }, [isSavedPost, chosenPost]);
 
   return (
     <>
-      <ToastContainer />
       <div className='my-5 wrapper-post-details feeds-content border-slate-300 rounded-3xl shadow shadow-gray-400 px-10 md:px-20 md:mx-10 lg:mx-14 py-7 md:py-10'>
         <button
           onClick={handleBack}
@@ -271,20 +288,23 @@ function ViewPostDetails() {
               >
                 <div className=''>
                   <div
+                    onClick={isSavedPost ? handleUnSavePost : handleSavePost}
                     id='saved-unsaved-post'
                     className='cursor-pointer px-3 py-2 hover:bg-slate-100 hover:rounded-lg'
                   >
-                    {/* {isSavedPost ? ( */}
-                    <div className=' grid grid-cols-12'>
-                      <div className='col-span-11'>Lưu bài viết</div>
-                      <BiBookmark className='col-span-1 my-auto' />
-                    </div>
-                    {/* ) : (
+                    {isSavedPost ? (
+                      // Bài viết đã được lưu => Click để bỏ lưu
                       <div className='grid grid-cols-12 '>
                         <div className='col-span-11'>Bỏ lưu</div>
                         <BiBookmarkMinus className='col-span-1 my-auto' />
                       </div>
-                    )} */}
+                    ) : (
+                      //Bài viết không được lưu => Click để lưu
+                      <div className=' grid grid-cols-12'>
+                        <div className='col-span-11'>Lưu bài viết</div>
+                        <BiBookmark className='col-span-1 my-auto' />
+                      </div>
+                    )}
                   </div>
                   {from === '/' ||
                   (from === '/search' &&
@@ -332,7 +352,7 @@ function ViewPostDetails() {
               >
                 <div className='w-full h-full flex justify-center items-center'>
                   <div id='change-post-status-modal' className='relative z-20'>
-                    <div className='bg-white w-[220px] rounded-2xl p-3'>
+                    <div className='bg-white w-[220px] rounded-2xl p-5'>
                       {/* Radio button for change post status */}
                       <div className='w-full px-3 py-2 relative mb-2'>
                         <input
@@ -340,7 +360,7 @@ function ViewPostDetails() {
                           onChange={() => {
                             setStatusOfCurrentChosenPost('public');
                           }}
-                          className='vulv-radio-button scale-125 sm2:scale-150'
+                          className='vulv-radio-button scale-125 sm2:scale-150 cursor-pointer'
                           type='radio'
                           name='post_status'
                         />
@@ -354,7 +374,7 @@ function ViewPostDetails() {
                           onChange={() => {
                             setStatusOfCurrentChosenPost('private');
                           }}
-                          className='vulv-radio-button scale-125 sm2:scale-150'
+                          className='vulv-radio-button scale-125 sm2:scale-150 cursor-pointer'
                           type='radio'
                           name='post_status'
                         />
@@ -363,8 +383,8 @@ function ViewPostDetails() {
                         </div>
                       </div>
                       <div
-                        onClick={handleChangePostStatus}
-                        className='mb-2 font-semibold cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 text-white bg-black duration-300 ease-in-out'
+                        onClick={updatePostStatus}
+                        className='mb-2 font-semibold cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 text-white bg-black hover:bg-slate-800 duration-300 ease-in-out'
                       >
                         Cập nhật
                       </div>
@@ -372,7 +392,7 @@ function ViewPostDetails() {
                         onClick={() => {
                           setOpenChangePostStatusModal(false);
                         }}
-                        className='cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 duration-300 ease-in-out'
+                        className='cursor-pointer w-full px-3 py-2 text-center rounded-xl border border-slate-200 hover:bg-slate-200  duration-300 ease-in-out'
                       >
                         Đóng
                       </div>

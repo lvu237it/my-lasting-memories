@@ -239,8 +239,8 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
   }
 
   const rows = await poolQuery(
-    'SELECT * FROM posts WHERE content ILIKE $1 AND is_deleted = 0 ORDER BY created_at DESC',
-    [searchContent]
+    'SELECT * FROM posts WHERE content ILIKE $1 AND is_deleted = 0 and access_range = $2 ORDER BY created_at DESC',
+    [searchContent, 'public']
   );
 
   if (!rows || rows.length === 0) {
@@ -462,5 +462,61 @@ exports.deletePost = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'delete post successfully!',
+  });
+});
+
+exports.getSavedPostByPostIdAndSaverId = catchAsync(async (req, res, next) => {
+  const { postid } = req.params;
+  const { author_user_id, saver_user_id } = req.query;
+
+  const rows = await poolQuery(
+    'select * from saved_posts where post_id = $1 and author_user_id = $2 and saver_user_id = $3 and is_deleted = 0',
+    [postid, author_user_id, saver_user_id]
+  );
+
+  if (!rows) {
+    return next(new AppError('No saved post found', 404));
+  }
+
+  res.status(200).json(rows);
+});
+
+exports.createSavedPost = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id;
+  const { saver_user_id, author_user_id } = req.body;
+
+  const saved_post_id = uuidv4();
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
+  // Lưu thông tin bài đăng vào cơ sở dữ liệu
+  await poolExecute(
+    'INSERT INTO saved_posts(saved_post_id, created_at, saver_user_id, post_id, author_user_id) VALUES ($1, $2, $3, $4, $5)',
+    [saved_post_id, currentDateTime, saver_user_id, post_id, author_user_id]
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: 'create saved post successfully!',
+  });
+});
+
+exports.deleteSavedPost = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id;
+  const { saver_user_id, author_user_id } = req.body;
+
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
+  await poolExecute(
+    'UPDATE saved_posts SET is_deleted = $1, deletedat = $2 where post_id = $3 and saver_user_id = $4 and author_user_id = $5 and is_deleted = 0',
+    [1, currentDateTime, post_id, saver_user_id, author_user_id]
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: 'delete saved post successfully!',
   });
 });

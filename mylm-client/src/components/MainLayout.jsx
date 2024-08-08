@@ -1183,7 +1183,7 @@ const MainLayout = () => {
                           <textarea
                             ref={textareaCommentRef}
                             onChange={(e) => handleClickPostNewComment(e)}
-                            className='w-full tracking-wide sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                            className='w-full tracking-wide sm:w-[95%] h-[40vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                             name=''
                             id='post-comment-content-details'
                             placeholder='Viết ý kiến của bạn...'
@@ -1455,7 +1455,7 @@ const MainLayout = () => {
                         <textarea
                           ref={textareaRef}
                           onChange={(e) => handleClickPostNew(e)}
-                          className='w-full tracking-wide sm:w-[95%] h-[50vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                          className='w-full tracking-wide sm:w-[95%] h-[40vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                           name=''
                           id='post-content-details'
                           placeholder='Viết ra những suy nghĩ của bạn...'

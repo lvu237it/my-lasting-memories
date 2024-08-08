@@ -93,6 +93,9 @@ export const Common = ({ children }) => {
   */
 
   const [chosenPost, setChosenPost] = useState(null);
+  const [isSavedPost, setIsSavedPost] = useState(null);
+  const [statusOfCurrentChosenPost, setStatusOfCurrentChosenPost] =
+    useState(null);
 
   const [openViewImageModal, setOpenViewImageModal] = useState(false);
   const [openViewImageCommentModal, setOpenViewImageCommentModal] =
@@ -691,7 +694,7 @@ export const Common = ({ children }) => {
 
   //Open options modal
   const handleSetOptionsModal = () => {
-    setOpenOptionsModal(!openOptionsModal);
+    setOpenOptionsModal(true);
   };
 
   //Open comment options modal
@@ -729,6 +732,47 @@ export const Common = ({ children }) => {
         setIsEditing(false);
         toast.error('Chỉnh sửa bài không thành công. Vui lòng thử lại 😿.');
       }
+    }
+  };
+
+  //Update post status
+  const updatePostStatus = async () => {
+    try {
+      await axios.patch(
+        `${apiBaseUrl}/posts/update-current-status/${chosenPost.post_id}`,
+        {
+          access_range: statusOfCurrentChosenPost,
+        }
+      );
+      toast.success('Cập nhật trạng thái bài viết thành công 😸!');
+    } catch (error) {
+      console.error('Error updating post status', error);
+      toast.error(
+        'Cập nhật trạng thái bài viết không thành công. Vui lòng thử lại 😿.'
+      );
+    }
+    setOpenChangePostStatusModal(false);
+  };
+
+  const getSavedPostByPostIdAndSaverId = async () => {
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/posts/saved-post/check-saved-post/${chosenPost.post_id}`,
+        {
+          params: {
+            saver_user_id: currentUserInfor.user_id,
+            author_user_id: chosenPost.user_id,
+          },
+        }
+      );
+
+      if (response.data.length > 0) {
+        setIsSavedPost(true);
+      } else {
+        setIsSavedPost(false);
+      }
+    } catch (error) {
+      console.error('Error finding saved post by post id', error);
     }
   };
 
@@ -1425,9 +1469,14 @@ export const Common = ({ children }) => {
         setOpenEditUserInformationModal,
         getCurrentLoggedInUser,
         currentLoggedIn,
-
         openChangePostStatusModal,
         setOpenChangePostStatusModal,
+        statusOfCurrentChosenPost,
+        setStatusOfCurrentChosenPost,
+        updatePostStatus,
+        getSavedPostByPostIdAndSaverId,
+        isSavedPost,
+        setIsSavedPost,
         // notify,
       }}
     >
