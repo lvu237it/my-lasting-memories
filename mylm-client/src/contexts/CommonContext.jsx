@@ -79,7 +79,12 @@ export const Common = ({ children }) => {
 
   const [postsList, setPostsList] = useState([]);
   const [allMyPosts, setAllMyPosts] = useState([]);
+  const [allChosenUserProfilePosts, setAllChosenUserProfilePosts] = useState(
+    []
+  );
   const [mySavedPostList, setMySavedPostList] = useState([]);
+
+  const [chosenUserProfile, setChosenUserProfile] = useState(null);
 
   const [usersList, setUsersList] = useState([]);
   const [postContent, setPostContent] = useState('');
@@ -131,6 +136,7 @@ export const Common = ({ children }) => {
   ] = useState([]);
 
   const [searchContent, setSearchContent] = useState('');
+  const [postsResult, setPostsResult] = useState([]);
 
   const [commentsByPostId, setCommentsByPostId] = useState([]);
   const [openAddCommentModal, setOpenAddCommentModal] = useState(false);
@@ -174,6 +180,7 @@ export const Common = ({ children }) => {
 
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
+  const frontendUrl = import.meta.env.VITE_API_FRONTEND_URL;
 
   const currentLoggedIn =
     JSON.parse(localStorage.getItem('admin')) ||
@@ -279,7 +286,6 @@ export const Common = ({ children }) => {
   };
 
   const handleSwipeCommentImage = (e, index, comment) => {
-    console.log('current comment', comment);
     //thông tin 'comment' trên không chứa image path - chính xác hơn là attach_items
     //Vì vậy cần lấy được attach_items và gán vào
     //Mảng 'findAttachItemsByCommentIdAfterSorting(comment)' này chứa các image của 1 comment cụ thể
@@ -757,24 +763,26 @@ export const Common = ({ children }) => {
   };
 
   const getSavedPostByPostIdAndSaverId = async () => {
-    try {
-      const response = await axios.get(
-        `${apiBaseUrl}/posts/saved-post/check-saved-post/${chosenPost.post_id}`,
-        {
-          params: {
-            saver_user_id: currentUserInfor.user_id,
-            author_user_id: chosenPost.user_id,
-          },
-        }
-      );
+    if (chosenPost) {
+      try {
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/saved-post/check-saved-post/${chosenPost.post_id}`,
+          {
+            params: {
+              saver_user_id: currentUserInfor.user_id,
+              author_user_id: chosenPost.user_id,
+            },
+          }
+        );
 
-      if (response.data.length > 0) {
-        setIsSavedPost(true);
-      } else {
-        setIsSavedPost(false);
+        if (response.data.length > 0) {
+          setIsSavedPost(true);
+        } else {
+          setIsSavedPost(false);
+        }
+      } catch (error) {
+        console.error('Error finding saved post by post id', error);
       }
-    } catch (error) {
-      console.error('Error finding saved post by post id', error);
     }
   };
 
@@ -975,6 +983,39 @@ export const Common = ({ children }) => {
     }
   };
 
+  const getUserInformationOfChosenUserProfile = async () => {
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/users/information-of-chosen-user/${chosenPost.user_id}`
+      );
+      setChosenUserProfile(response.data[0]);
+    } catch (error) {
+      console.error('Error getting all posts of chosen user profile', error);
+    }
+  };
+
+  const getAllPostsOfChosenUserProfile = async () => {
+    if (chosenUserProfile) {
+      try {
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/all-posts-of-chosen-user/${chosenUserProfile.user_id}`
+        );
+        setAllChosenUserProfilePosts(response.data);
+      } catch (error) {
+        console.error('Error getting all posts of chosen user profile', error);
+      }
+    }
+  };
+
+  const getPostById = async (post) => {
+    try {
+      const response = await axios.get(`${apiBaseUrl}/posts/${post.post_id}`);
+      return response.data[0];
+    } catch (error) {
+      console.error('Error getting post by post_id', error);
+    }
+  };
+
   const getCurrentLoggedInUser = async (currentLoggedIn) => {
     try {
       // Lấy thông tin người dùng hiện tại
@@ -1008,8 +1049,12 @@ export const Common = ({ children }) => {
   };
 
   const getAuthorAvatarByUserId = (userId) => {
-    const user = usersList.find((user) => user.user_id === userId);
-    return user?.avatar_path;
+    const user = usersList.find((user) => user?.user_id === userId);
+    let path = user?.avatar_path.replace('./', '/');
+    if (path && path.includes('/profile')) {
+      path = path.replace('/profile', '');
+    }
+    return `${frontendUrl}${path}`;
   };
 
   //Format posted time to yyyy/mm/dd
@@ -1044,9 +1089,7 @@ export const Common = ({ children }) => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Upload successful');
-      console.log('response.data.url', response.data.url);
-      console.log('response.data', response.data);
+
       return response.data.secure_url; //ok
     } catch (error) {
       console.error(
@@ -1130,7 +1173,6 @@ export const Common = ({ children }) => {
       getAllMyPosts();
       setImageUrlsList([]);
       setImages([]);
-      console.log('current', currentUserInfor);
       // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
       toast.success(
         <div>
@@ -1481,6 +1523,16 @@ export const Common = ({ children }) => {
         setIsSavedPost,
         mySavedPostList,
         setMySavedPostList,
+        allChosenUserProfilePosts,
+        setAllChosenUserProfilePosts,
+        chosenUserProfile,
+        setChosenUserProfile,
+        getAllPostsOfChosenUserProfile,
+        getUserInformationOfChosenUserProfile,
+        getPostById,
+        frontendUrl,
+        postsResult,
+        setPostsResult,
         // notify,
       }}
     >

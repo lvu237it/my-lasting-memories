@@ -151,6 +151,13 @@ function ViewPostDetails() {
     getSavedPostByPostIdAndSaverId,
     isSavedPost,
     setIsSavedPost,
+    allChosenUserProfilePosts,
+    setAllChosenUserProfilePosts,
+    chosenUserProfile,
+    setChosenUserProfile,
+    getAllPostsOfChosenUserProfile,
+    getUserInformationOfChosenUserProfile,
+    getPostById,
   } = useCommon();
 
   const location = useLocation();
@@ -159,7 +166,6 @@ function ViewPostDetails() {
 
   const handleBack = () => {
     setViewPostDetails(false);
-    console.log('current', currentUserInfor);
     setStatusOfCurrentChosenPost(null);
     setLocalUrlImages([]);
     setLengthOfViewPostImage(0);
@@ -173,12 +179,11 @@ function ViewPostDetails() {
     setIsSavedPost(null);
     navigate(from);
     console.log('pho rom', from);
-    if (from === '/profile') {
+    if (from === '/profile' && chosenUserProfile === null) {
       //fetch lại all my post để cập nhật post mới nhất của bản thân ở profile
       getAllMyPosts();
     } else if (from === '/') {
       setViewPostDetails(false);
-      console.log('current', currentUserInfor);
       if (currentUserInfor) {
         getAllPostsExceptMe();
       } else {
@@ -252,6 +257,18 @@ function ViewPostDetails() {
       toast.error('Bỏ lưu bài đăng thất bại. Vui lòng thử lại 😿.');
     }
   };
+
+  // useEffect(() => {
+  //   if (chosenUserProfile) {
+  //     //Nếu user click vào profile bất kì - trừ chính user đó, thì get toàn bộ thông tin và post của chosen user profile
+
+  //   }
+  //   console.log('chosenuserprofile', chosenUserProfile);
+  // }, []);
+  // const handleViewAuthorProfile = () => {
+  //   //Chuyển tới trang profile nhưng với chosenUserProfile
+  //   navigate('/profile');
+  // };
 
   useEffect(() => {
     if (openChangePostStatusModal) {
@@ -449,12 +466,13 @@ function ViewPostDetails() {
             <div className='col-span-1'>
               {/* avatar */}
               <img
+                onClick={getUserInformationOfChosenUserProfile} //Lấy thông tin của author của bài viết chosenPost để xem profile
                 src={
                   (chosenPost && getAuthorAvatarByUserId(chosenPost.user_id)) ||
                   './user-avatar-default.png'
                 }
                 alt=''
-                className='my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                className='cursor-pointer my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
               />
             </div>
             <div className='col-span-11 flex flex-col'>
@@ -728,7 +746,10 @@ function ViewPostDetails() {
                               <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                                 <div className='flex-shrink-0'>
                                   <img
-                                    className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    onClick={
+                                      getUserInformationOfChosenUserProfile
+                                    }
+                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                                     src={
                                       usersList.find(
                                         (user) =>
@@ -1084,7 +1105,10 @@ function ViewPostDetails() {
                               <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                                 <div className='flex-shrink-0'>
                                   <img
-                                    className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    onClick={
+                                      getUserInformationOfChosenUserProfile
+                                    }
+                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                                     src={
                                       usersList.find(
                                         (user) =>

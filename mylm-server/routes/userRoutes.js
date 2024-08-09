@@ -29,6 +29,12 @@ router.get(
   userController.getCurrentLoggedInUserInformation
 );
 
+router.get(
+  '/information-of-chosen-user/:userid',
+  userController.checkUserIsExistById,
+  userController.getUserInformationOfChosenUserProfile
+);
+
 router.route('/').get(
   // authController.protect,
   // authController.restrictTo('admin', 'user'),

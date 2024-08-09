@@ -64,18 +64,13 @@ function SavedPosts() {
   }, []);
 
   useEffect(() => {
-    if (viewPostDetails) {
-      navigate('/post-details', { state: { from: location.pathname } });
-    }
-  }, [viewPostDetails, location.pathname]);
-
-  useEffect(() => {
     if (!viewPostDetails) {
       setChosenPost(null);
     } else {
       getImageUrlsCommentByPostId(chosenPost);
+      navigate('/post-details', { state: { from: location.pathname } });
     }
-  }, [viewPostDetails, chosenPost]);
+  }, [viewPostDetails]);
 
   return (
     <>

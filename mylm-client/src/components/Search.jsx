@@ -132,12 +132,12 @@ function Search() {
     handleViewPostDetails,
     searchContent,
     setSearchContent,
+    postsResult,
+    setPostsResult,
   } = useCommon();
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  const [postsResult, setPostsResult] = useState([]);
 
   const searchContentRef = useRef();
 
@@ -149,7 +149,7 @@ function Search() {
     } else {
       getImageUrlsCommentByPostId(chosenPost);
     }
-  }, [viewPostDetails, chosenPost]);
+  }, [viewPostDetails]);
 
   // Handle modals and z-index
   useEffect(() => {

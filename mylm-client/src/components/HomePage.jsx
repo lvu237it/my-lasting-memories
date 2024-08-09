@@ -178,7 +178,7 @@ function HomePage() {
     } else {
       getImageUrlsCommentByPostId(chosenPost);
     }
-  }, [viewPostDetails, chosenPost]);
+  }, [viewPostDetails]);
 
   {
     /* With authorization

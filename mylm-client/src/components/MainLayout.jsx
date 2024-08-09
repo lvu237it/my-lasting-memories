@@ -199,6 +199,17 @@ const MainLayout = () => {
     getCurrentLoggedInUser,
     openChangePostStatusModal,
     setOpenChangePostStatusModal,
+    allChosenUserProfilePosts,
+    setAllChosenUserProfilePosts,
+    chosenUserProfile,
+    setChosenUserProfile,
+    getAllPostsOfChosenUserProfile,
+    getUserInformationOfChosenUserProfile,
+    getPostById,
+    searchContent,
+    setSearchContent,
+    postsResult,
+    setPostsResult,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -248,12 +259,7 @@ const MainLayout = () => {
     console.log('apiBaseUrl', apiBaseUrl);
   }, []);
 
-  useEffect(() => {
-    console.log('new', currentUserInfor);
-  }, [currentUserInfor]);
-
   const fetchData = async () => {
-    console.log('await data');
     if (currentLoggedIn) {
       try {
         // Lấy thông tin người dùng hiện tại
@@ -301,6 +307,34 @@ const MainLayout = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname !== '/search') {
+      setSearchContent('');
+      setPostsResult([]);
+    }
+  }, [location.pathname, navigate]);
+
+  // useEffect(() => {
+
+  // }, [chosenUserProfile]);
+  useEffect(() => {
+    if (chosenUserProfile) {
+      if (chosenUserProfile.user_id === currentUserInfor.user_id) {
+        setChosenUserProfile(null);
+        setAllChosenUserProfilePosts([]);
+        navigate('/profile');
+      } else {
+        navigate(`/profile/${chosenUserProfile.user_id}`);
+      }
+    } else {
+      console.log('chosenUserProfile', chosenUserProfile);
+      if (location.pathname === '/profile') {
+        setChosenUserProfile(null);
+        setAllChosenUserProfilePosts([]);
+      }
+    }
+  }, [chosenUserProfile]);
 
   useEffect(() => {
     //Set user information before
@@ -1175,7 +1209,7 @@ const MainLayout = () => {
                                 key={index}
                                 // ref={postItemsUploadRef}
                                 src={url}
-                                className='w-[25%] h-auto rounded-lg'
+                                className='w-[50%] sm2:w-[25%] h-auto rounded-lg'
                                 alt={`Preview ${index}`}
                               />
                             ))}
@@ -1447,7 +1481,7 @@ const MainLayout = () => {
                               key={index}
                               ref={postItemsUploadRef}
                               src={url}
-                              className='w-[25%] h-auto rounded-lg'
+                              className='w-[50%] sm2:w-[25%] h-auto rounded-lg'
                               alt={`Preview ${index}`}
                             />
                           ))}

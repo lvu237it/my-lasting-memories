@@ -93,6 +93,30 @@ exports.getAllMyPosts = catchAsync(async (req, res, next) => {
   res.status(200).json(rows);
 });
 
+exports.getAllPostsOfChosenUserProfile = catchAsync(async (req, res, next) => {
+  const userid = req.userid;
+  const rows = await poolQuery(
+    'SELECT * FROM posts WHERE is_deleted = 0 and user_id = $1 and access_range = $2 ORDER BY posts.created_at DESC',
+    [userid, 'public']
+  );
+
+  if (!rows) {
+    return next(new AppError('No posts found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
 exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
   async (req, res, next) => {
     const { userid } = req.params;
@@ -209,10 +233,11 @@ exports.checkPostIsExist = catchAsync(async (req, res, next) => {
 });
 
 exports.getPostById = catchAsync(async (req, res, next) => {
-  const { postid } = req.params;
-  const rows = await poolQuery('select * from posts where post_id LIKE $1', [
-    postid,
-  ]);
+  const post_id = req.post_id;
+  const rows = await poolQuery(
+    'select * from posts where post_id LIKE $1 and is_deleted = 0',
+    [post_id]
+  );
 
   if (!rows) {
     return next(new AppError('No post found', 404));

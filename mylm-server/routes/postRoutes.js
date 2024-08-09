@@ -5,11 +5,19 @@ const userController = require('../controllers/userController');
 
 //general router: /posts/
 router.get('/admin', postController.getAllPostsOfAdmin);
+
+router.get(
+  '/all-posts-of-chosen-user/:userid',
+  userController.checkUserIsExistById,
+  postController.getAllPostsOfChosenUserProfile
+);
+
 router.get(
   '/my-all-posts/:userid',
   userController.checkUserIsExistById,
   postController.getAllMyPosts
 );
+
 router.get(
   '/except-me/:userid',
   userController.checkUserIsExistById,

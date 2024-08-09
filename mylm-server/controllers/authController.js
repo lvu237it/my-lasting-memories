@@ -414,7 +414,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // )}/users/resetPassword/${resetToken}`;
 
   //------------Đường dẫn này là 'get' - dùng để gửi trực tiếp cho users và routing tới trang reset password
-  const frontendUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
+  const frontendUrl = process.env.VITE_API_FRONTEND_URL.replace(/\/$/, '');
   const resetURL = `${frontendUrl}/resetpassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;

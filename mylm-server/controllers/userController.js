@@ -101,6 +101,21 @@ exports.getUserByUserId = catchAsync(async (req, res, next) => {
   res.status(200).json(rows);
 });
 
+exports.getUserInformationOfChosenUserProfile = catchAsync(
+  async (req, res, next) => {
+    const userid = req.userid;
+    const rows = await poolQuery('select * from users where user_id like $1', [
+      userid,
+    ]);
+
+    if (!rows) {
+      return next(new AppError('No chosen user found', 404));
+    }
+
+    res.status(200).json(rows);
+  }
+);
+
 exports.checkUserIsExistById = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
   const rows = await poolQuery('select * from users where user_id like $1', [
