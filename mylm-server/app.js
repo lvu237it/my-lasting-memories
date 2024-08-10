@@ -80,6 +80,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev')); // van la 1 chuc nang phan mem trung gian (middleware)
 }
 
+if (process.env.NODE_ENV === 'production') {
+  console.log('production environment mode');
+}
+
 //limit requests from same API
 //Có thể xác định số lượng yêu cầu trên mỗi IP mà chúng ta sẽ cho phép trong 1 khoảng tg nhất định
 const limiter = rateLimit({
