@@ -67,11 +67,3 @@ exports.getAllAssetsImagesComments = catchAsync(async (req, res, next) => {
   //Response to client
   res.status(200).json(rows);
 });
-
-exports.uploadImagesDirectlyOnProductionServer = catchAsync(
-  async (req, res, next) => {}
-);
-
-exports.uploadImagesCommentsDirectlyOnProductionServer = catchAsync(
-  async (req, res, next) => {}
-);

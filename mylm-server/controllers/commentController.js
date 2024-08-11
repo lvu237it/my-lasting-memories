@@ -154,8 +154,15 @@ exports.createComment = catchAsync(async (req, res, next) => {
 
   // Lưu thông tin comment vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO comments(comment_id, comment_content, created_at, post_id, user_id) VALUES ($1, $2, $3, $4, $5)',
-    [comment_id, comment_content, currentDateTime, post_id, user_id]
+    'INSERT INTO comments(comment_id, comment_content, created_at, updated_at, post_id, user_id) VALUES ($1, $2, $3, $4, $5, $6)',
+    [
+      comment_id,
+      comment_content,
+      currentDateTime,
+      currentDateTime,
+      post_id,
+      user_id,
+    ]
   );
 
   // Chỉ bình luận content mà ko post ảnh
@@ -256,8 +263,8 @@ exports.deleteComment = catchAsync(async (req, res, next) => {
     .format('YYYY-MM-DD HH:mm:ss');
 
   await poolExecute(
-    'UPDATE comments SET is_deleted = $1, deletedat = $2 where comment_id = $3',
-    [1, currentDateTime, commentid]
+    'UPDATE comments SET is_deleted = $1, deletedat = $2, updated_at = $3 where comment_id = $4',
+    [1, currentDateTime, currentDateTime, commentid]
   );
 
   res.status(200).json({

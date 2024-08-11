@@ -186,9 +186,13 @@ exports.updateCurrentStatusOfChosenPost = catchAsync(async (req, res, next) => {
   const post_id = req.post_id;
   const { access_range } = req.body;
 
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
   const rows = await poolQuery(
-    'Update posts SET access_range = $1 WHERE post_id = $2',
-    [access_range, post_id]
+    'Update posts SET access_range = $1, updated_at = $2 WHERE post_id = $3',
+    [access_range, currentDateTime, post_id]
   );
 
   if (!rows) {
@@ -387,8 +391,8 @@ exports.createPost = catchAsync(async (req, res, next) => {
 
   // Lưu thông tin bài đăng vào cơ sở dữ liệu
   await poolExecute(
-    'INSERT INTO posts(post_id, content, created_at, user_id, access_range) VALUES ($1, $2, $3, $4, $5)',
-    [post_id, content, currentDateTime, user_id, 'public']
+    'INSERT INTO posts(post_id, content, created_at, updated_at, user_id, access_range) VALUES ($1, $2, $3, $4, $5, $6)',
+    [post_id, content, currentDateTime, currentDateTime, user_id, 'public']
   );
 
   // Chỉ post content mà ko post ảnh
@@ -480,8 +484,8 @@ exports.deletePost = catchAsync(async (req, res, next) => {
     .format('YYYY-MM-DD HH:mm:ss');
 
   await poolExecute(
-    'UPDATE posts SET is_deleted = $1, deletedat = $2 where post_id = $3',
-    [1, currentDateTime, post_id]
+    'UPDATE posts SET is_deleted = $1, deletedat = $2, updated_at = $3 where post_id = $4',
+    [1, currentDateTime, currentDateTime, post_id]
   );
 
   res.status(200).json({
@@ -509,8 +513,8 @@ exports.getSavedPostByPostIdAndSaverId = catchAsync(async (req, res, next) => {
 exports.getAllMySavedPosts = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
   const rows = await poolQuery(
-    'select saved_posts.*, posts.* from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.saver_user_id = $1 and saved_posts.is_deleted = 0 and posts.is_deleted = 0 order by posts.created_at desc',
-    [userid]
+    'select saved_posts.*, posts.* from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.saver_user_id = $1 and saved_posts.is_deleted = 0 and posts.is_deleted = 0 and posts.access_range = $2 order by posts.created_at desc',
+    [userid, 'public']
   );
 
   if (!rows) {
@@ -550,8 +554,15 @@ exports.deleteSavedPost = catchAsync(async (req, res, next) => {
     .format('YYYY-MM-DD HH:mm:ss');
 
   await poolExecute(
-    'UPDATE saved_posts SET is_deleted = $1, deletedat = $2 where post_id = $3 and saver_user_id = $4 and author_user_id = $5 and is_deleted = 0',
-    [1, currentDateTime, post_id, saver_user_id, author_user_id]
+    'UPDATE saved_posts SET is_deleted = $1, deletedat = $2, updated_at = $3 where post_id = $4 and saver_user_id = $5 and author_user_id = $6 and is_deleted = 0',
+    [
+      1,
+      currentDateTime,
+      currentDateTime,
+      post_id,
+      saver_user_id,
+      author_user_id,
+    ]
   );
 
   res.status(200).json({
