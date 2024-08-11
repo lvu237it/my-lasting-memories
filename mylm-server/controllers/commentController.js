@@ -144,6 +144,7 @@ exports.getImagesOfCommentsByPostId = catchAsync(async (req, res, next) => {
 exports.createComment = catchAsync(async (req, res, next) => {
   const { comment_content, post_id, user_id, images_array } = req.body;
   console.log('imagesArray:', images_array); // Kiểm tra images
+  console.log('comment_content:', comment_content); // Kiểm tra images
   const comment_id = uuidv4();
   const imageArray = JSON.parse(images_array);
 
@@ -163,10 +164,11 @@ exports.createComment = catchAsync(async (req, res, next) => {
       status: 'success',
       message: 'create comment successfully!',
     });
+  } else {
+    req.comment_id = comment_id;
+    req.imageArray = imageArray;
+    next();
   }
-  req.comment_id = comment_id;
-  req.imageArray = imageArray;
-  next();
 });
 
 //Uploads ảnh lên Cloudinary - đồng thời lưu thông tin vào database

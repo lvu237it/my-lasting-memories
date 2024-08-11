@@ -315,27 +315,6 @@ const MainLayout = () => {
     }
   }, [location.pathname, navigate]);
 
-  // useEffect(() => {
-
-  // }, [chosenUserProfile]);
-  useEffect(() => {
-    if (chosenUserProfile) {
-      if (chosenUserProfile.user_id === currentUserInfor.user_id) {
-        setChosenUserProfile(null);
-        setAllChosenUserProfilePosts([]);
-        navigate('/profile');
-      } else {
-        navigate(`/profile/${chosenUserProfile.user_id}`);
-      }
-    } else {
-      console.log('chosenUserProfile', chosenUserProfile);
-      if (location.pathname === '/profile') {
-        setChosenUserProfile(null);
-        setAllChosenUserProfilePosts([]);
-      }
-    }
-  }, [chosenUserProfile]);
-
   useEffect(() => {
     //Set user information before
     setUsernameBeforeUpdate(currentUserInfor?.username);
@@ -429,20 +408,55 @@ const MainLayout = () => {
   useEffect(() => {
     if (headerIconsClicked === 'header-icon-bi-home') {
       navigate('/');
+      setChosenUserProfile(null);
     } else if (headerIconsClicked === 'header-icon-bi-search') {
       navigate('/search');
+      setChosenUserProfile(null);
     } else if (headerIconsClicked === 'header-icon-bi-bell') {
       navigate('/notifications');
+      setChosenUserProfile(null);
     } else if (headerIconsClicked === 'header-icon-bi-playlist') {
       navigate('/myplaylists');
+      setChosenUserProfile(null);
     } else if (headerIconsClicked === 'header-icon-bi-bookmark') {
       navigate('/savedposts');
+      setChosenUserProfile(null);
     } else if (headerIconsClicked === 'header-icon-bi-message') {
       navigate('/messages');
-    } else if (headerIconsClicked === 'header-icon-profile') {
+      setChosenUserProfile(null);
+    } else if (
+      headerIconsClicked === 'header-icon-profile' &&
+      !chosenUserProfile
+    ) {
       navigate('/profile');
+    } else if (
+      headerIconsClicked === 'header-icon-profile' &&
+      chosenUserProfile
+    ) {
+      navigate(`/profile/${chosenUserProfile.user_id}`);
     }
   }, [headerIconsClicked]);
+
+  useEffect(() => {
+    if (chosenUserProfile) {
+      if (chosenUserProfile.user_id === currentUserInfor.user_id) {
+        setChosenUserProfile(null);
+        setAllChosenUserProfilePosts([]);
+        navigate('/profile');
+      } else if (chosenUserProfile.user_id !== currentUserInfor.user_id) {
+        navigate(`/profile/${chosenUserProfile.user_id}`);
+      }
+    }
+  }, [chosenUserProfile]);
+
+  useEffect(() => {
+    if (location.pathname.includes('/profile')) {
+      setHeaderIconsClicked('header-icon-profile');
+    }
+    // if (location.pathname === '/post-details') {
+    //   setChosenUserProfile(null);
+    // }
+  }, [location.pathname]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideNavBar);

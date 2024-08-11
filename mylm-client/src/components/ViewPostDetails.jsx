@@ -156,7 +156,8 @@ function ViewPostDetails() {
     chosenUserProfile,
     setChosenUserProfile,
     getAllPostsOfChosenUserProfile,
-    getUserInformationOfChosenUserProfile,
+    getUserInformationOfChosenUserProfileByChosenPost,
+    getUserInformationOfChosenUserProfileByCommentPost,
     getPostById,
   } = useCommon();
 
@@ -258,13 +259,9 @@ function ViewPostDetails() {
     }
   };
 
-  // useEffect(() => {
-  //   if (chosenUserProfile) {
-  //     //Nếu user click vào profile bất kì - trừ chính user đó, thì get toàn bộ thông tin và post của chosen user profile
-
-  //   }
-  //   console.log('chosenuserprofile', chosenUserProfile);
-  // }, []);
+  useEffect(() => {
+    console.log('chosenuserprofile at viewpostdetail', chosenUserProfile);
+  }, []);
   // const handleViewAuthorProfile = () => {
   //   //Chuyển tới trang profile nhưng với chosenUserProfile
   //   navigate('/profile');
@@ -466,7 +463,7 @@ function ViewPostDetails() {
             <div className='col-span-1'>
               {/* avatar */}
               <img
-                onClick={getUserInformationOfChosenUserProfile} //Lấy thông tin của author của bài viết chosenPost để xem profile
+                onClick={getUserInformationOfChosenUserProfileByChosenPost} //Lấy thông tin của author của bài viết chosenPost để xem profile
                 src={
                   (chosenPost && getAuthorAvatarByUserId(chosenPost.user_id)) ||
                   './user-avatar-default.png'
@@ -746,8 +743,10 @@ function ViewPostDetails() {
                               <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                                 <div className='flex-shrink-0'>
                                   <img
-                                    onClick={
-                                      getUserInformationOfChosenUserProfile
+                                    onClick={() =>
+                                      getUserInformationOfChosenUserProfileByCommentPost(
+                                        comment
+                                      )
                                     }
                                     className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                                     src={
@@ -1105,8 +1104,10 @@ function ViewPostDetails() {
                               <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                                 <div className='flex-shrink-0'>
                                   <img
-                                    onClick={
-                                      getUserInformationOfChosenUserProfile
+                                    onClick={() =>
+                                      getUserInformationOfChosenUserProfileByCommentPost(
+                                        comment
+                                      )
                                     }
                                     className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
                                     src={

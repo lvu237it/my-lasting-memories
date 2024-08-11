@@ -153,6 +153,7 @@ function Profile() {
     getUserInformationOfChosenUserProfile,
     getPostById,
     frontendUrl,
+    setHeaderIconsClicked,
   } = useCommon();
   const navigate = useNavigate();
 

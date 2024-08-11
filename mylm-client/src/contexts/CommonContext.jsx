@@ -983,14 +983,35 @@ export const Common = ({ children }) => {
     }
   };
 
-  const getUserInformationOfChosenUserProfile = async () => {
+  //Get for owner of post
+  const getUserInformationOfChosenUserProfileByChosenPost = async () => {
     try {
       const response = await axios.get(
         `${apiBaseUrl}/users/information-of-chosen-user/${chosenPost.user_id}`
       );
       setChosenUserProfile(response.data[0]);
     } catch (error) {
-      console.error('Error getting all posts of chosen user profile', error);
+      console.error(
+        'Error getting all posts of chosen user profile by chosen post',
+        error
+      );
+    }
+  };
+
+  //Get for comments owner of post
+  const getUserInformationOfChosenUserProfileByCommentPost = async (
+    comment
+  ) => {
+    try {
+      const response = await axios.get(
+        `${apiBaseUrl}/users/information-of-chosen-user/${comment.user_id}`
+      );
+      setChosenUserProfile(response.data[0]);
+    } catch (error) {
+      console.error(
+        'Error getting all posts of chosen user profile by post comment',
+        error
+      );
     }
   };
 
@@ -1243,6 +1264,7 @@ export const Common = ({ children }) => {
   //Create comment
   const handleCreateComment = async (post) => {
     console.log('imagesComment.length', imagesComment.length);
+    console.log('commentContent', commentContent);
     if (commentContent.length > 1000) {
       toast.error(
         'Bình luận không thành công. Nội dung bình luận không được vượt quá 1000 kí tự 😿.'
@@ -1273,9 +1295,8 @@ export const Common = ({ children }) => {
             return url;
           })
         );
-
         const commentData = {
-          content: commentContent,
+          comment_content: commentContent,
           post_id: post.post_id,
           user_id: currentUserInfor.user_id,
           images_array: JSON.stringify(imageCommentsUrls), // Chuyển mảng ảnh thành chuỗi JSON
@@ -1528,7 +1549,8 @@ export const Common = ({ children }) => {
         chosenUserProfile,
         setChosenUserProfile,
         getAllPostsOfChosenUserProfile,
-        getUserInformationOfChosenUserProfile,
+        getUserInformationOfChosenUserProfileByChosenPost,
+        getUserInformationOfChosenUserProfileByCommentPost,
         getPostById,
         frontendUrl,
         postsResult,
