@@ -288,8 +288,15 @@ function HomePage() {
                         <div className='feeds-content-top-about absolute top-0 left-0'>
                           <img
                             src={
-                              getAuthorAvatarByUserId(post.user_id) ||
-                              './user-avatar-default.png'
+                              getAuthorAvatarByUserId(post.user_id).includes(
+                                'https://res.cloudinary.com'
+                              )
+                                ? 'https://res.cloudinary.com' +
+                                  getAuthorAvatarByUserId(post.user_id).split(
+                                    'https://res.cloudinary.com'
+                                  )[1]
+                                : getAuthorAvatarByUserId(post.user_id) ||
+                                  './user-avatar-default.png'
                             }
                             alt=''
                             className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
@@ -328,8 +335,15 @@ function HomePage() {
                         <div className='feeds-content-top-about absolute top-0 left-0'>
                           <img
                             src={
-                              getAuthorAvatarByUserId(post.user_id) ||
-                              './user-avatar-default.png'
+                              getAuthorAvatarByUserId(post.user_id).includes(
+                                'https://res.cloudinary.com'
+                              )
+                                ? 'https://res.cloudinary.com' +
+                                  getAuthorAvatarByUserId(post.user_id).split(
+                                    'https://res.cloudinary.com'
+                                  )[1]
+                                : getAuthorAvatarByUserId(post.user_id) ||
+                                  './user-avatar-default.png'
                             }
                             alt=''
                             className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'

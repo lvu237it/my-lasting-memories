@@ -289,6 +289,35 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
   res.status(200).json(rows);
 });
 
+exports.getPostsByContentOnlyAdmin = catchAsync(async (req, res, next) => {
+  let { content } = req.body;
+  let searchContent;
+  if (content) {
+    searchContent = `%${content}%`;
+  }
+
+  const rows = await poolQuery(
+    'SELECT posts.* FROM posts join users on posts.user_id = users.user_id WHERE content ILIKE $1 AND is_deleted = 0 and access_range = $2 and users.role = $3 ORDER BY created_at DESC',
+    [searchContent, 'public', 'admin']
+  );
+
+  if (!rows || rows.length === 0) {
+    return next(new AppError('No post found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
 exports.getAllImagesByPostId = catchAsync(async (req, res, next) => {
   const { postid } = req.params;
   console.log('post_id', postid);
@@ -513,8 +542,8 @@ exports.getSavedPostByPostIdAndSaverId = catchAsync(async (req, res, next) => {
 exports.getAllMySavedPosts = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
   const rows = await poolQuery(
-    'select saved_posts.*, posts.* from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.saver_user_id = $1 and saved_posts.is_deleted = 0 and posts.is_deleted = 0 and posts.access_range = $2 order by posts.created_at desc',
-    [userid, 'public']
+    'select saved_posts.*, posts.* from saved_posts join posts on saved_posts.post_id = posts.post_id where saved_posts.saver_user_id = $1 and saved_posts.is_deleted = 0 and posts.is_deleted = 0 order by posts.created_at desc',
+    [userid]
   );
 
   if (!rows) {

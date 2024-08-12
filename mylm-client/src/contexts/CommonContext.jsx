@@ -71,6 +71,8 @@ export const Common = ({ children }) => {
   const postDetailsRef = useRef(null);
   const optionsModalRef = useRef(null);
   const commentOptionsModalRef = useRef(null);
+  const myImageAvatarRef = useRef(null);
+  const imageAvatarChosenUserProfileRef = useRef(null);
 
   const [contentForUpdate, setContentForUpdate] = useState('');
   const [contentBeforeUpdate, setContentBeforeUpdate] = useState('');
@@ -91,6 +93,9 @@ export const Common = ({ children }) => {
   const [commentContent, setCommentContent] = useState('');
   const [images, setImages] = useState([]);
   const [imagesComment, setImagesComment] = useState([]);
+  const [imageAvatar, setImageAvatar] = useState([]);
+  const [openViewAvatarImage, setOpenViewAvatarImage] = useState(false);
+  const [previewImageAvatar, setPreViewImageAvater] = useState([]);
   const [imageUrlsList, setImageUrlsList] = useState([]);
   const [adminInfor, setAdminInfor] = useState(null);
   const [currentUserInfor, setCurrentUserInfor] = useState(null);
@@ -113,7 +118,8 @@ export const Common = ({ children }) => {
 
   const [localUrlImages, setLocalUrlImages] = useState([]);
   const [localUrlImagesComment, setLocalUrlImagesComment] = useState([]);
-
+  const [openOptionsAvatarImageModal, setOpenOptionsAvatarImageModal] =
+    useState(false);
   const [lengthOfViewPostImage, setLengthOfViewPostImage] = useState(0);
   const [lengthOfViewPostImageComment, setLengthOfViewPostImageComment] =
     useState(0);
@@ -363,6 +369,12 @@ export const Common = ({ children }) => {
   //Add attachments of comment
   const handleClickAddCommentImageIcon = () => {
     const fileInput = document.getElementById('bi-attachment-comment-add');
+    fileInput.click();
+  };
+
+  //Add Image for avatar
+  const handleClickAddAvatarImageIcon = () => {
+    const fileInput = document.getElementById('bi-attachment-add-avatar-image');
     fileInput.click();
   };
 
@@ -1216,6 +1228,97 @@ export const Common = ({ children }) => {
     }
   };
 
+  const handleFileAvatarImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    // setImageAvatar((preImages) => [...preImages, ...files]);
+    setImageAvatar(files);
+    // Tạo URL blob cho ảnh để xem trước
+    //Với định dạng "blob:http://localhost:5173/..."
+    const newImageUrls = files.map((file) => URL.createObjectURL(file));
+    //Sau đó => Hiển thị ảnh xem trước thay thế vào chỗ avatar hiện tại
+    setPreViewImageAvater(newImageUrls);
+
+    setOpenOptionsAvatarImageModal(false);
+  };
+
+  const uploadAvatarImageToCloudinary = async (file) => {
+    const url = 'https://api.cloudinary.com/v1_1/dgzkbbqjx/image/upload';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'my_lasting_memories_2307_avatarimages');
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Upload successful');
+      console.log('response.data.url', response.data.url);
+      console.log('response.data', response.data);
+      return response.data.secure_url; //ok
+    } catch (error) {
+      console.error(
+        'Error uploading avatar image to Cloudinary',
+        error.response ? error.response.data : error.message
+      );
+      throw new Error('Upload avatar image to Cloudinary failed');
+    }
+  };
+
+  // const handleChangeAvatarImage = async () => {
+  //   if (imageAvatar.length === 0) {
+  //     toast.error(
+  //       'Cập nhật ảnh đại diện không thành công. Hãy chọn 1 bức ảnh đại diện mà bạn muốn thay đổi 😿.'
+  //     );
+  //     return;
+  //   }
+  //   if (imageAvatar.length > 1) {
+  //     toast.error(
+  //       'Cập nhật ảnh đại diện không thành công. Bạn chỉ có thể chọn 1 bức ảnh duy nhất 😿.'
+  //     );
+  //     return;
+  //   }
+  //   if (location.pathname === '/profile') {
+  //     try {
+  //       // Tải ảnh lên Cloudinary
+  //       const imageUrls = await Promise.all(
+  //         imageAvatar.map(async (file) => {
+  //           const url = await uploadAvatarImageToCloudinary(file);
+  //           return url;
+  //         })
+  //       );
+
+  //       const postData = {
+  //         user_id: currentUserInfor.user_id,
+  //         images_only_one: JSON.stringify(imageUrls), // Chuyển mảng ảnh thành chuỗi JSON
+  //       };
+
+  //       // await axios.post(`${apiBaseUrl}/posts/createpost`, postData, {
+  //       //   headers: {
+  //       //     'Content-Type': 'application/json',
+  //       //   },
+  //       // });
+
+  //       // setPostModal(false);
+  //       // textareaRef.current.value = '';
+  //       // setHasPostContent(false);
+  //       // getAllPostsExceptMe();
+  //       // getAllMyPosts();
+  //       // setImageUrlsList([]);
+  //       // setImages([]);
+  //       // const lastestPost = await getLastestPostCreatedByMe(currentUserInfor);
+  //       toast.success('Cập nhật ảnh đại diện thành công 😸!');
+  //     } catch (error) {
+  //       console.error('Error updating avatar image', error);
+  //       setPostModal(false);
+  //       toast.error(
+  //         'Cập nhật ảnh đại diện không thành công. Vui lòng thử lại 😿.'
+  //       );
+  //     }
+  //   }
+  // };
+
   //Deleting post
   const handleFinallyRemovePost = async () => {
     try {
@@ -1341,6 +1444,7 @@ export const Common = ({ children }) => {
         handleClickPostNew,
         handleClickOutsideNavBar,
         handleClickAddImageIcon,
+        handleClickAddAvatarImageIcon,
         handleFileChange,
         handleFileOfCommentChange,
         postModal,
@@ -1555,6 +1659,18 @@ export const Common = ({ children }) => {
         frontendUrl,
         postsResult,
         setPostsResult,
+        imageAvatar,
+        setImageAvatar,
+        handleFileAvatarImageChange,
+        previewImageAvatar,
+        setPreViewImageAvater,
+        openOptionsAvatarImageModal,
+        setOpenOptionsAvatarImageModal,
+        uploadAvatarImageToCloudinary,
+        openViewAvatarImage,
+        setOpenViewAvatarImage,
+        myImageAvatarRef,
+        imageAvatarChosenUserProfileRef,
         // notify,
       }}
     >

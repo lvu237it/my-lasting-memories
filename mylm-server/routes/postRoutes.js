@@ -45,6 +45,8 @@ router.get(
 router.get('/:postid/images', postController.getAllImagesByPostId);
 // router.post('/uploadimages', postController.uploadImages);
 router.post('/bycontent', postController.getPostsByContent);
+router.post('/bycontent-only-admin', postController.getPostsByContentOnlyAdmin);
+
 router.get(
   '/:postid',
   postController.checkPostIsExist,

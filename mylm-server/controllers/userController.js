@@ -156,8 +156,12 @@ exports.findUserById = async (user_id) => {
 
 exports.updateUserInformation = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
-  const { username, nickname, biography } = req.body;
-
+  const { username, nickname, biography, images_only_one } = req.body;
+  // const { user_id,  } = req.body;
+  let imageArray;
+  if (images_only_one) {
+    imageArray = JSON.parse(images_only_one);
+  }
   let executeString = 'UPDATE users SET ';
   const params = [];
   let paramIndex = 1; // Biến này sẽ theo dõi chỉ số placeholder
@@ -179,6 +183,12 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
     paramIndex++;
   }
 
+  if (images_only_one) {
+    executeString += `avatar_path = $${paramIndex}, `;
+    params.push(imageArray[0]);
+    paramIndex++;
+  }
+
   // Kiểm tra nếu không có cột nào để cập nhật
   if (params.length === 0) {
     return next(new AppError('No valid fields to update', 400));
@@ -195,5 +205,24 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Update user information successfully!',
+  });
+});
+
+exports.deleteAvatar = catchAsync(async (req, res, next) => {
+  const post_id = req.post_id; //post_id là giá trị được tạo trực tiếp trong quá trình chạy, không phải đối tượng {}
+  //Not need to check if post_id is exist because using getPostById before
+
+  const currentDateTime = moment()
+    .tz('Asia/Ho_Chi_Minh')
+    .format('YYYY-MM-DD HH:mm:ss');
+
+  await poolExecute(
+    'UPDATE posts SET is_deleted = $1, deletedat = $2, updated_at = $3 where post_id = $4',
+    [1, currentDateTime, currentDateTime, post_id]
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: 'delete post successfully!',
   });
 });

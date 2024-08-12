@@ -320,9 +320,7 @@ function ViewPostDetails() {
                       </div>
                     )}
                   </div>
-                  {from === '/' ||
-                  (from === '/search' &&
-                    currentUserInfor.user_id !== chosenPost.user_id) ? (
+                  {currentUserInfor.user_id !== chosenPost.user_id ? (
                     ''
                   ) : (
                     <div>
@@ -465,8 +463,18 @@ function ViewPostDetails() {
               <img
                 onClick={getUserInformationOfChosenUserProfileByChosenPost} //Lấy thông tin của author của bài viết chosenPost để xem profile
                 src={
-                  (chosenPost && getAuthorAvatarByUserId(chosenPost.user_id)) ||
-                  './user-avatar-default.png'
+                  chosenPost &&
+                  getAuthorAvatarByUserId(chosenPost.user_id).includes(
+                    'https://res.cloudinary.com'
+                  )
+                    ? 'https://res.cloudinary.com' +
+                      (
+                        chosenPost &&
+                        getAuthorAvatarByUserId(chosenPost.user_id)
+                      ).split('https://res.cloudinary.com')[1]
+                    : (chosenPost &&
+                        getAuthorAvatarByUserId(chosenPost.user_id)) ||
+                      './user-avatar-default.png'
                 }
                 alt=''
                 className='cursor-pointer my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'

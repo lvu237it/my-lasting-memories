@@ -216,14 +216,30 @@ function Search() {
 
   const handleSearchPostsByContent = async () => {
     if (searchContent.trim().length > 0) {
-      try {
-        const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
-          content: searchContent,
-        });
-        setPostsResult(response.data);
-      } catch (error) {
-        console.log('Error finding post', error);
-        setPostsResult([]);
+      if (currentUserInfor) {
+        try {
+          const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
+            content: searchContent,
+          });
+          setPostsResult(response.data);
+        } catch (error) {
+          console.log('Error finding post', error);
+          setPostsResult([]);
+        }
+      } else {
+        //Search mà không đăng nhập => Chỉ search được bài đăng public của admin
+        try {
+          const response = await axios.post(
+            `${apiBaseUrl}/posts/bycontent-only-admin`,
+            {
+              content: searchContent,
+            }
+          );
+          setPostsResult(response.data);
+        } catch (error) {
+          console.log('Error finding post', error);
+          setPostsResult([]);
+        }
       }
     } else {
       setPostsResult([]);
@@ -324,8 +340,15 @@ function Search() {
                         <div className='image-avatar absolute top-0 left-0'>
                           <img
                             src={
-                              getAuthorAvatarByUserId(post.user_id) ||
-                              './user-avatar-default.png'
+                              getAuthorAvatarByUserId(post.user_id).includes(
+                                'https://res.cloudinary.com'
+                              )
+                                ? 'https://res.cloudinary.com' +
+                                  getAuthorAvatarByUserId(post.user_id).split(
+                                    'https://res.cloudinary.com'
+                                  )[1]
+                                : getAuthorAvatarByUserId(post.user_id) ||
+                                  './user-avatar-default.png'
                             }
                             alt=''
                             className='rounded-full w-12 h-12'

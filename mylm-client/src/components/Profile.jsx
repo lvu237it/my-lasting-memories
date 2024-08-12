@@ -13,7 +13,7 @@ import {
 } from 'react-icons/bi';
 import { FaChevronRight } from 'react-icons/fa';
 import { AiOutlineComment } from 'react-icons/ai';
-
+import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MyOwnPosts from './MyOwnPosts';
 import AllPostsOfOtherUser from './AllPostsOfOtherUser';
@@ -154,6 +154,12 @@ function Profile() {
     getPostById,
     frontendUrl,
     setHeaderIconsClicked,
+    imageAvatar,
+    setImageAvatar,
+    openViewAvatarImage,
+    setOpenViewAvatarImage,
+    myImageAvatarRef,
+    imageAvatarChosenUserProfileRef,
   } = useCommon();
   const navigate = useNavigate();
 
@@ -213,16 +219,20 @@ function Profile() {
                 </div>
                 <div className='avatar-infor shrink-0'>
                   <img
-                    onClick={() =>
-                      window.alert(
-                        'Chức năng này đang trong quá trình triển khai. Chờ nha 😸!'
-                      )
-                    }
+                    onClick={() => setOpenViewAvatarImage(true)}
+                    ref={imageAvatarChosenUserProfileRef}
                     src={
                       chosenUserProfile
                         ? handleImagePathForAvatar(
                             chosenUserProfile?.avatar_path
-                          ) || './user-avatar-default.png'
+                          ).includes('https://res.cloudinary.com')
+                          ? 'https://res.cloudinary.com' +
+                            handleImagePathForAvatar(
+                              chosenUserProfile?.avatar_path
+                            ).split('https://res.cloudinary.com')[1]
+                          : handleImagePathForAvatar(
+                              chosenUserProfile?.avatar_path
+                            ) || './user-avatar-default.png'
                         : adminInfor?.avatar_path
                     }
                     alt='avatar-infor'
@@ -261,15 +271,19 @@ function Profile() {
                 </div>
                 <div className='avatar-infor shrink-0'>
                   <img
-                    onClick={() =>
-                      window.alert(
-                        'Chức năng này đang trong quá trình triển khai. Chờ nha 😸!'
-                      )
-                    }
+                    onClick={() => setOpenViewAvatarImage(true)}
+                    ref={myImageAvatarRef}
                     src={
                       currentUserInfor
-                        ? currentUserInfor?.avatar_path ||
-                          './user-avatar-default.png'
+                        ? currentUserInfor?.avatar_path.includes(
+                            'https://res.cloudinary.com'
+                          )
+                          ? 'https://res.cloudinary.com' +
+                            currentUserInfor?.avatar_path.split(
+                              'https://res.cloudinary.com'
+                            )[1]
+                          : currentUserInfor?.avatar_path ||
+                            './user-avatar-default.png'
                         : adminInfor?.avatar_path
                     }
                     alt='avatar-infor'

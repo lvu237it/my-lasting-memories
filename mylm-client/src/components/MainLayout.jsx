@@ -21,6 +21,7 @@ import {
   BiLogOut,
   BiLogIn,
   BiX,
+  BiPlusCircle,
 } from 'react-icons/bi';
 import { AiFillBell, AiFillHome, AiOutlineLogin } from 'react-icons/ai';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
@@ -46,6 +47,7 @@ const MainLayout = () => {
     handleClickPostNew,
     handleClickOutsideNavBar,
     handleClickAddImageIcon,
+    handleClickAddAvatarImageIcon,
     handleClickAddCommentImageIcon,
     handleFileChange,
     handleFileOfCommentChange,
@@ -210,6 +212,18 @@ const MainLayout = () => {
     setSearchContent,
     postsResult,
     setPostsResult,
+    handleFileAvatarImageChange,
+    previewImageAvatar,
+    setPreViewImageAvater,
+    imageAvatar,
+    setImageAvatar,
+    openOptionsAvatarImageModal,
+    setOpenOptionsAvatarImageModal,
+    uploadAvatarImageToCloudinary,
+    openViewAvatarImage,
+    setOpenViewAvatarImage,
+    myImageAvatarRef,
+    imageAvatarChosenUserProfileRef,
   } = useCommon();
 
   const navigate = useNavigate();
@@ -220,6 +234,9 @@ const MainLayout = () => {
   const biographyEditableRef = useRef(null);
   const usernameEditableRef = useRef(null);
   const nicknameEditableRef = useRef(null);
+  const optionsAvatarImageModalRef = useRef(null);
+  const imageAvatarViewingRef = useRef(null);
+  const imageAvatarChosenRef = useRef(null);
 
   const [usernameForUpdate, setUsernameForUpdate] = useState('');
   const [usernameBeforeUpdate, setUsernameBeforeUpdate] = useState('');
@@ -242,6 +259,15 @@ const MainLayout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('exceptional');
     navigate('/login');
+  };
+
+  const handleClickOutsideOptionAvatarImageModal = (e) => {
+    if (
+      optionsAvatarImageModalRef.current &&
+      !optionsAvatarImageModalRef.current.contains(e.target)
+    ) {
+      setOpenOptionsAvatarImageModal(false);
+    }
   };
 
   //Lấy thông tin admin để hiển thị mặc định ở trang home - trang chính thức
@@ -304,6 +330,16 @@ const MainLayout = () => {
     }
   };
 
+  const handleChangeNewImage = (event) => {
+    setOpenOptionsAvatarImageModal(!openOptionsAvatarImageModal);
+  };
+
+  const handleRemoveCurrentAvatarImageIcon = () => {
+    setImageAvatar([]);
+    setPreViewImageAvater([]);
+    imageAvatarChosenRef.current.src = './user-avatar-default.png';
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -314,6 +350,11 @@ const MainLayout = () => {
       setPostsResult([]);
     }
   }, [location.pathname, navigate]);
+
+  useEffect(() => {
+    console.log('zz', previewImageAvatar);
+    console.log('imageAvatar', imageAvatar);
+  }, [previewImageAvatar, imageAvatar]);
 
   useEffect(() => {
     //Set user information before
@@ -462,6 +503,19 @@ const MainLayout = () => {
     document.addEventListener('mousedown', handleClickOutsideNavBar);
     return () => {
       document.removeEventListener('mousedown', handleClickOutsideNavBar);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener(
+      'mousedown',
+      handleClickOutsideOptionAvatarImageModal
+    );
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideOptionAvatarImageModal
+      );
     };
   }, []);
 
@@ -690,7 +744,14 @@ const MainLayout = () => {
     const htmlPage = document.getElementsByTagName('html')[0];
     const body = document.getElementsByTagName('body')[0];
     const stickyHeader = document.getElementById('sticky-header');
-    if (postModal || openAddCommentModal || openDeleteCommentModal) {
+    if (
+      postModal ||
+      openAddCommentModal ||
+      openDeleteCommentModal ||
+      openViewAvatarImage ||
+      openViewImageModal ||
+      openViewImageCommentModal
+    ) {
       stickyHeader.classList.remove('z-10');
       htmlPage.classList.add('no-scroll');
       body.classList.add('no-scroll');
@@ -699,7 +760,14 @@ const MainLayout = () => {
       htmlPage.classList.remove('no-scroll');
       body.classList.remove('no-scroll');
     }
-  }, [postModal, openAddCommentModal, openDeleteCommentModal]);
+  }, [
+    postModal,
+    openAddCommentModal,
+    openDeleteCommentModal,
+    openViewAvatarImage,
+    openViewImageModal,
+    openViewImageCommentModal,
+  ]);
 
   // Handle modals and z-index
   useEffect(() => {
@@ -841,6 +909,9 @@ const MainLayout = () => {
     ) {
       setOpenCommentOptionsModal(false);
     }
+    // else if(){
+    //   commentOptionsModalRef.current && !commentOptionsModalRef.current.contains(event.target)
+    // }
   };
 
   //Click outside of editing user information modal
@@ -859,6 +930,8 @@ const MainLayout = () => {
   };
 
   const handleFinallyCancelEditingUserInformation = () => {
+    setImageAvatar([]);
+    setPreViewImageAvater([]);
     setOpenWarningCancelEditingUserInformation(false);
     setOpenEditUserInformationModal(false);
   };
@@ -872,19 +945,18 @@ const MainLayout = () => {
   };
 
   const handleUpdateUserInformation = async () => {
-    console.log('nickanemforupae', nicknameForUpdate.trim().length);
-    console.log('biographyForUpdate', biographyForUpdate.trim().length);
     let nicknameFinal;
     let biographyFinal;
-    if (nicknameForUpdate.trim().length === 0) {
+    if (nicknameEditableRef.current.innerText.trim().length === 0) {
       nicknameFinal = null;
     } else {
-      nicknameFinal = nicknameForUpdate;
+      nicknameFinal = nicknameEditableRef.current.innerText;
     }
-    if (biographyForUpdate.trim().length === 0) {
+
+    if (biographyEditableRef.current.innerText.trim().length === 0) {
       biographyFinal = null;
     } else {
-      biographyFinal = biographyForUpdate;
+      biographyFinal = biographyEditableRef.current.innerText;
     }
     try {
       const username = usernameEditableRef.current.innerText.trim();
@@ -894,21 +966,49 @@ const MainLayout = () => {
         (username !== null && username !== '') ||
         usernameForUpdate.trim().length !== 0
       ) {
-        await axios.patch(
-          `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
-          {
-            username: usernameForUpdate || usernameBeforeUpdate || username,
-            nickname: nicknameFinal,
-            biography: biographyFinal,
-          }
-        );
-        toast.success(
-          'Cập nhật thông tin thành công 😺! Đang trở về trang chủ để cập nhật thông tin mới...'
-        );
-        setOpenEditUserInformationModal(false);
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+        if (imageAvatar.length > 0) {
+          console.log('Cập nhật ảnh');
+          // Tải ảnh lên Cloudinary
+          const imageUrls = await Promise.all(
+            imageAvatar.map(async (file) => {
+              const url = await uploadAvatarImageToCloudinary(file);
+              return url;
+            })
+          );
+          await axios.patch(
+            `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
+            {
+              username: usernameForUpdate || usernameBeforeUpdate || username,
+              nickname: nicknameFinal,
+              biography: biographyFinal,
+              images_only_one: JSON.stringify(imageUrls),
+            }
+          );
+          toast.success(
+            'Cập nhật thông tin thành công 😺! Đang trở về trang chủ để cập nhật thông tin mới...'
+          );
+          setOpenEditUserInformationModal(false);
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          console.log('Không Cập nhật ảnh');
+          await axios.patch(
+            `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
+            {
+              username: usernameForUpdate || usernameBeforeUpdate || username,
+              nickname: nicknameFinal,
+              biography: biographyFinal,
+            }
+          );
+          toast.success(
+            'Cập nhật thông tin thành công 😺! Đang trở về trang chủ để cập nhật thông tin mới...'
+          );
+          setOpenEditUserInformationModal(false);
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        }
       } else {
         toast.error('Tên của bạn không được để trống 😿.');
       }
@@ -917,6 +1017,25 @@ const MainLayout = () => {
       toast.error('Cập nhật không thành công. Vui lòng thử lại 😿.');
     }
   };
+
+  const handleClickOutsideViewAvatarImage = (event) => {
+    if (
+      imageAvatarViewingRef.current &&
+      !imageAvatarViewingRef.current.contains(event.target)
+    ) {
+      setOpenViewAvatarImage(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutsideViewAvatarImage);
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutsideViewAvatarImage
+      );
+    };
+  }, []);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutsideOptionsModal);
@@ -997,18 +1116,57 @@ const MainLayout = () => {
                       {currentUserInfor && currentUserInfor.username}
                     </div>
                   </div>
-                  <div className='absolute top-0 right-0 avatar shrink-0'>
+
+                  <div className='cursor-pointer absolute top-0 right-0 avatar shrink-0'>
+                    {currentUserInfor && !currentUserInfor.avatar_path && (
+                      <div className='absolute top-0 right-0 z-10 bg-white rounded-full'>
+                        <BiPlusCircle />
+                      </div>
+                    )}
                     <img
                       className='w-12 h-12 rounded-full bg-no-repeat bg-center object-cover'
+                      onClick={(e) => handleChangeNewImage(e)}
+                      ref={imageAvatarChosenRef}
                       src={
-                        (currentUserInfor && currentUserInfor?.avatar_path) ||
-                        './user-avatar-default.png'
+                        previewImageAvatar && previewImageAvatar.length > 0
+                          ? previewImageAvatar[0]
+                          : (currentUserInfor &&
+                              currentUserInfor?.avatar_path) ||
+                            './user-avatar-default.png'
                       }
                       alt='my-avatar'
                     />
                   </div>
+                  <input
+                    id='bi-attachment-add-avatar-image'
+                    hidden
+                    accept='image/jpeg,image/png'
+                    type='file'
+                    onChange={(e) => handleFileAvatarImageChange(e)}
+                  />
+                  {openOptionsAvatarImageModal && (
+                    <div
+                      ref={optionsAvatarImageModalRef}
+                      className='absolute duration-300 ease-in-out top-[3.5rem] right-0 w-[165px] h-full'
+                    >
+                      <div className='bg-white rounded-2xl border border-slate-300 p-2 shadow-sm'>
+                        <div
+                          onClick={handleClickAddAvatarImageIcon}
+                          className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
+                        >
+                          Tải ảnh lên
+                        </div>
+                        <div
+                          onClick={handleRemoveCurrentAvatarImageIcon}
+                          className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
+                        >
+                          Xoá ảnh hiện tại
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <hr className='my-3' />
+                <hr className='my-3 w-[85%]' />
                 <div className='my-nickname'>
                   <div className='font-bold'>Biệt danh</div>
                   <div
@@ -1046,6 +1204,31 @@ const MainLayout = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Viewing avatar image of an user */}
+      {openViewAvatarImage && (
+        <>
+          <div
+            style={{ display: 'flex' }}
+            className='fixed z-[1001] top-0 left-0 w-full h-full bg-slate-500 bg-opacity-75 flex items-center justify-center'
+          >
+            <div ref={imageAvatarViewingRef} className='rounded-full'>
+              <img
+                src={
+                  myImageAvatarRef && myImageAvatarRef.current
+                    ? myImageAvatarRef.current.src
+                    : imageAvatarChosenUserProfileRef &&
+                      imageAvatarChosenUserProfileRef.current
+                    ? imageAvatarChosenUserProfileRef.current.src
+                    : './user-avatar-default.png'
+                }
+                alt=''
+                className='rounded-full w-[250px] h-[250px] sm2:w-[500px] sm2:h-[500px] mx-auto bg-center bg-no-repeat bg-cover object-cover'
+              />
+            </div>
+          </div>
+        </>
       )}
 
       {/* Modal warning for canceling edit user information */}
