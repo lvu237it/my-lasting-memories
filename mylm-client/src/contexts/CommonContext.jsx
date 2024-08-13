@@ -416,26 +416,80 @@ export const Common = ({ children }) => {
   };
 
   const handleSortImagesPath = (localUrlImages) => {
-    // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
-    let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
-      // Tách phần đầu của tên ảnh (timestamp)
-      const timestamp = urlImageObject.attacheditem_path
-        .split('-')[0]
-        .split('/')[3];
-      return { ...urlImageObject, timestamp };
-    });
+    if (
+      //Nếu 1 phần tử của images array nằm trên cloud thì chắc chắn các image còn lại đi kèm trong post này cũng vậy
+      localUrlImages &&
+      localUrlImages[0]?.attacheditem_path.includes(
+        'https://res.cloudinary.com'
+      ) &&
+      !localUrlImages[0]?.attacheditem_path.includes('_') //Các ảnh chưa được đánh index _1, _2, _3
+    ) {
+      // Tạo mảng các đối tượng chứa attacheditem_path và timestamp
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Lấy timestamp từ URL Cloudinary
+        const timestamp = urlImageObject.attacheditem_path.match(/v(\d+)\//)[1];
+        return { ...urlImageObject, timestamp };
+      });
 
-    // Sắp xếp theo timestamp
-    imagePathsWithTimestamps.sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp)
-    );
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort(
+        (a, b) => Number(a.timestamp) - Number(b.timestamp)
+      );
 
-    // Trả về localUrlImages đã được sắp xếp
-    return imagePathsWithTimestamps.map((item) => ({
-      attacheditem_path: item.attacheditem_path,
-      // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
-      // Ví dụ: attached_items_id: item.attached_items_id, ...
-    }));
+      // Trả về localUrlImages đã được sắp xếp
+      return imagePathsWithTimestamps.map((item) => ({
+        attacheditem_path: item.attacheditem_path,
+        // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+        // Ví dụ: attached_items_id: item.attached_items_id, ...
+      }));
+    } else if (
+      localUrlImages &&
+      localUrlImages[0]?.attacheditem_path.includes(
+        'https://res.cloudinary.com'
+      ) &&
+      localUrlImages[0]?.attacheditem_path.includes('_')
+    ) {
+      // Tạo mảng các đối tượng chứa attacheditem_path và timestamp
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Lấy timestamp từ URL Cloudinary
+        const timestamp = urlImageObject.attacheditem_path
+          .split('_')[1]
+          .split('.')[0];
+        return { ...urlImageObject, timestamp };
+      });
+
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort(
+        (a, b) => Number(a.timestamp) - Number(b.timestamp)
+      );
+
+      return imagePathsWithTimestamps.map((item) => ({
+        attacheditem_path: item.attacheditem_path,
+        // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+        // Ví dụ: attached_items_id: item.attached_items_id, ...
+      }));
+    } else {
+      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Tách phần đầu của tên ảnh (timestamp)
+        const timestamp = urlImageObject.attacheditem_path
+          .split('-')[0]
+          .split('/')[3];
+        return { ...urlImageObject, timestamp };
+      });
+
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort((a, b) =>
+        a.timestamp.localeCompare(b.timestamp)
+      );
+
+      // Trả về localUrlImages đã được sắp xếp
+      return imagePathsWithTimestamps.map((item) => ({
+        attacheditem_path: item.attacheditem_path,
+        // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+        // Ví dụ: attached_items_id: item.attached_items_id, ...
+      }));
+    }
   };
 
   const handleSortImagesCommentPath = (comments) => {
@@ -443,66 +497,205 @@ export const Common = ({ children }) => {
 
     // Lặp qua từng comment
     return comments.map((comment) => {
-      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
-      let imagePathsWithTimestamps = comment.attached_items.map(
-        (urlImageObject) => {
-          // Tách phần đầu của tên ảnh (timestamp)
-          const timestamp = urlImageObject.attacheditem_comment_path
-            .split('-')[0]
-            .split('/')[3];
-          return { ...urlImageObject, timestamp };
-        }
+      if (
+        //Nếu 1 phần tử của images array nằm trên cloud thì chắc chắn các image còn lại đi kèm trong post này cũng vậy
+        comment &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes(
+          'https://res.cloudinary.com'
+        ) &&
+        !comment.attached_items[0]?.attacheditem_comment_path?.includes('_') //Các ảnh chưa được đánh index _1, _2, _3
+      ) {
+        // Tạo mảng các đối tượng chứa attacheditem_path và timestamp
+        let imagePathsWithTimestamps = comment?.attached_items.map(
+          (urlImageObject) => {
+            // Lấy timestamp từ URL Cloudinary
+            const timestamp =
+              urlImageObject.attacheditem_comment_path.match(/v(\d+)\//)[1];
+            return { ...urlImageObject, timestamp };
+          }
+        );
+
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort(
+          (a, b) => Number(a.timestamp) - Number(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+            // Ví dụ: attached_items_id: item.attached_items_id, ...
+          })),
+        };
+      } else if (
+        comments &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes(
+          'https://res.cloudinary.com'
+        ) &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes('_')
+      ) {
+        // Tạo mảng các đối tượng chứa attacheditem_comment_path và timestamp
+        let imagePathsWithTimestamps = comment?.attached_items.map(
+          (urlImageObject) => {
+            // Lấy timestamp từ URL Cloudinary
+            const timestamp = urlImageObject.attacheditem_comment_path
+              .split('_')[1]
+              .split('.')[0];
+            return { ...urlImageObject, timestamp };
+          }
+        );
+
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort(
+          (a, b) => Number(a.timestamp) - Number(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+            // Ví dụ: attached_items_id: item.attached_items_id, ...
+          })),
+        };
+      } else {
+        // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+        let imagePathsWithTimestamps = comment.attached_items.map(
+          (urlImageObject) => {
+            // Tách phần đầu của tên ảnh (timestamp)
+            const timestamp = urlImageObject.attacheditem_comment_path
+              .split('-')[0]
+              .split('/')[3];
+            return { ...urlImageObject, timestamp };
+          }
+        );
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort((a, b) =>
+          a.timestamp.localeCompare(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+            // Ví dụ: attached_items_id: item.attached_items_id, ...
+          })),
+        };
+      }
+    });
+  };
+
+  const handleSortImages = (localUrlImages) => {
+    // "https://res.cloudinary.com/dgzkbbqjx/image/upload/v1723331539/kyuigsmmyqj0dux0ayh4.jpg"
+    //Trường hợp ảnh upload lên cloudinary
+    if (
+      //Nếu 1 phần tử của images array nằm trên cloud thì chắc chắn các image còn lại đi kèm trong post này cũng vậy
+      localUrlImages &&
+      localUrlImages[0]?.attacheditem_path.includes(
+        'https://res.cloudinary.com'
+      ) &&
+      !localUrlImages[0]?.attacheditem_path.includes('_') //Các ảnh chưa được đánh index _1, _2, _3
+    ) {
+      // Tạo mảng các đối tượng chứa attacheditem_path và timestamp
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Lấy timestamp từ URL Cloudinary
+        const timestamp = urlImageObject.attacheditem_path.match(/v(\d+)\//)[1];
+        return { ...urlImageObject, timestamp };
+      });
+
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort(
+        (a, b) => Number(a.timestamp) - Number(b.timestamp)
       );
+
+      // Trả về localUrlImages đã được sắp xếp
+      return imagePathsWithTimestamps.map((item) => ({
+        attached_items_id: item.attached_items_id,
+        attacheditem_path: item.attacheditem_path,
+        attacheditem_type: item.attacheditem_type,
+        content: item.content,
+        created_at: item.created_at,
+        deleteat: item.deleteat,
+        is_deleted: item.is_deleted,
+        post_id: item.post_id,
+        updated_at: item.updated_at,
+        user_id: item.user_id,
+        access_range: item.access_range,
+      }));
+    } else if (
+      localUrlImages &&
+      localUrlImages[0]?.attacheditem_path.includes(
+        'https://res.cloudinary.com'
+      ) &&
+      localUrlImages[0]?.attacheditem_path.includes('_')
+    ) {
+      // Tạo mảng các đối tượng chứa attacheditem_path và timestamp
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Lấy timestamp từ URL Cloudinary
+        const timestamp = urlImageObject.attacheditem_path
+          .split('_')[1]
+          .split('.')[0];
+        return { ...urlImageObject, timestamp };
+      });
+
+      // Sắp xếp theo timestamp
+      imagePathsWithTimestamps.sort(
+        (a, b) => Number(a.timestamp) - Number(b.timestamp)
+      );
+
+      return imagePathsWithTimestamps.map((item) => ({
+        attached_items_id: item.attached_items_id,
+        attacheditem_path: item.attacheditem_path,
+        attacheditem_type: item.attacheditem_type,
+        content: item.content,
+        created_at: item.created_at,
+        deleteat: item.deleteat,
+        is_deleted: item.is_deleted,
+        post_id: item.post_id,
+        updated_at: item.updated_at,
+        user_id: item.user_id,
+        access_range: item.access_range,
+      }));
+    } else {
+      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+      let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
+        // Tách phần đầu của tên ảnh (timestamp)
+        const timestamp = urlImageObject.attacheditem_path
+          .split('-')[0]
+          .split('/')[3];
+        return { ...urlImageObject, timestamp };
+      });
+
       // Sắp xếp theo timestamp
       imagePathsWithTimestamps.sort((a, b) =>
         a.timestamp.localeCompare(b.timestamp)
       );
 
-      // Cập nhật attached_items đã được sắp xếp trong comment
-      return {
-        ...comment,
-        attached_items: imagePathsWithTimestamps.map((item) => ({
-          attached_items_comment_id: item.attached_items_comment_id,
-          attacheditem_comment_path: item.attacheditem_comment_path,
-          // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
-          // Ví dụ: attached_items_id: item.attached_items_id, ...
-        })),
-      };
-    });
-  };
-
-  const handleSortImages = (localUrlImages) => {
-    // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
-    let imagePathsWithTimestamps = localUrlImages.map((urlImageObject) => {
-      // Tách phần đầu của tên ảnh (timestamp)
-      const timestamp = urlImageObject.attacheditem_path
-        .split('-')[0]
-        .split('/')[3];
-      return { ...urlImageObject, timestamp };
-    });
-
-    // Sắp xếp theo timestamp
-    imagePathsWithTimestamps.sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp)
-    );
-
-    // Trả về localUrlImages đã được sắp xếp
-    return imagePathsWithTimestamps.map((item) => ({
-      attached_items_id: item.attached_items_id,
-      attacheditem_path: item.attacheditem_path,
-      attacheditem_type: item.attacheditem_type,
-      content: item.content,
-      created_at: item.created_at,
-      deleteat: item.deleteat,
-      is_deleted: item.is_deleted,
-      post_id: item.post_id,
-      updated_at: item.updated_at,
-      user_id: item.user_id,
-      access_range: item.access_range,
-      // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
-      // Ví dụ: attached_items_id: item.attached_items_id, ...
-    }));
-    // return imagePathsWithTimestamps.map((item) => item.urlImageObject);
+      // Trả về localUrlImages đã được sắp xếp
+      return imagePathsWithTimestamps.map((item) => ({
+        attached_items_id: item.attached_items_id,
+        attacheditem_path: item.attacheditem_path,
+        attacheditem_type: item.attacheditem_type,
+        content: item.content,
+        created_at: item.created_at,
+        deleteat: item.deleteat,
+        is_deleted: item.is_deleted,
+        post_id: item.post_id,
+        updated_at: item.updated_at,
+        user_id: item.user_id,
+        access_range: item.access_range,
+        // Nếu bạn cần giữ lại các thuộc tính khác, có thể thêm chúng vào đây
+        // Ví dụ: attached_items_id: item.attached_items_id, ...
+      }));
+    }
   };
 
   const handleSortImagesComment = (comments) => {
@@ -510,31 +703,106 @@ export const Common = ({ children }) => {
 
     // Lặp qua từng comment
     return comments.map((comment) => {
-      // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
-      let imagePathsWithTimestamps = comment.attached_items.map(
-        (urlImageObject) => {
-          // Tách phần đầu của tên ảnh (timestamp)
-          const timestamp = urlImageObject.attacheditem_comment_path
-            .split('-')[0]
-            .split('/')[3];
-          return { ...urlImageObject, timestamp };
-        }
-      );
+      // Kiểm tra xem phần tử đầu tiên có từ Cloudinary không
+      // console.log('comments', comment);
+      // console.log(
+      //   'comments test',
+      //   comment.attached_items[0]?.attacheditem_comment_path
+      // );
 
-      // Sắp xếp theo timestamp
-      imagePathsWithTimestamps.sort((a, b) =>
-        a.timestamp.localeCompare(b.timestamp)
-      );
+      if (
+        comment &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes(
+          'https://res.cloudinary.com'
+        ) &&
+        !comment.attached_items[0]?.attacheditem_comment_path?.includes('_')
+      ) {
+        console.log('okok case1');
+        // Tạo mảng các đối tượng chứa attacheditem_comment_path và timestamp
+        let imagePathsWithTimestamps = comment?.attached_items.map(
+          (urlImageObject) => {
+            // Lấy timestamp từ URL Cloudinary
+            const timestamp =
+              urlImageObject.attacheditem_comment_path.match(/v(\d+)\//)[1];
+            return { ...urlImageObject, timestamp };
+          }
+        );
 
-      // Cập nhật attached_items đã được sắp xếp trong comment
-      return {
-        ...comment,
-        attached_items: imagePathsWithTimestamps.map((item) => ({
-          attached_items_comment_id: item.attached_items_comment_id,
-          attacheditem_comment_path: item.attacheditem_comment_path,
-          comment_id: comment.comment_id, // Thêm comment_id vào đối tượng returned
-        })),
-      };
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort(
+          (a, b) => parseInt(a.timestamp) - parseInt(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            comment_id: comment.comment_id, // Thêm comment_id vào đối tượng returned
+          })),
+        };
+      } else if (
+        comment &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes(
+          'https://res.cloudinary.com'
+        ) &&
+        comment.attached_items[0]?.attacheditem_comment_path?.includes('_')
+      ) {
+        console.log('okok case2');
+        // Tạo mảng các đối tượng chứa attacheditem_comment_path và timestamp
+        let imagePathsWithTimestamps = comment?.attached_items.map(
+          (urlImageObject) => {
+            // Lấy timestamp từ URL Cloudinary
+            const timestamp = urlImageObject.attacheditem_comment_path
+              .split('_')[1]
+              .split('.')[0];
+            return { ...urlImageObject, timestamp };
+          }
+        );
+
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort(
+          (a, b) => Number(a.timestamp) - Number(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            comment_id: comment.comment_id, // Thêm comment_id vào đối tượng returned
+          })),
+        };
+      } else {
+        console.log('okok case3');
+        // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
+        let imagePathsWithTimestamps = comment?.attached_items.map(
+          (urlImageObject) => {
+            // Tách phần đầu của tên ảnh (timestamp)
+            const timestamp = urlImageObject.attacheditem_comment_path
+              .split('-')[0]
+              .split('/')[3];
+            return { ...urlImageObject, timestamp };
+          }
+        );
+
+        // Sắp xếp theo timestamp
+        imagePathsWithTimestamps.sort((a, b) =>
+          a.timestamp.localeCompare(b.timestamp)
+        );
+
+        // Cập nhật attached_items đã được sắp xếp trong comment
+        return {
+          ...comment,
+          attached_items: imagePathsWithTimestamps.map((item) => ({
+            attached_items_comment_id: item.attached_items_comment_id,
+            attacheditem_comment_path: item.attacheditem_comment_path,
+            comment_id: comment.comment_id, // Thêm comment_id vào đối tượng returned
+          })),
+        };
+      }
     });
   };
 
@@ -1116,7 +1384,9 @@ export const Common = ({ children }) => {
     formData.append('file', file);
     formData.append('upload_preset', 'my_lasting_memories_2307_images'); // Thay đổi với upload_preset của bạn
     // formData.append('folder', 'images'); // Thay đổi với upload_preset của bạn
-
+    const publicId = `${file.name}_${indexCountUploadPostImage++}`;
+    formData.append('public_id', publicId); // Đặt tên file với thứ tự
+    console.log('public_id', publicId); // Đặt tên file với thứ tự
     try {
       const response = await axios.post(url, formData, {
         headers: {
@@ -1134,6 +1404,9 @@ export const Common = ({ children }) => {
     }
   };
 
+  let indexCountUploadPostImage = 0;
+  let indexCountUploadCommentImage = 0;
+
   const uploadImageCommentsToCloudinary = async (file) => {
     // https://api.cloudinary.com/v1_1/demo/image/upload
     const url = 'https://api.cloudinary.com/v1_1/dgzkbbqjx/image/upload';
@@ -1144,6 +1417,9 @@ export const Common = ({ children }) => {
       'upload_preset',
       'my_lasting_memories_2307_comments_images'
     );
+    const publicId = `${file.name}_${indexCountUploadCommentImage++}`;
+    formData.append('public_id', publicId); // Đặt tên file với thứ tự
+    console.log('public_id', publicId); // Đặt tên file với thứ tự
     try {
       const response = await axios.post(url, formData, {
         headers: {
@@ -1203,6 +1479,7 @@ export const Common = ({ children }) => {
       setPostModal(false);
       textareaRef.current.value = '';
       setHasPostContent(false);
+      setPostContent('');
       getAllPostsExceptMe();
       getAllMyPosts();
       setImageUrlsList([]);
@@ -1248,6 +1525,7 @@ export const Common = ({ children }) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'my_lasting_memories_2307_avatarimages');
+
     try {
       const response = await axios.post(url, formData, {
         headers: {
@@ -1414,6 +1692,7 @@ export const Common = ({ children }) => {
         setOpenAddCommentModal(false);
         textareaCommentRef.current.value = '';
         setHasPostCommentContent(false);
+        setCommentContent('');
         toast.success('Bình luận thành công 😸!');
         getCommentsByPostId(post);
         getImageUrlsCommentByPostId(post);
