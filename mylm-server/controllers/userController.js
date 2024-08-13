@@ -156,7 +156,13 @@ exports.findUserById = async (user_id) => {
 
 exports.updateUserInformation = catchAsync(async (req, res, next) => {
   const { userid } = req.params;
-  const { username, nickname, biography, images_only_one } = req.body;
+  const {
+    username,
+    nickname,
+    biography,
+    images_only_one,
+    avatar_default_path,
+  } = req.body;
   // const { user_id,  } = req.body;
   let imageArray;
   if (images_only_one) {
@@ -186,6 +192,12 @@ exports.updateUserInformation = catchAsync(async (req, res, next) => {
   if (images_only_one) {
     executeString += `avatar_path = $${paramIndex}, `;
     params.push(imageArray[0]);
+    paramIndex++;
+  }
+
+  if (avatar_default_path) {
+    executeString += `avatar_path = $${paramIndex}, `;
+    params.push(avatar_default_path);
     paramIndex++;
   }
 

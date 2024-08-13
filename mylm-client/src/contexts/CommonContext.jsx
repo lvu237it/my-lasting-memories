@@ -375,6 +375,7 @@ export const Common = ({ children }) => {
   //Add Image for avatar
   const handleClickAddAvatarImageIcon = () => {
     const fileInput = document.getElementById('bi-attachment-add-avatar-image');
+    setOpenOptionsAvatarImageModal(false);
     fileInput.click();
   };
 

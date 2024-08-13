@@ -335,8 +335,9 @@ const MainLayout = () => {
   };
 
   const handleRemoveCurrentAvatarImageIcon = () => {
-    setImageAvatar([]);
+    setImageAvatar(null);
     setPreViewImageAvater([]);
+    setOpenOptionsAvatarImageModal(false);
     imageAvatarChosenRef.current.src = './user-avatar-default.png';
   };
 
@@ -350,11 +351,6 @@ const MainLayout = () => {
       setPostsResult([]);
     }
   }, [location.pathname, navigate]);
-
-  useEffect(() => {
-    console.log('zz', previewImageAvatar);
-    console.log('imageAvatar', imageAvatar);
-  }, [previewImageAvatar, imageAvatar]);
 
   useEffect(() => {
     //Set user information before
@@ -966,7 +962,7 @@ const MainLayout = () => {
         (username !== null && username !== '') ||
         usernameForUpdate.trim().length !== 0
       ) {
-        if (imageAvatar.length > 0) {
+        if (imageAvatar && imageAvatar.length > 0) {
           console.log('Cập nhật ảnh');
           // Tải ảnh lên Cloudinary
           const imageUrls = await Promise.all(
@@ -991,7 +987,7 @@ const MainLayout = () => {
           setTimeout(() => {
             window.location.href = '/';
           }, 2000);
-        } else {
+        } else if (imageAvatar && imageAvatar.length === 0) {
           console.log('Không Cập nhật ảnh');
           await axios.patch(
             `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
@@ -999,6 +995,24 @@ const MainLayout = () => {
               username: usernameForUpdate || usernameBeforeUpdate || username,
               nickname: nicknameFinal,
               biography: biographyFinal,
+            }
+          );
+          toast.success(
+            'Cập nhật thông tin thành công 😺! Đang trở về trang chủ để cập nhật thông tin mới...'
+          );
+          setOpenEditUserInformationModal(false);
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          console.log('Xoá ảnh đại diện hiện tại');
+          await axios.patch(
+            `${apiBaseUrl}/users/update-user-information/${currentUserInfor.user_id}`,
+            {
+              username: usernameForUpdate || usernameBeforeUpdate || username,
+              nickname: nicknameFinal,
+              biography: biographyFinal,
+              avatar_default_path: './user-avatar-default.png',
             }
           );
           toast.success(

@@ -583,15 +583,8 @@ exports.deleteSavedPost = catchAsync(async (req, res, next) => {
     .format('YYYY-MM-DD HH:mm:ss');
 
   await poolExecute(
-    'UPDATE saved_posts SET is_deleted = $1, deletedat = $2, updated_at = $3 where post_id = $4 and saver_user_id = $5 and author_user_id = $6 and is_deleted = 0',
-    [
-      1,
-      currentDateTime,
-      currentDateTime,
-      post_id,
-      saver_user_id,
-      author_user_id,
-    ]
+    'UPDATE saved_posts SET is_deleted = $1, deletedat = $2 where post_id = $3 and saver_user_id = $4 and author_user_id = $5 and is_deleted = 0',
+    [1, currentDateTime, post_id, saver_user_id, author_user_id]
   );
 
   res.status(200).json({
