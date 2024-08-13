@@ -1422,7 +1422,7 @@ const MainLayout = () => {
                           {/* Display images before uploading to database */}
                           <div
                             ref={scrollContainerPostCommonRef}
-                            className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
+                            className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%] mb-2'
                             onMouseDown={(e) => handleSwipePostCommonImage(e)}
                             onDragStart={(e) => e.preventDefault()}
                           >
@@ -1439,7 +1439,7 @@ const MainLayout = () => {
                           <textarea
                             ref={textareaCommentRef}
                             onChange={(e) => handleClickPostNewComment(e)}
-                            className='w-full tracking-wide sm:w-[95%] h-[40vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                            className='w-full tracking-wide sm:w-[95%] h-[150px] leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                             name=''
                             id='post-comment-content-details'
                             placeholder='Viết ý kiến của bạn...'
@@ -1694,7 +1694,7 @@ const MainLayout = () => {
                         {/* Display images before uploading to database */}
                         <div
                           ref={scrollContainerPostCommonRef}
-                          className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%]'
+                          className='vulv-uploaded-images vulv-scrollbar-hide flex flex-row gap-2 overflow-x-auto w-full sm:w-[95%] mb-2'
                           onMouseDown={(e) => handleSwipePostCommonImage(e)}
                           onDragStart={(e) => e.preventDefault()}
                         >
@@ -1711,7 +1711,7 @@ const MainLayout = () => {
                         <textarea
                           ref={textareaRef}
                           onChange={(e) => handleClickPostNew(e)}
-                          className='w-full tracking-wide sm:w-[95%] h-[40vh] sm2:h-52 leading-loose break-words whitespace-pre-wrap outline-none resize-none'
+                          className='w-full tracking-wide sm:w-[95%] h-[150px] leading-loose break-words whitespace-pre-wrap outline-none resize-none'
                           name=''
                           id='post-content-details'
                           placeholder='Viết ra những suy nghĩ của bạn...'
