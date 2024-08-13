@@ -76,16 +76,6 @@ function SavedPosts() {
     <>
       <div className='wrapper my-3 relative'>
         <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
-          <div className='grid mb-2'>
-            <div className='col-start-11 col-span-1 text-right'>
-              <button className='font-semibold px-5 py-3 my-auto border-slate-400 hover:bg-slate-100 duration-300 ease-in-out rounded-xl shadow shadow-slate-300'>
-                <div className='flex items-center justify-center gap-2'>
-                  <div className=''>Thứ tự</div>
-                  <BiFilter className='text-2xl' />
-                </div>
-              </button>
-            </div>
-          </div>
           {/* List of saved post */}
           <div className='list-of-saved-posts'>
             {mySavedPostList &&

@@ -336,9 +336,9 @@ const MainLayout = () => {
 
   const handleRemoveCurrentAvatarImageIcon = () => {
     setImageAvatar(null);
-    setPreViewImageAvater([]);
+    setPreViewImageAvater(['./user-avatar-default.png']);
     setOpenOptionsAvatarImageModal(false);
-    imageAvatarChosenRef.current.src = './user-avatar-default.png';
+    // imageAvatarChosenRef.current.src = './user-avatar-default.png';
   };
 
   useEffect(() => {
@@ -1084,8 +1084,6 @@ const MainLayout = () => {
     };
   }, []);
 
-  // openEditUserInformationModal;
-
   return (
     <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
       {/* Edit user information */}
@@ -1164,18 +1162,31 @@ const MainLayout = () => {
                       className='absolute duration-300 ease-in-out top-[3.5rem] right-0 w-[165px] h-full'
                     >
                       <div className='bg-white rounded-2xl border border-slate-300 p-2 shadow-sm'>
-                        <div
-                          onClick={handleClickAddAvatarImageIcon}
-                          className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
-                        >
-                          Tải ảnh lên
-                        </div>
-                        <div
-                          onClick={handleRemoveCurrentAvatarImageIcon}
-                          className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
-                        >
-                          Xoá ảnh hiện tại
-                        </div>
+                        {previewImageAvatar &&
+                        previewImageAvatar[0] ===
+                          './user-avatar-default.png' ? (
+                          <div
+                            onClick={handleClickAddAvatarImageIcon}
+                            className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
+                          >
+                            Tải ảnh lên
+                          </div>
+                        ) : (
+                          <>
+                            <div
+                              onClick={handleClickAddAvatarImageIcon}
+                              className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
+                            >
+                              Tải ảnh lên
+                            </div>
+                            <div
+                              onClick={handleRemoveCurrentAvatarImageIcon}
+                              className='font-semibold cursor-pointer hover:bg-slate-100 px-2 py-2 rounded-md'
+                            >
+                              Xoá ảnh hiện tại
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
