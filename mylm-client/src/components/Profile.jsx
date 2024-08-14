@@ -275,11 +275,11 @@ function Profile() {
                     ref={myImageAvatarRef}
                     src={
                       currentUserInfor
-                        ? currentUserInfor?.avatar_path.includes(
+                        ? currentUserInfor?.avatar_path?.includes(
                             'https://res.cloudinary.com'
                           )
                           ? 'https://res.cloudinary.com' +
-                            currentUserInfor?.avatar_path.split(
+                            currentUserInfor?.avatar_path?.split(
                               'https://res.cloudinary.com'
                             )[1]
                           : currentUserInfor?.avatar_path ||

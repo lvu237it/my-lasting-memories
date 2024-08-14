@@ -1130,11 +1130,14 @@ const MainLayout = () => {
                   </div>
 
                   <div className='cursor-pointer absolute top-0 right-0 avatar shrink-0'>
-                    {currentUserInfor && !currentUserInfor.avatar_path && (
-                      <div className='absolute top-0 right-0 z-10 bg-white rounded-full'>
-                        <BiPlusCircle />
-                      </div>
-                    )}
+                    {/* {currentUserInfor && !currentUserInfor.avatar_path && (
+                      // <div
+                      //   onClick={(e) => handleChangeNewImage(e)}
+                      //   className='absolute top-0 right-0 z-10 bg-white rounded-full'
+                      // >
+                      //   <BiPlusCircle />
+                      // </div>
+                    )} */}
                     <img
                       className='w-12 h-12 rounded-full bg-no-repeat bg-center object-cover'
                       onClick={(e) => handleChangeNewImage(e)}
