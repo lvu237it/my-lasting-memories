@@ -245,12 +245,14 @@ const MainLayout = () => {
   const [biographyForUpdate, setBiographyForUpdate] = useState('');
   const [biographyBeforeUpdate, setBiographyBeforeUpdate] = useState('');
 
+  const [openConfirmLogout, setOpenConfirmLogout] = useState(false);
+
   const [
     openWarningCancelEditingUserInformation,
     setOpenWarningCancelEditingUserInformation,
   ] = useState(false);
 
-  const handleLogOut = () => {
+  const handleFinallyLogout = () => {
     setPostsList([]);
     setCurrentUserInfor(null);
     setAllMyPosts([]);
@@ -297,14 +299,26 @@ const MainLayout = () => {
         console.log('Error when getting data', err);
       }
 
-      try {
-        // Lấy các bài viết ngoại trừ của người dùng hiện tại
-        const postsResponse = await axios.get(
-          `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
-        );
-        setPostsList(postsResponse.data);
-      } catch (err) {
-        console.log('Error when getting data', err);
+      if (currentLoggedIn.role === 'admin' || currentLoggedIn.role === 'user') {
+        try {
+          // Lấy các bài viết ngoại trừ của người dùng hiện tại
+          const postsResponse = await axios.get(
+            `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
+          );
+          setPostsList(postsResponse.data);
+        } catch (err) {
+          console.log('Error when getting data', err);
+        }
+      } else {
+        try {
+          // Lấy các bài viết ngoại trừ của người dùng hiện tại
+          const postsResponse = await axios.get(
+            `${apiBaseUrl}/posts/get-except-me-and-admin/${currentLoggedIn.user_id}`
+          );
+          setPostsList(postsResponse.data);
+        } catch (err) {
+          console.log('Error when getting data', err);
+        }
       }
 
       try {
@@ -1086,6 +1100,41 @@ const MainLayout = () => {
 
   return (
     <div className='container w-full md:w-[95%] max-w-screen-xl mx-auto relative'>
+      {/*  */}
+      {openConfirmLogout && (
+        <div
+          style={{ display: 'flex' }}
+          className='fixed z-[1001] top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center'
+        >
+          <div className='w-full h-full flex sm2:justify-center sm2:items-center'>
+            <div id='confirm-logout-modal' className='relative z-20'>
+              <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
+                <div className='font-semibold text-center mb-4 mt-2'>
+                  Bạn có chắc chắn muốn đăng xuất?
+                </div>
+                <hr className='' />
+                <div className='grid grid-cols-2 text-center divide-x-2 -mb-2'>
+                  <div
+                    id='continue-remaining-login-session'
+                    onClick={() => setOpenConfirmLogout(false)}
+                    className='col-span-1 cursor-pointer p-2'
+                  >
+                    Không
+                  </div>
+                  <div
+                    onClick={handleFinallyLogout}
+                    id='finally-logout'
+                    className='col-span-1 font-bold tracking-wide p-2 text-red-500 cursor-pointer'
+                  >
+                    Đăng xuất
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit user information */}
       {openEditUserInformationModal && (
         <div
@@ -1522,7 +1571,7 @@ const MainLayout = () => {
           className='z-[1000] flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 duration-300 ease-in-out border border-slate-300 shadow shadow-slate-200 fixed left-3 bottom-4 xl:bottom-9 xl:left-14 cursor-pointer'
         >
           <div
-            onClick={handleLogOut}
+            onClick={() => setOpenConfirmLogout(true)}
             className='text-xl p-2 sm2:text-2xl sm2:p-3'
             title='Đăng xuất'
           >

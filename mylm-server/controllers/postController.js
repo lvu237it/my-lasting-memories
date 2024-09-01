@@ -46,10 +46,34 @@ const uploadToCloudinary = (fileBuffer, postId) => {
 };
 
 //Get existed posts (EXCEPT deleted posts)
-exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
+exports.getAllPostsOfAdminPublic = catchAsync(async (req, res, next) => {
   const rows = await poolQuery(
     'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 and posts.access_range = $2 ORDER BY posts.created_at DESC',
     ['admin', 'public']
+  );
+
+  if (!rows) {
+    return next(new AppError('No posts found', 404));
+  }
+
+  //Test API using Postman
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: rows.length,
+  //   data: {
+  //     data: rows,
+  //   },
+  // });
+
+  //Response to client
+  res.status(200).json(rows);
+});
+
+//Get all posts of admin (private and public)
+exports.getAllPostsOfAdmin = catchAsync(async (req, res, next) => {
+  const rows = await poolQuery(
+    'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
+    ['admin']
   );
 
   if (!rows) {
@@ -116,6 +140,47 @@ exports.getAllPostsOfChosenUserProfile = catchAsync(async (req, res, next) => {
   //Response to client
   res.status(200).json(rows);
 });
+
+exports.getAllPostsOfAdminAndExceptCurrentLoggedInUser = catchAsync(
+  async (req, res, next) => {
+    const { userid } = req.params;
+    //posts except me
+    const rows = await poolQuery(
+      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and posts.user_id != $1 and posts.access_range = $2 ORDER BY posts.created_at DESC',
+      [userid, 'public']
+    );
+
+    //posts of admin
+    const rows2 = await poolQuery(
+      'SELECT posts.post_id, posts.content, posts.created_at, posts.updated_at, posts.is_deleted, posts.deletedat, posts.user_id, posts.access_range, users.username, users.nickname, users.biography, users.email, users.role, users.avatar_path FROM posts join users on posts.user_id = users.user_id WHERE posts.is_deleted = 0 and users.role = $1 ORDER BY posts.created_at DESC',
+      ['admin']
+    );
+
+    const combinedRows = [...rows, ...rows2];
+    const seen = new Set();
+    const uniqueCombinedRows = combinedRows.filter((row) => {
+      const duplicate = seen.has(row.post_id);
+      seen.add(row.post_id);
+      return !duplicate;
+    });
+
+    if (!uniqueCombinedRows) {
+      return next(new AppError('No posts except me and admin found', 404));
+    }
+
+    //Test API using Postman
+    // res.status(200).json({
+    //   status: 'success',
+    //   results: rows.length,
+    //   data: {
+    //     data: rows,
+    //   },
+    // });
+
+    //Response to client
+    res.status(200).json(uniqueCombinedRows);
+  }
+);
 
 exports.getAllPostsExceptCurrentLoggedInUser = catchAsync(
   async (req, res, next) => {
@@ -288,6 +353,51 @@ exports.getPostsByContent = catchAsync(async (req, res, next) => {
   //Response to client
   res.status(200).json(rows);
 });
+
+exports.getPostsByContentAndAllOfAdminPosts = catchAsync(
+  async (req, res, next) => {
+    let { content } = req.body;
+    let searchContent;
+    if (content) {
+      searchContent = `%${content}%`;
+    }
+
+    const rows = await poolQuery(
+      'SELECT * FROM posts WHERE content ILIKE $1 AND is_deleted = 0 and access_range = $2 ORDER BY created_at DESC',
+      [searchContent, 'public']
+    );
+
+    const rows2 = await poolQuery(
+      'SELECT posts.* FROM posts join users on posts.user_id = users.user_id WHERE content ILIKE $1 AND is_deleted = 0 AND users.role = $2 ORDER BY created_at DESC',
+      [searchContent, 'admin']
+    );
+
+    const combinedRows = [...rows, ...rows2];
+
+    const uniqueCombinedRows = combinedRows.reduce((acc, current) => {
+      if (!acc.some((row) => row.post_id === current.post_id)) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+
+    if (!uniqueCombinedRows || uniqueCombinedRows.length === 0) {
+      return next(new AppError('No post found', 404));
+    }
+
+    //Test API using Postman
+    // res.status(200).json({
+    //   status: 'success',
+    //   results: rows.length,
+    //   data: {
+    //     data: rows,
+    //   },
+    // });
+
+    //Response to client
+    res.status(200).json(uniqueCombinedRows);
+  }
+);
 
 exports.getPostsByContentOnlyAdmin = catchAsync(async (req, res, next) => {
   let { content } = req.body;

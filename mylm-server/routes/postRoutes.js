@@ -4,7 +4,8 @@ const postController = require('../controllers/postController');
 const userController = require('../controllers/userController');
 
 //general router: /posts/
-router.get('/admin', postController.getAllPostsOfAdmin);
+router.get('/admin', postController.getAllPostsOfAdminPublic);
+router.get('/admin/all-posts', postController.getAllPostsOfAdmin);
 
 router.get(
   '/all-posts-of-chosen-user/:userid',
@@ -22,6 +23,12 @@ router.get(
   '/except-me/:userid',
   userController.checkUserIsExistById,
   postController.getAllPostsExceptCurrentLoggedInUser
+);
+
+router.get(
+  '/get-except-me-and-admin/:userid',
+  userController.checkUserIsExistById,
+  postController.getAllPostsOfAdminAndExceptCurrentLoggedInUser
 );
 
 router.get(
@@ -45,6 +52,10 @@ router.get(
 router.get('/:postid/images', postController.getAllImagesByPostId);
 // router.post('/uploadimages', postController.uploadImages);
 router.post('/bycontent', postController.getPostsByContent);
+router.post(
+  '/bycontent/all-and-admin-posts',
+  postController.getPostsByContentAndAllOfAdminPosts
+);
 router.post('/bycontent-only-admin', postController.getPostsByContentOnlyAdmin);
 
 router.get(

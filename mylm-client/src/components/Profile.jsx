@@ -236,7 +236,7 @@ function Profile() {
                         : adminInfor?.avatar_path
                     }
                     alt='avatar-infor'
-                    className='cursor-pointer w-[80px] h-[80px] rounded-full bg-cover bg-no-repeat bg-center'
+                    className='cursor-pointer w-[80px] h-[80px] rounded-full object-cover bg-no-repeat bg-center'
                   />
                 </div>
               </div>
@@ -287,7 +287,7 @@ function Profile() {
                         : adminInfor?.avatar_path
                     }
                     alt='avatar-infor'
-                    className='cursor-pointer w-[80px] h-[80px] rounded-full bg-cover bg-no-repeat bg-center'
+                    className='cursor-pointer w-[80px] h-[80px] rounded-full object-cover bg-no-repeat bg-center'
                   />
                 </div>
               </div>

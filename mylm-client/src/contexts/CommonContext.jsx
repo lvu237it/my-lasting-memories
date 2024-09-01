@@ -704,11 +704,6 @@ export const Common = ({ children }) => {
     // Lặp qua từng comment
     return comments.map((comment) => {
       // Kiểm tra xem phần tử đầu tiên có từ Cloudinary không
-      // console.log('comments', comment);
-      // console.log(
-      //   'comments test',
-      //   comment.attached_items[0]?.attacheditem_comment_path
-      // );
 
       if (
         comment &&
@@ -717,7 +712,6 @@ export const Common = ({ children }) => {
         ) &&
         !comment.attached_items[0]?.attacheditem_comment_path?.includes('_')
       ) {
-        console.log('okok case1');
         // Tạo mảng các đối tượng chứa attacheditem_comment_path và timestamp
         let imagePathsWithTimestamps = comment?.attached_items.map(
           (urlImageObject) => {
@@ -749,7 +743,6 @@ export const Common = ({ children }) => {
         ) &&
         comment.attached_items[0]?.attacheditem_comment_path?.includes('_')
       ) {
-        console.log('okok case2');
         // Tạo mảng các đối tượng chứa attacheditem_comment_path và timestamp
         let imagePathsWithTimestamps = comment?.attached_items.map(
           (urlImageObject) => {
@@ -776,7 +769,6 @@ export const Common = ({ children }) => {
           })),
         };
       } else {
-        console.log('okok case3');
         // Tạo mảng các đối tượng chứa attacheditem_path và phần đầu của tên ảnh
         let imagePathsWithTimestamps = comment?.attached_items.map(
           (urlImageObject) => {
@@ -1235,15 +1227,25 @@ export const Common = ({ children }) => {
 
   const getAllPostsExceptMe = async () => {
     try {
-      //Nếu đăng nhập thì lấy post của mọi người trừ của currentRole
       const currentInfor =
         JSON.parse(localStorage.getItem('admin')) ||
-        JSON.parse(localStorage.getItem('user')) ||
-        JSON.parse(localStorage.getItem('exceptional'));
-      const response = await axios.get(
-        `${apiBaseUrl}/posts/except-me/${currentInfor.user_id}`
+        JSON.parse(localStorage.getItem('user'));
+      const currentInforException = JSON.parse(
+        localStorage.getItem('exceptional')
       );
-      setPostsList(response.data);
+      if (currentInfor) {
+        //admin || user
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/except-me/${currentInfor.user_id}`
+        );
+        setPostsList(response.data);
+      } else if (currentInforException) {
+        //exception
+        const response = await axios.get(
+          `${apiBaseUrl}/posts/get-except-me-and-admin/${currentInforException.user_id}`
+        );
+        setPostsList(response.data);
+      }
     } catch (error) {
       console.error('Error getting all posts except me', error);
     }
@@ -1298,13 +1300,34 @@ export const Common = ({ children }) => {
 
   const getAllPostsOfChosenUserProfile = async () => {
     if (chosenUserProfile) {
-      try {
-        const response = await axios.get(
-          `${apiBaseUrl}/posts/all-posts-of-chosen-user/${chosenUserProfile.user_id}`
-        );
-        setAllChosenUserProfilePosts(response.data);
-      } catch (error) {
-        console.error('Error getting all posts of chosen user profile', error);
+      if (
+        currentLoggedIn.role === 'exceptional' &&
+        chosenUserProfile.role === 'admin'
+      ) {
+        //Trường hợp exception xem của admin
+        try {
+          const response = await axios.get(
+            `${apiBaseUrl}/posts/admin/all-posts`
+          );
+          setAllChosenUserProfilePosts(response.data);
+        } catch (error) {
+          console.error(
+            'Error getting all posts of chosen user profile - admin, viewing by exception',
+            error
+          );
+        }
+      } else {
+        try {
+          const response = await axios.get(
+            `${apiBaseUrl}/posts/all-posts-of-chosen-user/${chosenUserProfile.user_id}`
+          );
+          setAllChosenUserProfilePosts(response.data);
+        } catch (error) {
+          console.error(
+            'Error getting all posts of chosen user profile',
+            error
+          );
+        }
       }
     }
   };
@@ -1326,11 +1349,19 @@ export const Common = ({ children }) => {
       );
       setCurrentUserInfor(userResponse.data[0]);
 
-      // Lấy các bài viết ngoại trừ của người dùng hiện tại
-      const postsResponse = await axios.get(
-        `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
-      );
-      setPostsList(postsResponse.data);
+      if (currentLoggedIn.role === 'exceptional') {
+        // Lấy các bài viết ngoại trừ của người dùng hiện tại và lấy cả của admin
+        const postsResponse = await axios.get(
+          `${apiBaseUrl}/posts/get-except-me-and-admin/${currentLoggedIn.user_id}`
+        );
+        setPostsList(postsResponse.data);
+      } else {
+        // Lấy các bài viết ngoại trừ của người dùng hiện tại
+        const postsResponse = await axios.get(
+          `${apiBaseUrl}/posts/except-me/${currentLoggedIn.user_id}`
+        );
+        setPostsList(postsResponse.data);
+      }
     } catch (err) {
       console.log('Error when getting data', err);
     }

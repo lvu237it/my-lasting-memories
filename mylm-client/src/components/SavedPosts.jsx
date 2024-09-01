@@ -78,7 +78,7 @@ function SavedPosts() {
         <div className=' sm2:border-slate-300 sm2:rounded-3xl sm2:shadow sm2:shadow-gray-400 sm2:px-10 sm2:py-5 md:px-20 mx-3 md:mx-10 lg:mx-14 md:py-10 my-5 '>
           {/* List of saved post */}
           <div className='list-of-saved-posts'>
-            {mySavedPostList &&
+            {mySavedPostList.length > 0 ? (
               mySavedPostList.map((post, index) =>
                 index === 0 ? (
                   <div
@@ -175,7 +175,12 @@ function SavedPosts() {
                     </div>
                   </div>
                 )
-              )}
+              )
+            ) : (
+              <div className='text-center text-lg font-semibold'>
+                Bạn chưa lưu bài viết nào
+              </div>
+            )}
           </div>
         </div>
       </div>

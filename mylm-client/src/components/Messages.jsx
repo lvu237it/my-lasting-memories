@@ -57,7 +57,7 @@ function Messages() {
                       : adminInfor?.avatar_path
                   }
                   alt=''
-                  className='rounded-full w-12 h-12'
+                  className='rounded-full object-cover bg-center bg-no-repeat w-12 h-12'
                 />
               </div>
               <div className='result-content absolute top-0 left-16 w-[80%] sm2:w-[88%]'>

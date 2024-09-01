@@ -217,14 +217,35 @@ function Search() {
   const handleSearchPostsByContent = async () => {
     if (searchContent.trim().length > 0) {
       if (currentUserInfor) {
-        try {
-          const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
-            content: searchContent,
-          });
-          setPostsResult(response.data);
-        } catch (error) {
-          console.log('Error finding post', error);
-          setPostsResult([]);
+        //Search khi đăng nhập
+        if (
+          currentUserInfor.role === 'admin' ||
+          currentUserInfor.role === 'user'
+        ) {
+          //Đăng nhập dưới quyền admin hoặc user
+          try {
+            const response = await axios.post(`${apiBaseUrl}/posts/bycontent`, {
+              content: searchContent,
+            });
+            setPostsResult(response.data);
+          } catch (error) {
+            console.log('Error finding post ', error);
+            setPostsResult([]);
+          }
+        } else {
+          //Đăng nhập dưới quyền exception
+          try {
+            const response = await axios.post(
+              `${apiBaseUrl}/posts/bycontent/all-and-admin-posts`,
+              {
+                content: searchContent,
+              }
+            );
+            setPostsResult(response.data);
+          } catch (error) {
+            console.log('Error finding post', error);
+            setPostsResult([]);
+          }
         }
       } else {
         //Search mà không đăng nhập => Chỉ search được bài đăng public của admin

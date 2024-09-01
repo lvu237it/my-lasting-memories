@@ -167,7 +167,7 @@ function MyOwnPosts() {
                       : adminInfor?.avatar_path
                   } //Thông tin của người đăng nhập hiện tại
                   alt=''
-                  className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                  className='my-avatar basis-1/7 w-10 h-10 sm2:w-[50px] sm2:h-[50px] my-auto rounded-full object-cover bg-no-repeat bg-center'
                 />
                 <input
                   className='post-input basis-[80%] hidden sm2:block tracking-wide'
@@ -224,7 +224,7 @@ function MyOwnPosts() {
                             './user-avatar-default.png'
                       }
                       alt=''
-                      className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                      className='rounded-full object-cover w-10 h-10 sm2:w-12 sm2:h-12'
                     />
                   </div>
                   <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>
@@ -269,7 +269,7 @@ function MyOwnPosts() {
                             './user-avatar-default.png'
                       }
                       alt=''
-                      className='rounded-full w-10 h-10 sm2:w-12 sm2:h-12'
+                      className='rounded-full object-cover w-10 h-10 sm2:w-12 sm2:h-12'
                     />
                   </div>
                   <div className='result-content absolute top-0 left-12 sm2:left-16 w-[80%] sm2:w-[88%]'>

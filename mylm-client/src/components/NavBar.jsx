@@ -6,7 +6,8 @@ function NavBar() {
   const { role, setRole, currentUserInfor, setCurrentUserInfor } = useCommon();
   const isExistLogin =
     JSON.parse(localStorage.getItem('admin')) ||
-    JSON.parse(localStorage.getItem('user'));
+    JSON.parse(localStorage.getItem('user')) ||
+    JSON.parse(localStorage.getItem('exceptional'));
 
   return (
     <nav className='navbar text-[17px]'>

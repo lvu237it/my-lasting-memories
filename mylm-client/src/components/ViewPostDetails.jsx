@@ -426,7 +426,7 @@ function ViewPostDetails() {
                   <div id='delete-post-modal' className='relative z-20'>
                     <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
                       <div className='mb-4'>
-                        <div className='font-semibold text-center mb-4'>
+                        <div className='font-semibold text-center mb-4 mt-2'>
                           Xoá bài đăng?
                         </div>
                         <div className='text-center mb-3'>
@@ -477,7 +477,7 @@ function ViewPostDetails() {
                       './user-avatar-default.png'
                 }
                 alt=''
-                className='cursor-pointer my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                className='cursor-pointer my-avatar absolute top-0 left-0 w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full object-cover bg-no-repeat bg-center'
               />
             </div>
             <div className='col-span-11 flex flex-col'>
@@ -553,7 +553,7 @@ function ViewPostDetails() {
                   <div className='w-full h-full flex justify-center items-center'>
                     <div id='cancel-deleting-modal' className='relative z-20'>
                       <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
-                        <div className='font-semibold text-center mb-4'>
+                        <div className='font-semibold text-center mb-4 mt-2'>
                           Huỷ bỏ thay đổi?
                         </div>
                         <hr className='' />
@@ -634,7 +634,7 @@ function ViewPostDetails() {
                       <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                         <div className='flex-shrink-0'>
                           <img
-                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full object-cover bg-no-repeat bg-center'
                             src={
                               usersList.find(
                                 (user) =>
@@ -677,7 +677,7 @@ function ViewPostDetails() {
                                 className='relative z-20'
                               >
                                 <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
-                                  <div className='font-semibold text-center mb-4'>
+                                  <div className='font-semibold text-center mb-4 mt-2'>
                                     Huỷ bỏ thay đổi?
                                   </div>
                                   <hr className='' />
@@ -756,7 +756,7 @@ function ViewPostDetails() {
                                         comment
                                       )
                                     }
-                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full object-cover bg-no-repeat bg-center'
                                     src={
                                       usersList.find(
                                         (user) =>
@@ -995,7 +995,7 @@ function ViewPostDetails() {
                       <div className='comments-by-post-id details-of-post-comments mt-5 flex gap-3'>
                         <div className='flex-shrink-0'>
                           <img
-                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                            className='comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full object-cover bg-no-repeat bg-center'
                             src={
                               usersList.find(
                                 (user) =>
@@ -1038,7 +1038,7 @@ function ViewPostDetails() {
                                 className='relative z-20'
                               >
                                 <div className=' bg-white w-[220px] sm2:w-[320px] rounded-2xl p-3'>
-                                  <div className='font-semibold text-center mb-4'>
+                                  <div className='font-semibold text-center mb-4 mt-2'>
                                     Huỷ bỏ thay đổi?
                                   </div>
                                   <hr className='' />
@@ -1117,7 +1117,7 @@ function ViewPostDetails() {
                                         comment
                                       )
                                     }
-                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full bg-cover bg-no-repeat bg-center'
+                                    className='cursor-pointer comment-owner w-10 h-10 sm2:w-12 sm2:h-12 my-auto rounded-full object-cover bg-no-repeat bg-center'
                                     src={
                                       usersList.find(
                                         (user) =>
