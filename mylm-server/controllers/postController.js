@@ -164,6 +164,11 @@ exports.getAllPostsOfAdminAndExceptCurrentLoggedInUser = catchAsync(
       return !duplicate;
     });
 
+    // Sắp xếp lại danh sách theo created_at giảm dần (mới nhất trước)
+    uniqueCombinedRows.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
     if (!uniqueCombinedRows) {
       return next(new AppError('No posts except me and admin found', 404));
     }
@@ -380,6 +385,11 @@ exports.getPostsByContentAndAllOfAdminPosts = catchAsync(
       }
       return acc;
     }, []);
+
+    // Sắp xếp lại danh sách theo created_at giảm dần (mới nhất trước)
+    uniqueCombinedRows.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
 
     if (!uniqueCombinedRows || uniqueCombinedRows.length === 0) {
       return next(new AppError('No post found', 404));
