@@ -184,7 +184,7 @@ export const Common = ({ children }) => {
   const navigate = useNavigate();
   const { from } = location.state || { from: '/' }; // Nếu không có thông tin from thì mặc định về trang chủ
 
-  // Đóng - mở comment tương ứng và build lại để chạy server frontend trên môi trường dev hoặc prod
+  // Đóng - mở comment tương ứng và build lại để chạy server frontend trên môi trường dev hoặc production
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
   const frontendUrl = import.meta.env.VITE_API_FRONTEND_URL;
