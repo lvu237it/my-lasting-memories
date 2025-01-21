@@ -1475,6 +1475,7 @@ export const Common = ({ children }) => {
   //Create post
   const handleCreatePost = async () => {
     console.log('images.length', images.length);
+    console.log('number chracter allow', numberCharactersAllowed);
     if (postContent.length > 100000) {
       toast.error(
         'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 100000 kí tự 😿.'
