@@ -186,6 +186,7 @@ export const Common = ({ children }) => {
 
   // Đóng - mở comment tương ứng và build lại để chạy server frontend trên môi trường dev hoặc production
   // const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_DEVELOPMENT;
+
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL_PRODUCTION;
   const frontendUrl = import.meta.env.VITE_API_FRONTEND_URL;
 
