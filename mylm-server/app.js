@@ -39,7 +39,10 @@ app.use(
 //Đây là một tính năng bảo mật của các trình duyệt để ngăn chặn các trang web khác nhau truy cập vào các tài nguyên của nhau mà không có sự cho phép.
 app.use(
   cors({
+    // Đóng và mở origin tương ứng và build lại - push lại để tự động build lên môi trường dev hoặc prod
+    // Development environment
     // origin: ['http://localhost:5173', 'http://localhost:3000'], // Frontend và Backend URLs
+    // Production environment
     origin: [
       'https://my-lasting-memories-2307.web.app', //- client
       'https://my-lasting-memories.vercel.app', //- server
@@ -114,8 +117,17 @@ app.use(xss());
 //   })
 // );
 
+// my - lasting - memories.vercel.app;
+
 // 2) ROUTING HANDLERS
 //Routing for each HTTP requests
+
+//available routes
+// my-lasting-memories.vercel.app/admin
+// my-lasting-memories.vercel.app/users
+// my-lasting-memories.vercel.app/posts
+// my-lasting-memories.vercel.app/comments
+
 //Admin
 app.use('/admin', adminRouter);
 //Users
