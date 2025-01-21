@@ -163,7 +163,7 @@ export const Common = ({ children }) => {
   const [selectedCommentRemoveEdit, setSelectedCommentRemoveEdit] =
     useState(null);
 
-  const numberCharactersAllowed = 10000;
+  const numberCharactersAllowed = 100000;
   const [redundantCharactersNumber, setRedundantCharactersNumber] = useState(0);
   const [
     redundantCommentCharactersNumber,
@@ -996,9 +996,9 @@ export const Common = ({ children }) => {
 
   //Editing post
   const handleEditingPost = async () => {
-    if (contentForUpdate.length > 10000) {
+    if (contentForUpdate.length > 100000) {
       toast.error(
-        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 10000 kí tự 😿.'
+        'Chỉnh sửa không thành công. Nội dung bài đăng không được vượt quá 100000 kí tự 😿.'
       );
     } else {
       try {
@@ -1063,9 +1063,9 @@ export const Common = ({ children }) => {
 
   //Editing comment
   const handleEditingComment = async () => {
-    if (commentForUpdate.length > 10000) {
+    if (commentForUpdate.length > 100000) {
       toast.error(
-        'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 10000 kí tự 😿.'
+        'Chỉnh sửa không thành công. Nội dung bình luận không được vượt quá 100000 kí tự 😿.'
       );
     } else {
       setIsEditingComment(true);
@@ -1475,9 +1475,9 @@ export const Common = ({ children }) => {
   //Create post
   const handleCreatePost = async () => {
     console.log('images.length', images.length);
-    if (postContent.length > 10000) {
+    if (postContent.length > 100000) {
       toast.error(
-        'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 10000 kí tự 😿.'
+        'Đăng bài không thành công. Nội dung bài đăng không được vượt quá 100000 kí tự 😿.'
       );
       return;
     }
@@ -1680,9 +1680,9 @@ export const Common = ({ children }) => {
   const handleCreateComment = async (post) => {
     console.log('imagesComment.length', imagesComment.length);
     console.log('commentContent', commentContent);
-    if (commentContent.length > 10000) {
+    if (commentContent.length > 100000) {
       toast.error(
-        'Bình luận không thành công. Nội dung bình luận không được vượt quá 10000 kí tự 😿.'
+        'Bình luận không thành công. Nội dung bình luận không được vượt quá 100000 kí tự 😿.'
       );
     } else if (imagesComment.length > 10) {
       toast.error('Bình luận không thành công. Tối đa không quá 10 ảnh 😿.');
